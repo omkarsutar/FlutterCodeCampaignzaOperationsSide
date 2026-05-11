@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/purchase_order_bill_controller.dart';
 
-class BillPoItemSummaryCard extends ConsumerWidget {
-  const BillPoItemSummaryCard({super.key});
+class BillCollaborationSummaryCard extends ConsumerWidget {
+  const BillCollaborationSummaryCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -11,7 +11,7 @@ import '../../cart/providers/cart_providers.dart';
 import '../../../../router/app_routes.dart';
 import '../providers/product_providers.dart';
 import '../model/product_model.dart';
-import '../../po_items/model/po_item_model.dart';
+import '../../collaborations/model/collaboration_model.dart';
 import '../../../../core/providers/localization_provider.dart';
 
 /// Product-specific View Page
@@ -206,7 +206,8 @@ class ProductViewPageRiverpod extends ConsumerWidget {
                         transformationController.value = Matrix4.identity();
                       } else {
                         // Zoom in on double tap
-                        transformationController.value = Matrix4.diagonal3Values(2.5, 2.5, 1.0);
+                        transformationController.value =
+                            Matrix4.diagonal3Values(2.5, 2.5, 1.0);
                       }
                     },
                     child: InteractiveViewer(
@@ -331,8 +332,8 @@ class ProductViewPageRiverpod extends ConsumerWidget {
               onPressed: () {
                 final cartNotifier = ref.read(cartProvider.notifier);
 
-                // Create a PO item from the product
-                final newItem = ModelPoItem(
+                // Create a Collaboration from the product
+                final newItem = ModelCollaboration(
                   productId: product.productId,
                   itemName: product.productName,
                   itemQty: 1.0, // Default quantity

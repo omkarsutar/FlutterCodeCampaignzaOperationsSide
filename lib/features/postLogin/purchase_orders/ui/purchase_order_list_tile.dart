@@ -4,7 +4,7 @@ import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.
 import 'package:flutter_supabase_order_app_mobile/core/utils/date_utils.dart';
 
 import '../../../../core/services/entity_service.dart';
-import '../../po_items/po_item_barrel.dart';
+import '../../collaborations/collaboration_barrel.dart';
 import '../model/purchase_order_model.dart';
 import '../providers/purchase_order_tile_logic.dart';
 import '../../cart/providers/cart_controller.dart';
@@ -15,7 +15,7 @@ class PurchaseOrderListTile extends ConsumerStatefulWidget {
   final ModelPurchaseOrder entity;
   final EntityAdapter<ModelPurchaseOrder> adapter;
   final VoidCallback? onTap;
-  final bool? poItemTile;
+  final bool? collaborationTile;
   final bool showShare;
   final void Function(String oldStatus, String newStatus)? onStatusChanged;
 
@@ -24,7 +24,7 @@ class PurchaseOrderListTile extends ConsumerStatefulWidget {
     required this.entity,
     required this.adapter,
     this.onTap,
-    this.poItemTile,
+    this.collaborationTile,
     this.showShare = false,
     this.onStatusChanged,
   });
@@ -83,7 +83,7 @@ class _PurchaseOrderListTileState extends ConsumerState<PurchaseOrderListTile> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.poItemTile != true) ...[
+              if (widget.collaborationTile != true) ...[
                 _buildHeader(theme, dateStr, status, canUpdate),
                 const SizedBox(height: 8),
               ],
@@ -106,13 +106,20 @@ class _PurchaseOrderListTileState extends ConsumerState<PurchaseOrderListTile> {
               _buildStatsRow(theme, itemCount),
               if (_isExpanded && widget.entity.poId != null) ...[
                 const SizedBox(height: 16),
-                PoItemSummaryList(poId: widget.entity.poId!, status: status),
+                CollaborationSummaryList(
+                  poId: widget.entity.poId!,
+                  status: status,
+                ),
               ],
               if (commentStr.isNotEmpty)
                 _buildComment(theme, 'User Comment', commentStr),
               if (adminCommentStr.isNotEmpty)
-                _buildComment(theme, 'Admin Comment', adminCommentStr,
-                    color: Colors.red.shade700),
+                _buildComment(
+                  theme,
+                  'Admin Comment',
+                  adminCommentStr,
+                  color: Colors.red.shade700,
+                ),
             ],
           ),
         ),
@@ -202,7 +209,12 @@ class _PurchaseOrderListTileState extends ConsumerState<PurchaseOrderListTile> {
     );
   }
 
-  Widget _buildComment(ThemeData theme, String title, String commentStr, {Color? color}) {
+  Widget _buildComment(
+    ThemeData theme,
+    String title,
+    String commentStr, {
+    Color? color,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: Text(

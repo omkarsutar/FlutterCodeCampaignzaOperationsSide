@@ -7,7 +7,7 @@ import 'cart_view_logic.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
 import '../../purchase_orders/purchase_order_barrel.dart';
-import '../../po_items/po_item_barrel.dart';
+import '../../collaborations/collaboration_barrel.dart';
 import '../../../../core/utils/dialogs.dart';
 import '../../../../core/providers/localization_provider.dart';
 import '../../shops/shop_barrel.dart';
@@ -17,7 +17,7 @@ final cartOrderServiceProvider = Provider(
   (ref) => CartOrderService(
     client: ref.watch(supabaseClientProvider),
     poService: ref.watch(purchaseOrderServiceProvider),
-    poItemService: ref.watch(poItemServiceProvider),
+    collaborationService: ref.watch(collaborationServiceProvider),
   ),
 );
 
@@ -234,7 +234,7 @@ class CartController {
       if (poId == null || poId.isEmpty) throw Exception('Invalid PO ID');
 
       final dbItems = await ref
-          .read(poItemServiceProvider)
+          .read(collaborationServiceProvider)
           .fetchEntitiesByPo(poId);
 
       if (context.mounted) {
@@ -242,7 +242,7 @@ class CartController {
         final dbItemCount = po.poLineItemCount ?? dbItems.length;
         final localItemCountInPo = cartState.itemCountInPo;
 
-        List<ModelPoItem> itemsToLoad;
+        List<ModelCollaboration> itemsToLoad;
 
         if (dbItemCount == 0) {
           // Incoming PO is in "Create Mode" (empty)

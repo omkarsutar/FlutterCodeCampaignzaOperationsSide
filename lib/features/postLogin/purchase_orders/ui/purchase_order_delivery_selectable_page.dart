@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../model/purchase_order_model.dart';
-import '../../po_items/providers/po_item_providers.dart';
+import '../../collaborations/providers/collaboration_providers.dart';
 
 class PurchaseOrderDeliverySelectablePage extends ConsumerWidget {
   final List<ModelPurchaseOrder> orders;
@@ -104,7 +104,9 @@ class PurchaseOrderDeliverySelectablePage extends ConsumerWidget {
       final sb = StringBuffer();
 
       // Fetch items directly from the provider
-      final items = await ref.read(poItemsByPoIdProvider(order.poId!).future);
+      final items = await ref.read(
+        collaborationsByPoIdProvider(order.poId!).future,
+      );
 
       for (final item in items) {
         final name = item.itemName ?? 'Unknown';
@@ -153,7 +155,7 @@ class _OrderItemsTable extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (orderId == null) return const Text('No Order ID');
 
-    final itemsAsync = ref.watch(poItemsByPoIdProvider(orderId!));
+    final itemsAsync = ref.watch(collaborationsByPoIdProvider(orderId!));
 
     return itemsAsync.when(
       data: (items) {

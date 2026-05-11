@@ -6,7 +6,7 @@ import '../providers/purchase_order_providers.dart';
 import '../providers/purchase_order_bill_logic.dart';
 import '../providers/purchase_order_bill_controller.dart';
 import 'widgets/bill_summary_card.dart';
-import 'widgets/bill_po_item_summary_card.dart';
+import 'widgets/bill_collaboration_summary_card.dart';
 import 'widgets/bill_order_selection_card.dart';
 
 class PurchaseOrderBillPage extends ConsumerWidget {
@@ -97,7 +97,7 @@ class PurchaseOrderBillPage extends ConsumerWidget {
                       ),
 
                       // Aggregated Items Summary
-                      const BillPoItemSummaryCard(),
+                      const BillCollaborationSummaryCard(),
 
                       // Heavy Orders Notification
                       if (billData.heavyOrdersCount > 0)

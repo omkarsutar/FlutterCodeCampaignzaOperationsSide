@@ -3,21 +3,26 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_barrel.dart';
 import 'package:go_router/go_router.dart';
-import '../model/po_item_model.dart';
-import '../providers/po_item_add_logic.dart';
-import '../providers/po_item_list_controller.dart';
+import '../model/collaboration_model.dart';
+import '../providers/collaboration_add_logic.dart';
+import '../providers/collaboration_list_controller.dart';
 
-class PoItemAddCard extends ConsumerStatefulWidget {
+class CollaborationAddCard extends ConsumerStatefulWidget {
   final List<ModelProduct> products;
   final String poId;
 
-  const PoItemAddCard({super.key, required this.products, required this.poId});
+  const CollaborationAddCard({
+    super.key,
+    required this.products,
+    required this.poId,
+  });
 
   @override
-  ConsumerState<PoItemAddCard> createState() => _PoItemAddCardState();
+  ConsumerState<CollaborationAddCard> createState() =>
+      _CollaborationAddCardState();
 }
 
-class _PoItemAddCardState extends ConsumerState<PoItemAddCard> {
+class _CollaborationAddCardState extends ConsumerState<CollaborationAddCard> {
   final TextEditingController _qtyController = TextEditingController();
   String? _selectedProductId;
   ModelProduct? _selectedProduct;
@@ -32,14 +37,15 @@ class _PoItemAddCardState extends ConsumerState<PoItemAddCard> {
 
   ModelProduct? get _product => _selectedProduct;
 
-  double get _mrp => PoItemAddLogic.getProductMrp(_product);
-  double get _sellRate => PoItemAddLogic.getProductRate(_product);
-  double get _price => PoItemAddLogic.calculatePrice(_currentQty, _sellRate);
+  double get _mrp => CollaborationAddLogic.getProductMrp(_product);
+  double get _sellRate => CollaborationAddLogic.getProductRate(_product);
+  double get _price =>
+      CollaborationAddLogic.calculatePrice(_currentQty, _sellRate);
 
   void _updateQty(double val) {
     setState(() {
       _currentQty = val;
-      _qtyController.text = PoItemAddLogic.formatQty(val);
+      _qtyController.text = CollaborationAddLogic.formatQty(val);
     });
   }
 
@@ -75,7 +81,11 @@ class _PoItemAddCardState extends ConsumerState<PoItemAddCard> {
 
     // Check for duplicate product in this PO
     final existingItems =
-        ref.read(poItemListControllerProvider(widget.poId)).value?.items ?? [];
+        ref
+            .read(collaborationListControllerProvider(widget.poId))
+            .value
+            ?.items ??
+        [];
     final isAlreadyPresent = existingItems.any(
       (item) => item.productId == _selectedProductId,
     );
@@ -92,7 +102,7 @@ class _PoItemAddCardState extends ConsumerState<PoItemAddCard> {
 
     setState(() => _isSaving = true);
 
-    final newItem = ModelPoItem(
+    final newItem = ModelCollaboration(
       poId: widget.poId,
       productId: _selectedProductId,
       itemQty: _currentQty,
@@ -102,7 +112,7 @@ class _PoItemAddCardState extends ConsumerState<PoItemAddCard> {
     );
 
     final success = await ref
-        .read(poItemListControllerProvider(widget.poId).notifier)
+        .read(collaborationListControllerProvider(widget.poId).notifier)
         .addItem(newItem, widget.poId);
 
     if (mounted) {
@@ -289,17 +299,17 @@ class _PoItemAddCardState extends ConsumerState<PoItemAddCard> {
             children: [
               _buildInfoText(
                 'MRP',
-                PoItemAddLogic.formatCurrency(_mrp),
+                CollaborationAddLogic.formatCurrency(_mrp),
                 color: accentColor,
               ),
               _buildInfoText(
                 'Rate',
-                PoItemAddLogic.formatCurrency(_sellRate),
+                CollaborationAddLogic.formatCurrency(_sellRate),
                 color: accentColor,
               ),
               _buildInfoText(
                 'Price',
-                PoItemAddLogic.formatCurrency(_price),
+                CollaborationAddLogic.formatCurrency(_price),
                 isBold: true,
                 color: contrastColor,
               ),

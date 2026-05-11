@@ -5,15 +5,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../products/product_barrel.dart';
-import '../model/po_item_model.dart';
-import '../providers/po_item_list_controller.dart';
+import '../model/collaboration_model.dart';
+import '../providers/collaboration_list_controller.dart';
 
-class PoItemCard extends ConsumerStatefulWidget {
-  final ModelPoItem entity;
+class CollaborationCard extends ConsumerStatefulWidget {
+  final ModelCollaboration entity;
   final List<ModelProduct> products;
   final String poId;
 
-  const PoItemCard({
+  const CollaborationCard({
     super.key,
     required this.entity,
     required this.products,
@@ -21,10 +21,10 @@ class PoItemCard extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PoItemCard> createState() => _PoItemCardState();
+  ConsumerState<CollaborationCard> createState() => _CollaborationCardState();
 }
 
-class _PoItemCardState extends ConsumerState<PoItemCard> {
+class _CollaborationCardState extends ConsumerState<CollaborationCard> {
   late TextEditingController _qtyController;
   late double _currentQty;
   Timer? _debounceTimer;
@@ -40,7 +40,7 @@ class _PoItemCardState extends ConsumerState<PoItemCard> {
   }
 
   @override
-  void didUpdateWidget(covariant PoItemCard oldWidget) {
+  void didUpdateWidget(covariant CollaborationCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.entity.itemQty != widget.entity.itemQty) {
       _currentQty = widget.entity.itemQty ?? 0.0;
@@ -108,7 +108,7 @@ class _PoItemCardState extends ConsumerState<PoItemCard> {
         itemPrice: val * _sellRate,
       );
       ref
-          .read(poItemListControllerProvider(widget.poId).notifier)
+          .read(collaborationListControllerProvider(widget.poId).notifier)
           .updateItem(updated, widget.poId);
     });
   }
@@ -127,7 +127,7 @@ class _PoItemCardState extends ConsumerState<PoItemCard> {
         itemPrice: _currentQty * result.purchaseRateForRetailer,
       );
       ref
-          .read(poItemListControllerProvider(widget.poId).notifier)
+          .read(collaborationListControllerProvider(widget.poId).notifier)
           .updateItem(updated, widget.poId);
     }
   }
@@ -136,13 +136,14 @@ class _PoItemCardState extends ConsumerState<PoItemCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final lastModifiedId = ref.watch(
-      poItemListControllerProvider(
+      collaborationListControllerProvider(
         widget.poId,
       ).select((asyncState) => asyncState.value?.lastModifiedItemId),
     );
 
     // Trigger highlight if this item was the last one modified
-    if (lastModifiedId == widget.entity.poItemId && !_isTransitionHighlighted) {
+    if (lastModifiedId == widget.entity.collaborationId &&
+        !_isTransitionHighlighted) {
       // Use a microtask to avoid calling setState during build
       Future.microtask(() => _triggerHighlight());
     }
@@ -303,14 +304,17 @@ class _PoItemCardState extends ConsumerState<PoItemCard> {
                   alignment: Alignment.centerRight,
                   child: TextButton.icon(
                     onPressed: () async {
-                      if (widget.entity.poItemId != null) {
+                      if (widget.entity.collaborationId != null) {
                         await ref
                             .read(
-                              poItemListControllerProvider(
+                              collaborationListControllerProvider(
                                 widget.poId,
                               ).notifier,
                             )
-                            .deleteItem(widget.entity.poItemId!, widget.poId);
+                            .deleteItem(
+                              widget.entity.collaborationId!,
+                              widget.poId,
+                            );
                       }
                     },
                     icon: const Icon(Icons.delete, color: Colors.red, size: 18),

@@ -19,7 +19,7 @@ export 'ui/purchase_order_list_tile.dart';
 export 'ui/purchase_order_share_preview_page.dart';
 export 'ui/purchase_order_delivery_selectable_page.dart';
 export 'ui/widgets/bill_summary_card.dart';
-export 'ui/widgets/bill_po_item_summary_card.dart';
+export 'ui/widgets/bill_collaboration_summary_card.dart';
 export 'ui/widgets/bill_order_selection_card.dart';
 export 'providers/purchase_order_list_controller.dart';
 export 'providers/purchase_order_view_logic.dart';

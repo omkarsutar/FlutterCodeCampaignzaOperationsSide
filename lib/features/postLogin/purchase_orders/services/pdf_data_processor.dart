@@ -1,10 +1,10 @@
 import '../../../../core/services/entity_service.dart';
-import '../../po_items/model/po_item_model.dart';
+import '../../collaborations/model/collaboration_model.dart';
 import '../model/purchase_order_model.dart';
 
 class OrderCardPart {
   final ModelPurchaseOrder order;
-  final List<ModelPoItem> items;
+  final List<ModelCollaboration> items;
   final int partIndex;
   final int totalParts;
   final int globalIndex;
@@ -20,7 +20,7 @@ class OrderCardPart {
 
 class CollectionSheetGroup {
   final String type;
-  final List<ModelPoItem> items;
+  final List<ModelCollaboration> items;
   final double totalQty;
   final String unit;
 
@@ -46,7 +46,7 @@ class PdfDataProcessor {
   /// Process raw orders and items into chunked card parts for Bill PDF
   static List<OrderCardPart> processForBillPdf({
     required List<ModelPurchaseOrder> orders,
-    required List<List<ModelPoItem>> allItems,
+    required List<List<ModelCollaboration>> allItems,
     int maxItemsPerCard = 15,
     Map<String, bool>? splitPreferences,
   }) {
@@ -54,7 +54,7 @@ class PdfDataProcessor {
 
     for (int i = 0; i < orders.length; i++) {
       final order = orders[i];
-      final items = List<ModelPoItem>.from(allItems[i]);
+      final items = List<ModelCollaboration>.from(allItems[i]);
 
       // 1. Group by product type by sorting
       items.sort((a, b) {
@@ -111,9 +111,9 @@ class PdfDataProcessor {
 
   /// Process raw items into typed groups for Collection Sheet PDF
   static List<CollectionSheetGroup> processForCollectionSheetGroups({
-    required List<ModelPoItem> allItems,
+    required List<ModelCollaboration> allItems,
   }) {
-    final Map<String, List<ModelPoItem>> grouped = {};
+    final Map<String, List<ModelCollaboration>> grouped = {};
     for (var item in allItems) {
       final type =
           item.resolvedLabels['product_type_label']?.toString() ?? 'Other';

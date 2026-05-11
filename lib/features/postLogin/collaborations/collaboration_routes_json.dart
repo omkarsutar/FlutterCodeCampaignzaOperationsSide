@@ -4,12 +4,12 @@ import 'package:go_router/go_router.dart';
 import '../../../core/config/module_config.dart';
 import '../../../core/routing/module_route_generator.dart';
 import '../../../core/services/entity_service.dart';
-import 'model/po_item_model.dart';
-import 'providers/po_item_providers.dart';
-import 'ui/po_item_list_page_riverpod.dart';
+import 'model/collaboration_model.dart';
+import 'providers/collaboration_providers.dart';
+import 'ui/collaboration_list_page_riverpod.dart';
 
-/// JSON-based route generation for PoItems module
-class PoItemsRoutesJson {
+/// JSON-based route generation for Collaborations module
+class CollaborationsRoutesJson {
   static late ModuleConfig _config;
   static bool _initialized = false;
 
@@ -19,28 +19,32 @@ class PoItemsRoutesJson {
 
     // Load configuration from JSON file
     _config = await ModuleConfig.loadFromAsset(
-      'lib/features/postLogin/po_items/po_item_config.json',
+      'lib/features/postLogin/collaborations/collaboration_config.json',
     );
 
     // Create typed provider aliases
-    final entityServiceProvider = Provider<EntityService<ModelPoItem>>((ref) {
-      return ref.watch(poItemServiceProvider);
+    final entityServiceProvider = Provider<EntityService<ModelCollaboration>>((
+      ref,
+    ) {
+      return ref.watch(collaborationServiceProvider);
     });
 
-    final entityAdapterProvider = Provider<EntityAdapter<ModelPoItem>>((ref) {
-      return ref.watch(poItemAdapterProvider);
+    final entityAdapterProvider = Provider<EntityAdapter<ModelCollaboration>>((
+      ref,
+    ) {
+      return ref.watch(collaborationAdapterProvider);
     });
 
     // Sorting is now configured in the list page's initState() method
 
     // Register module with route generator
-    ModuleRouteRegistry.registerModule<ModelPoItem>(
+    ModuleRouteRegistry.registerModule<ModelCollaboration>(
       config: _config,
       serviceProvider: entityServiceProvider,
       adapterProvider: entityAdapterProvider,
-      streamProvider: poItemsStreamProvider,
-      entityByIdProvider: poItemByIdProvider,
-      formProvider: poItemFormProvider,
+      streamProvider: collaborationsStreamProvider,
+      entityByIdProvider: collaborationByIdProvider,
+      formProvider: collaborationFormProvider,
       customListBuilder: (context, state) {
         final poId = state.uri.queryParameters['po_id'] ?? '';
         // final po = state.extra as ModelPurchaseOrder; // <-- get the extra
@@ -56,7 +60,7 @@ class PoItemsRoutesJson {
           );
         } */
 
-        return PoItemListPageRiverpod(
+        return CollaborationListPageRiverpod(
           poId: poId,
           entityLabel: _config.entityMeta.entityName,
           viewRouteName: _config.routes.viewRouteName,
@@ -74,7 +78,7 @@ class PoItemsRoutesJson {
   static List<GoRoute> get routes {
     if (!_initialized) {
       throw StateError(
-        'PoItemsRoutesJson not initialized. Call initialize() first.',
+        'CollaborationsRoutesJson not initialized. Call initialize() first.',
       );
     }
     return ModuleRouteRegistry.routes
@@ -89,8 +93,10 @@ class PoItemsRoutesJson {
   static String get viewRouteName => _config.routes.viewRouteName;
 
   /// Route paths
-  static String get poItems => _config.routes.listPath;
-  static String get newPoItem => _config.routes.newPath;
-  static String editPoItemRoute(String id) => _config.routes.editRoute(id);
-  static String viewPoItemRoute(String id) => _config.routes.viewRoute(id);
+  static String get collaborations => _config.routes.listPath;
+  static String get newCollaboration => _config.routes.newPath;
+  static String editCollaborationRoute(String id) =>
+      _config.routes.editRoute(id);
+  static String viewCollaborationRoute(String id) =>
+      _config.routes.viewRoute(id);
 }

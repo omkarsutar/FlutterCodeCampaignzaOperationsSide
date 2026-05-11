@@ -1,20 +1,20 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../products/product_barrel.dart';
-import '../model/po_item_model.dart';
-import 'po_item_providers.dart';
-import '../service/po_item_service_impl.dart';
+import '../model/collaboration_model.dart';
+import 'collaboration_providers.dart';
+import '../service/collaboration_service_impl.dart';
 
 // State definition
-class PoItemListState {
+class CollaborationListState {
   final bool isLoading;
   final String? error;
-  final List<ModelPoItem> items;
+  final List<ModelCollaboration> items;
   final List<ModelProduct> products;
   final String? lastModifiedItemId;
   final bool isNewItemAdded;
 
-  const PoItemListState({
+  const CollaborationListState({
     this.isLoading = true,
     this.error,
     this.items = const [],
@@ -23,15 +23,15 @@ class PoItemListState {
     this.isNewItemAdded = false,
   });
 
-  PoItemListState copyWith({
+  CollaborationListState copyWith({
     bool? isLoading,
     String? error,
-    List<ModelPoItem>? items,
+    List<ModelCollaboration>? items,
     List<ModelProduct>? products,
     String? Function()? lastModifiedItemId,
     bool? isNewItemAdded,
   }) {
-    return PoItemListState(
+    return CollaborationListState(
       isLoading: isLoading ?? this.isLoading,
       error: error,
       items: items ?? this.items,
@@ -45,31 +45,32 @@ class PoItemListState {
 }
 
 // Controller
-class PoItemListController
-    extends AutoDisposeFamilyAsyncNotifier<PoItemListState, String> {
-  PoItemServiceImpl get _service => ref.read(poItemServiceProvider);
+class CollaborationListController
+    extends AutoDisposeFamilyAsyncNotifier<CollaborationListState, String> {
+  CollaborationServiceImpl get _service =>
+      ref.read(collaborationServiceProvider);
   Timer? _clearTimer;
 
   @override
-  Future<PoItemListState> build(String poId) async {
+  Future<CollaborationListState> build(String poId) async {
     try {
       // Use cached products stream
       final products = await ref.watch(productsStreamProvider.future);
 
-      // Fetch PO items (service now handles sorting)
+      // Fetch Collaborations (service now handles sorting)
       final items = await _service.fetchEntitiesByPo(poId);
 
-      return PoItemListState(
+      return CollaborationListState(
         isLoading: false,
         items: items,
         products: products,
       );
     } catch (e) {
-      return PoItemListState(isLoading: false, error: e.toString());
+      return CollaborationListState(isLoading: false, error: e.toString());
     }
   }
 
-  Future<bool> addItem(ModelPoItem item, String poId) async {
+  Future<bool> addItem(ModelCollaboration item, String poId) async {
     try {
       final currentData = state.value;
       if (currentData == null) return false;
@@ -78,7 +79,7 @@ class PoItemListController
       state = AsyncValue.data(
         currentData.copyWith(
           items: [newItem, ...currentData.items],
-          lastModifiedItemId: () => newItem.poItemId,
+          lastModifiedItemId: () => newItem.collaborationId,
           isNewItemAdded: true,
         ),
       );
@@ -106,31 +107,32 @@ class PoItemListController
   }
 
   Future<bool> updateItem(
-    ModelPoItem item,
+    ModelCollaboration item,
     String poId, {
     bool moveToTop = false,
   }) async {
     try {
-      if (item.poItemId == null) throw Exception("Item ID missing for update");
-      await _service.update(item.poItemId!, item);
+      if (item.collaborationId == null)
+        throw Exception("Item ID missing for update");
+      await _service.update(item.collaborationId!, item);
       final currentData = state.value;
       if (currentData != null) {
-        List<ModelPoItem> updatedItems;
+        List<ModelCollaboration> updatedItems;
         if (moveToTop) {
           final others = currentData.items.where(
-            (i) => i.poItemId != item.poItemId,
+            (i) => i.collaborationId != item.collaborationId,
           );
           updatedItems = [item, ...others];
         } else {
           updatedItems = currentData.items
-              .map((i) => i.poItemId == item.poItemId ? item : i)
+              .map((i) => i.collaborationId == item.collaborationId ? item : i)
               .toList();
         }
 
         state = AsyncValue.data(
           currentData.copyWith(
             items: updatedItems,
-            lastModifiedItemId: () => item.poItemId,
+            lastModifiedItemId: () => item.collaborationId,
             isNewItemAdded: false,
           ),
         );
@@ -157,7 +159,7 @@ class PoItemListController
   }
 }
 
-final poItemListControllerProvider = AsyncNotifierProvider.autoDispose
-    .family<PoItemListController, PoItemListState, String>(
-      () => PoItemListController(),
+final collaborationListControllerProvider = AsyncNotifierProvider.autoDispose
+    .family<CollaborationListController, CollaborationListState, String>(
+      () => CollaborationListController(),
     );

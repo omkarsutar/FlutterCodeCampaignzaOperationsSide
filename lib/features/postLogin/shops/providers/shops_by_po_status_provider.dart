@@ -23,7 +23,7 @@ final shopsByPOStatusProvider = StreamProvider.autoDispose
       }
 
       // service.streamShopsByPOItemStatus already handles classification + sorting
-      return service.streamShopsByPOItemStatus(effectiveRouteId);
+      return service.streamShopsByCollaborationStatus(effectiveRouteId);
     });
 
 final regularShopsProvider = FutureProvider.autoDispose

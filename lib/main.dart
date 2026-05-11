@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/notes/note_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_items/po_item_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
@@ -72,9 +72,8 @@ void main() async {
         try {
           final memoryInfo = web_utils.getMemoryInfo();
           if (memoryInfo != null) {
-            final used = (memoryInfo.usedJSHeapSize / 1024 / 1024).toStringAsFixed(
-              2,
-            );
+            final used = (memoryInfo.usedJSHeapSize / 1024 / 1024)
+                .toStringAsFixed(2);
             final limit = (memoryInfo.jsHeapSizeLimit / 1024 / 1024)
                 .toStringAsFixed(2);
             debugPrint('--- MEMORY DIAGNOSTIC ---');
@@ -100,7 +99,7 @@ void main() async {
   await RouteShopLinksRoutesJson.initialize();
   await RbacPermissionsRoutesJson.initialize();
   await PurchaseOrdersRoutesJson.initialize();
-  await PoItemsRoutesJson.initialize();
+  await CollaborationsRoutesJson.initialize();
   await ShopsRoutesJson.initialize();
   await PoCollectionsRoutesJson.initialize();
   await RetailerShopLinkRoutesJson.initialize();

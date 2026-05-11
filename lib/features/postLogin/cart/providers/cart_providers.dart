@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../po_items/model/po_item_model.dart';
+import '../../collaborations/model/collaboration_model.dart';
 import '../../products/product_barrel.dart';
 import '../services/cart_storage_service.dart';
 
 class CartState {
-  final List<ModelPoItem> items;
+  final List<ModelCollaboration> items;
   final bool isLoading;
   final String? error;
   final String? lastModifiedItemId;
@@ -44,7 +44,7 @@ class CartState {
   }
 
   CartState copyWith({
-    List<ModelPoItem>? items,
+    List<ModelCollaboration>? items,
     bool? isLoading,
     String? error,
     String? Function()? lastModifiedItemId,
@@ -93,7 +93,7 @@ class CartNotifier extends Notifier<CartState> {
       final storage = ref.read(cartStorageServiceProvider);
       final result = await storage.loadPendingOrder();
       if (result != null) {
-        final items = result['items'] as List<ModelPoItem>;
+        final items = result['items'] as List<ModelCollaboration>;
         state = state.copyWith(
           items: items,
           isLoading: false,
@@ -133,7 +133,7 @@ class CartNotifier extends Notifier<CartState> {
     }
   }
 
-  void setItems(List<ModelPoItem> items, {bool triggerSave = true}) {
+  void setItems(List<ModelCollaboration> items, {bool triggerSave = true}) {
     state = state.copyWith(
       items: items,
       isLoading: false,
@@ -150,7 +150,7 @@ class CartNotifier extends Notifier<CartState> {
     required String purchaseOrderId,
     required String status,
     required int itemCountInPo,
-    required List<ModelPoItem> items,
+    required List<ModelCollaboration> items,
   }) {
     state = state.copyWith(
       items: items,
@@ -186,7 +186,7 @@ class CartNotifier extends Notifier<CartState> {
     state = state.copyWith(isPromptAcknowledged: true);
   }
 
-  void addItem(ModelPoItem item) {
+  void addItem(ModelCollaboration item) {
     // Check if product already exists in cart, if so update quantity
     final index = state.items.indexWhere((i) => i.productId == item.productId);
     if (index != -1) {
@@ -203,14 +203,14 @@ class CartNotifier extends Notifier<CartState> {
       );
     } else {
       // Assign a unique local ID if missing
-      final itemWithId = item.poItemId == null
+      final itemWithId = item.collaborationId == null
           ? item.copyWith(
-              poItemId: DateTime.now().microsecondsSinceEpoch.toString(),
+              collaborationId: DateTime.now().microsecondsSinceEpoch.toString(),
             )
           : item;
       state = state.copyWith(
         items: [itemWithId, ...state.items],
-        lastModifiedItemId: () => itemWithId.poItemId,
+        lastModifiedItemId: () => itemWithId.collaborationId,
         isPromptAcknowledged: true, // Manual action acknowledges the state
         isNewItemAdded: true,
       );
@@ -229,15 +229,15 @@ class CartNotifier extends Notifier<CartState> {
     });
   }
 
-  void updateItem(ModelPoItem updatedItem, {bool moveToTop = false}) {
+  void updateItem(ModelCollaboration updatedItem, {bool moveToTop = false}) {
     if (moveToTop) {
       // Remove the item from its current position and prepend it
       final otherItems = state.items
-          .where((item) => item.poItemId != updatedItem.poItemId)
+          .where((item) => item.collaborationId != updatedItem.collaborationId)
           .toList();
       state = state.copyWith(
         items: [updatedItem, ...otherItems],
-        lastModifiedItemId: () => updatedItem.poItemId,
+        lastModifiedItemId: () => updatedItem.collaborationId,
         isPromptAcknowledged: true,
         isNewItemAdded: false,
       );
@@ -247,9 +247,11 @@ class CartNotifier extends Notifier<CartState> {
       // Standard update in place
       state = state.copyWith(
         items: state.items.map((item) {
-          return item.poItemId == updatedItem.poItemId ? updatedItem : item;
+          return item.collaborationId == updatedItem.collaborationId
+              ? updatedItem
+              : item;
         }).toList(),
-        lastModifiedItemId: () => updatedItem.poItemId,
+        lastModifiedItemId: () => updatedItem.collaborationId,
         isPromptAcknowledged: true,
         isNewItemAdded: false,
       );
@@ -258,15 +260,17 @@ class CartNotifier extends Notifier<CartState> {
     }
   }
 
-  void updateQuantity(String poItemId, double change) {
-    final index = state.items.indexWhere((i) => i.poItemId == poItemId);
+  void updateQuantity(String collaborationId, double change) {
+    final index = state.items.indexWhere(
+      (i) => i.collaborationId == collaborationId,
+    );
     if (index == -1) return;
 
     final item = state.items[index];
     final newQty = (item.itemQty ?? 0) + change;
 
     if (newQty <= 0) {
-      removeItem(poItemId);
+      removeItem(collaborationId);
     } else {
       updateItem(
         item.copyWith(
@@ -279,9 +283,11 @@ class CartNotifier extends Notifier<CartState> {
     }
   }
 
-  void removeItem(String poItemId) {
+  void removeItem(String collaborationId) {
     state = state.copyWith(
-      items: state.items.where((item) => item.poItemId != poItemId).toList(),
+      items: state.items
+          .where((item) => item.collaborationId != collaborationId)
+          .toList(),
     );
     _saveToStorage();
   }

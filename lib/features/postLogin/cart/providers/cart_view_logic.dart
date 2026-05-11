@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../po_items/model/po_item_model.dart';
+import '../../collaborations/model/collaboration_model.dart';
 import '../providers/cart_providers.dart';
 import '../../products/product_barrel.dart';
 
 class ProcessedCartItem {
-  final ModelPoItem item;
+  final ModelCollaboration item;
   final String productName;
   final String formattedQty;
   final String formattedRate;

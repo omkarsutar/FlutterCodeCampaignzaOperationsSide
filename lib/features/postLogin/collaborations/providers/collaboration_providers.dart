@@ -2,54 +2,56 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/services/entity_service.dart';
 
-import '../adapter/po_item_adapter.dart';
-import '../model/po_item_model.dart';
-import '../service/po_item_service_impl.dart';
-import 'po_item_summary_controller.dart';
+import '../adapter/collaboration_adapter.dart';
+import '../model/collaboration_model.dart';
+import '../service/collaboration_service_impl.dart';
+import 'collaboration_summary_controller.dart';
 
 /// Mapper provider
-final poItemMapperProvider = Provider<EntityMapper<ModelPoItem>>((ref) {
-  return ModelPoItemMapper();
+final collaborationMapperProvider = Provider<EntityMapper<ModelCollaboration>>((
+  ref,
+) {
+  return ModelCollaborationMapper();
 });
 
 /// Service provider
-final poItemServiceProvider = Provider<PoItemServiceImpl>((ref) {
-  return PoItemServiceImpl(
-    ref.watch(poItemMapperProvider),
+final collaborationServiceProvider = Provider<CollaborationServiceImpl>((ref) {
+  return CollaborationServiceImpl(
+    ref.watch(collaborationMapperProvider),
     ref.watch(supabaseClientProvider),
     ref.watch(loggerServiceProvider),
   );
 });
 
 /// Adapter provider
-final poItemAdapterProvider = Provider<PoItemAdapter>((ref) {
-  return PoItemAdapter();
+final collaborationAdapterProvider = Provider<CollaborationAdapter>((ref) {
+  return CollaborationAdapter();
 });
 
-/// Real-time stream of all PO Items with automatic disposal
+/// Real-time stream of all Collaborations with automatic disposal
 /// Uses StreamProvider for real-time updates
-final poItemsStreamProvider = StreamProvider.autoDispose<List<ModelPoItem>>((
-  ref,
-) {
-  final service = ref.read(poItemServiceProvider);
-  return service.streamEntities();
-});
-
-/// Fetches a single PO Item by ID
-final poItemByIdProvider = FutureProvider.autoDispose
-    .family<ModelPoItem?, String>((ref, poItemId) async {
-      final service = ref.read(poItemServiceProvider);
-      return await service.fetchById(poItemId);
+final collaborationsStreamProvider =
+    StreamProvider.autoDispose<List<ModelCollaboration>>((ref) {
+      final service = ref.read(collaborationServiceProvider);
+      return service.streamEntities();
     });
 
-/// State provider for managing PO Item creation/editing
-final poItemFormProvider =
-    StateNotifierProvider.autoDispose<PoItemFormNotifier, PoItemFormState>(
-      (ref) => PoItemFormNotifier(ref),
-    );
+/// Fetches a single Collaboration by ID
+final collaborationByIdProvider = FutureProvider.autoDispose
+    .family<ModelCollaboration?, String>((ref, collaborationId) async {
+      final service = ref.read(collaborationServiceProvider);
+      return await service.fetchById(collaborationId);
+    });
 
-/// Form state for PO Item
-class PoItemFormState {
+/// State provider for managing Collaboration creation/editing
+final collaborationFormProvider =
+    StateNotifierProvider.autoDispose<
+      CollaborationFormNotifier,
+      CollaborationFormState
+    >((ref) => CollaborationFormNotifier(ref));
+
+/// Form state for Collaboration
+class CollaborationFormState {
   final String poId;
   final String itemId;
   final int itemQuantity;
@@ -59,7 +61,7 @@ class PoItemFormState {
   final bool isLoading;
   final String? error;
 
-  PoItemFormState({
+  CollaborationFormState({
     this.poId = '',
     this.itemId = '',
     this.itemQuantity = 0,
@@ -70,7 +72,7 @@ class PoItemFormState {
     this.error,
   });
 
-  PoItemFormState copyWith({
+  CollaborationFormState copyWith({
     String? poId,
     String? itemId,
     int? itemQuantity,
@@ -80,7 +82,7 @@ class PoItemFormState {
     bool? isLoading,
     String? error,
   }) {
-    return PoItemFormState(
+    return CollaborationFormState(
       poId: poId ?? this.poId,
       itemId: itemId ?? this.itemId,
       itemQuantity: itemQuantity ?? this.itemQuantity,
@@ -93,12 +95,12 @@ class PoItemFormState {
   }
 }
 
-/// Notifier for managing PO Item form state
-class PoItemFormNotifier extends StateNotifier<PoItemFormState> {
+/// Notifier for managing Collaboration form state
+class CollaborationFormNotifier extends StateNotifier<CollaborationFormState> {
   final Ref ref;
   bool _mounted = true;
 
-  PoItemFormNotifier(this.ref) : super(PoItemFormState());
+  CollaborationFormNotifier(this.ref) : super(CollaborationFormState());
 
   @override
   void dispose() {
@@ -148,31 +150,31 @@ class PoItemFormNotifier extends StateNotifier<PoItemFormState> {
 
   void reset() {
     if (!_mounted) return;
-    state = PoItemFormState();
+    state = CollaborationFormState();
   }
 }
 
-/// PO Item Stream by PO ID (filtered by parent PO)
-final poItemsByPoIdProvider = StreamProvider.autoDispose
-    .family<List<ModelPoItem>, String>((ref, poId) {
+/// Collaboration Stream by PO ID (filtered by parent PO)
+final collaborationsByPoIdProvider = StreamProvider.autoDispose
+    .family<List<ModelCollaboration>, String>((ref, poId) {
       if (poId.isEmpty) {
         return Stream.value([]);
       }
 
-      final service = ref.read(poItemServiceProvider);
+      final service = ref.read(collaborationServiceProvider);
       return service.streamItemsByPo(poId);
     });
 
 /// Provider for processed PO summary items (sorted/grouped logic)
 final processedPoSummaryItemsProvider = Provider.autoDispose
-    .family<AsyncValue<List<ModelPoItem>>, String>((ref, poId) {
-      final itemsAsync = ref.watch(poItemsByPoIdProvider(poId));
-      final isGrouped = ref.watch(poItemSummaryGroupedProvider);
+    .family<AsyncValue<List<ModelCollaboration>>, String>((ref, poId) {
+      final itemsAsync = ref.watch(collaborationsByPoIdProvider(poId));
+      final isGrouped = ref.watch(collaborationSummaryGroupedProvider);
 
       return itemsAsync.whenData((items) {
         if (!isGrouped) return items;
 
-        final sortedItems = List<ModelPoItem>.from(items);
+        final sortedItems = List<ModelCollaboration>.from(items);
         sortedItems.sort((a, b) {
           final typeA =
               a.resolvedLabels['product_type_label']?.toString() ?? '';

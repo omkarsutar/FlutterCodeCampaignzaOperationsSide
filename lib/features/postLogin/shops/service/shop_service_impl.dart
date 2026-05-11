@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_items/po_item_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/purchase_orders/purchase_order_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_shop_links/route_shop_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
@@ -66,7 +66,7 @@ class ShopServiceImpl extends ForeignKeyAwareService<ModelShop> {
   }
 
   // In your service:
-  Stream<Map<String, List<ModelShop>>> streamShopsByPOItemStatus(
+  Stream<Map<String, List<ModelShop>>> streamShopsByCollaborationStatus(
     String preferredRouteId,
   ) async* {
     // Supabase live streams
@@ -75,15 +75,15 @@ class ShopServiceImpl extends ForeignKeyAwareService<ModelShop> {
         .stream(primaryKey: [ModelPurchaseOrderFields.poId])
         .eq(ModelPurchaseOrderFields.poRouteId, preferredRouteId);
 
-    final poItemStream = client
-        .from(ModelPoItemFields.table)
-        .stream(primaryKey: [ModelPoItemFields.poItemId]);
+    final collaborationStream = client
+        .from(ModelCollaborationFields.table)
+        .stream(primaryKey: [ModelCollaborationFields.collaborationId]);
 
     // Merge both streams into one
-    final merged = StreamGroup.merge([poStream, poItemStream]);
+    final merged = StreamGroup.merge([poStream, collaborationStream]);
 
     await for (final _ in merged) {
-      final result = await fetchShopsByPOItemStatus(
+      final result = await fetchShopsByCollaborationStatus(
         preferredRouteId: preferredRouteId,
       );
       yield result;
@@ -91,7 +91,7 @@ class ShopServiceImpl extends ForeignKeyAwareService<ModelShop> {
   }
 
   /// Classify shops by purchase order item status for today
-  Future<Map<String, List<ModelShop>>> fetchShopsByPOItemStatus({
+  Future<Map<String, List<ModelShop>>> fetchShopsByCollaborationStatus({
     required String? preferredRouteId,
   }) async {
     if (preferredRouteId == null || preferredRouteId.isEmpty) {
@@ -140,17 +140,17 @@ class ShopServiceImpl extends ForeignKeyAwareService<ModelShop> {
       poByShop.putIfAbsent(shopId, () => []).add(poId);
     }
 
-    // Step 3: Get po_item counts for today's POs
+    // Step 3: Get collaboration counts for today's POs
     final allPoIds = poData
         .map((e) => e[ModelPurchaseOrderFields.poId])
         .toList();
-    final poItems = await client
-        .from(ModelPoItemFields.table)
-        .select(ModelPoItemFields.poId)
-        .inFilter(ModelPoItemFields.poId, allPoIds);
+    final collaborations = await client
+        .from(ModelCollaborationFields.table)
+        .select(ModelCollaborationFields.poId)
+        .inFilter(ModelCollaborationFields.poId, allPoIds);
 
     final poIdsWithItems = Set<String>.from(
-      poItems.map((e) => e[ModelPoItemFields.poId]),
+      collaborations.map((e) => e[ModelCollaborationFields.poId]),
     );
 
     // Step 4: Classify shops

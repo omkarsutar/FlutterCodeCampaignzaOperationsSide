@@ -11,6 +11,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/shops/shop_
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_shop_links/retailer_shop_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 
@@ -156,13 +157,13 @@ class CustomDrawer extends ConsumerWidget {
             ].contains(rbacService.roleName),
           ),
 
-          // PO Items
-          /* ReadEntityTile(
-            moduleName: ModelPoItemFields.table, // "po_items"
-            routeName: PoItemsRoutesJson.listRouteName,
-            title: 'PO Items',
+          // Collaborations
+          ReadEntityTile(
+            moduleName: ModelCollaborationFields.table, // "collaborations"
+            routeName: CollaborationsRoutesJson.listRouteName,
+            title: 'Collaborations',
             icon: Icons.list_alt,
-          ), */
+          ),
 
           // Users
           ReadEntityTile(

@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 import '../../products/product_barrel.dart';
 
-class PoItemAddLogic {
+class CollaborationAddLogic {
   /// Formats quantity for display (removes .0 if present)
   static String formatQty(double val) {
     if (val == 0) return "";

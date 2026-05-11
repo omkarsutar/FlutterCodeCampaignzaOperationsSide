@@ -3,19 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/module_config.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/purchase_orders/purchase_order_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/shared_widget_barrel.dart';
-import '../providers/po_item_providers.dart';
-import '../providers/po_item_list_controller.dart';
-import 'po_item_add_card.dart';
-import 'po_item_card.dart';
+import '../providers/collaboration_providers.dart';
+import '../providers/collaboration_list_controller.dart';
+import 'collaboration_add_card.dart';
+import 'collaboration_card.dart';
 
-class PoItemListPageRiverpod extends ConsumerStatefulWidget {
+class CollaborationListPageRiverpod extends ConsumerStatefulWidget {
   final String poId;
   final String entityLabel;
   final String viewRouteName;
   final String newRouteName;
   final SortingConfig? initialSorting;
 
-  const PoItemListPageRiverpod({
+  const CollaborationListPageRiverpod({
     super.key,
     required this.poId,
     required this.entityLabel,
@@ -25,12 +25,12 @@ class PoItemListPageRiverpod extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PoItemListPageRiverpod> createState() =>
-      _PoItemListPageRiverpodState();
+  ConsumerState<CollaborationListPageRiverpod> createState() =>
+      _CollaborationListPageRiverpodState();
 }
 
-class _PoItemListPageRiverpodState
-    extends ConsumerState<PoItemListPageRiverpod> {
+class _CollaborationListPageRiverpodState
+    extends ConsumerState<CollaborationListPageRiverpod> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -40,7 +40,7 @@ class _PoItemListPageRiverpodState
     // Set sorting configuration once when widget is created
     if (widget.initialSorting != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final service = ref.read(poItemServiceProvider);
+        final service = ref.read(collaborationServiceProvider);
         service.setSortingConfig(
           widget.initialSorting!.field,
           widget.initialSorting!.sortAscending,
@@ -58,7 +58,9 @@ class _PoItemListPageRiverpodState
   @override
   Widget build(BuildContext context) {
     // Watch items for this PO
-    final asyncState = ref.watch(poItemListControllerProvider(widget.poId));
+    final asyncState = ref.watch(
+      collaborationListControllerProvider(widget.poId),
+    );
 
     // Watch the purchase order itself by ID
     final poAsync = ref.watch(purchaseOrderStreamByIdProvider(widget.poId));
@@ -86,7 +88,7 @@ class _PoItemListPageRiverpodState
                         entity: po,
                         adapter: ref.read(purchaseOrderAdapterProvider),
                         onTap: null,
-                        poItemTile: true,
+                        collaborationTile: true,
                       );
                     },
                   ),
@@ -109,7 +111,9 @@ class _PoItemListPageRiverpodState
                           ElevatedButton(
                             onPressed: () {
                               ref.invalidate(
-                                poItemListControllerProvider(widget.poId),
+                                collaborationListControllerProvider(
+                                  widget.poId,
+                                ),
                               );
                             },
                             child: const Text('Retry'),
@@ -131,8 +135,8 @@ class _PoItemListPageRiverpodState
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate((context, index) {
                           final item = state.items[index];
-                          return PoItemCard(
-                            key: ValueKey(item.poItemId),
+                          return CollaborationCard(
+                            key: ValueKey(item.collaborationId),
                             entity: item,
                             products: state.products,
                             poId: widget.poId,
@@ -148,7 +152,7 @@ class _PoItemListPageRiverpodState
 
           // Bottom Add Card
           if (asyncState.value?.isNewItemAdded != true)
-            PoItemAddCard(
+            CollaborationAddCard(
               products: asyncState.value?.products ?? [],
               poId: widget.poId,
             ),

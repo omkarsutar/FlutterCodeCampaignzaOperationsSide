@@ -1,23 +1,23 @@
 {
-    "moduleName": "po_item",
+    "moduleName": "collaborations",
     "entityMeta": {
-        "entityName": "PO Item",
-        "entityNameLower": "po item",
-        "entityNamePlural": "PO Items",
-        "entityNamePluralLower": "po items"
+        "entityName": "Collaboration",
+        "entityNameLower": "collaborations",
+        "entityNamePlural": "Collaborations",
+        "entityNamePluralLower": "collaborations"
     },
     "table": {
-        "name": "po_item",
-        "viewName": "view_po_items",
-        "idField": "po_item_id",
+        "name": "collaborations",
+        "viewName": "view_collaborations",
+        "idField": "collaboration_id",
         "timestampField": "created_at"
     },
     "routes": {
-        "basePath": "/poItems",
-        "listRouteName": "poItems",
-        "newRouteName": "newPoItem",
-        "editRouteName": "editPoItem",
-        "viewRouteName": "viewPoItem"
+        "basePath": "/collaborations",
+        "listRouteName": "collaborations",
+        "newRouteName": "newCollaboration",
+        "editRouteName": "editCollaboration",
+        "viewRouteName": "viewCollaboration"
     },
     "listPage": {
         "sorting": {
@@ -32,7 +32,7 @@
     },
     "fields": [
         {
-            "name": "po_item_id",
+            "name": "collaboration_id",
             "label": "Item ID",
             "type": "text",
             "required": true,

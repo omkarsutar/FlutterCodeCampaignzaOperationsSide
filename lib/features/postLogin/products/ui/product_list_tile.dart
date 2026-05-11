@@ -7,7 +7,7 @@ import '../model/product_model.dart';
 import '../../../../core/services/entity_service.dart';
 import '../../cart/providers/cart_providers.dart';
 import '../../../../core/providers/localization_provider.dart';
-import '../../po_items/model/po_item_model.dart';
+import '../../collaborations/model/collaboration_model.dart';
 import '../../../../core/widgets/quantity_selector.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -357,7 +357,7 @@ class _ProductListTileState extends ConsumerState<ProductListTile> {
       height: 32,
       child: ElevatedButton(
         onPressed: () {
-          final newItem = ModelPoItem(
+          final newItem = ModelCollaboration(
             productId: widget.entity.productId,
             itemName: widget.entity.productName,
             itemQty: 1.0,
@@ -388,7 +388,7 @@ class _ProductListTileState extends ConsumerState<ProductListTile> {
     BuildContext context,
     WidgetRef ref,
     ThemeData theme,
-    ModelPoItem cartItem, {
+    ModelCollaboration cartItem, {
     bool isReadOnly = false,
   }) {
     final cartNotifier = ref.read(cartProvider.notifier);
@@ -400,7 +400,10 @@ class _ProductListTileState extends ConsumerState<ProductListTile> {
       readOnly: isReadOnly,
       onQuantityChanged: (newQty) {
         if (newQty != currentQty) {
-          cartNotifier.updateQuantity(cartItem.poItemId!, newQty - currentQty);
+          cartNotifier.updateQuantity(
+            cartItem.collaborationId!,
+            newQty - currentQty,
+          );
         }
       },
     );

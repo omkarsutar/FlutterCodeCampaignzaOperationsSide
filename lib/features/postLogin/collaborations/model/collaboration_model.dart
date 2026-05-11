@@ -1,10 +1,10 @@
 import '../../../../core/services/entity_service.dart';
 
-class ModelPoItemFields {
-  static const String table = 'po_item';
-  static const String tableViewWithForeignKeyLabels = 'view_po_items';
+class ModelCollaborationFields {
+  static const String table = 'collaborations';
+  static const String tableViewWithForeignKeyLabels = 'view_collaborations';
 
-  static const String poItemId = 'po_item_id';
+  static const String collaborationId = 'collaboration_id';
   static const String poId = 'po_id';
   static const String productId = 'product_id';
   static const String itemName = 'item_name';
@@ -19,7 +19,7 @@ class ModelPoItemFields {
   static const String updatedAt = 'updated_at';
 
   static const Map<String, String> labels = {
-    poItemId: 'PO Item',
+    collaborationId: 'Collaboration',
     poId: 'PO',
     productId: 'Product',
     itemName: 'Item Name',
@@ -37,8 +37,8 @@ class ModelPoItemFields {
   static String getLabel(String field) => labels[field] ?? field;
 }
 
-class ModelPoItem {
-  final String? poItemId;
+class ModelCollaboration {
+  final String? collaborationId;
   final String? poId;
   final String? productId;
   final String? itemName;
@@ -53,8 +53,8 @@ class ModelPoItem {
   final DateTime? updatedAt;
   final Map<String, dynamic> _resolvedLabels;
 
-  ModelPoItem({
-    this.poItemId,
+  ModelCollaboration({
+    this.collaborationId,
     this.poId,
     this.productId,
     this.itemName,
@@ -72,8 +72,8 @@ class ModelPoItem {
 
   Map<String, dynamic> get resolvedLabels => _resolvedLabels;
 
-  ModelPoItem copyWith({
-    String? poItemId,
+  ModelCollaboration copyWith({
+    String? collaborationId,
     String? poId,
     String? productId,
     String? itemName,
@@ -88,8 +88,8 @@ class ModelPoItem {
     DateTime? updatedAt,
     Map<String, dynamic>? resolvedLabels,
   }) {
-    return ModelPoItem(
-      poItemId: poItemId ?? this.poItemId,
+    return ModelCollaboration(
+      collaborationId: collaborationId ?? this.collaborationId,
       poId: poId ?? this.poId,
       productId: productId ?? this.productId,
       itemName: itemName ?? this.itemName,
@@ -106,7 +106,7 @@ class ModelPoItem {
     );
   }
 
-  factory ModelPoItem.fromMap(Map<String, dynamic> map) {
+  factory ModelCollaboration.fromMap(Map<String, dynamic> map) {
     final labelEntries = <String, dynamic>{};
     for (final entry in map.entries) {
       if (entry.key.endsWith('_label')) {
@@ -114,33 +114,44 @@ class ModelPoItem {
       }
     }
 
-    return ModelPoItem(
-      poItemId: map[ModelPoItemFields.poItemId]?.toString(),
-      poId: map[ModelPoItemFields.poId]?.toString(),
-      productId: map[ModelPoItemFields.productId]?.toString(),
-      itemName: map[ModelPoItemFields.itemName]?.toString(),
-      itemQty: map[ModelPoItemFields.itemQty] != null
-          ? double.tryParse(map[ModelPoItemFields.itemQty].toString())
+    return ModelCollaboration(
+      collaborationId: map[ModelCollaborationFields.collaborationId]
+          ?.toString(),
+      poId: map[ModelCollaborationFields.poId]?.toString(),
+      productId: map[ModelCollaborationFields.productId]?.toString(),
+      itemName: map[ModelCollaborationFields.itemName]?.toString(),
+      itemQty: map[ModelCollaborationFields.itemQty] != null
+          ? double.tryParse(map[ModelCollaborationFields.itemQty].toString())
           : null, // parse as double
-      itemSellRate: map[ModelPoItemFields.itemSellRate] != null
-          ? double.tryParse(map[ModelPoItemFields.itemSellRate].toString())
+      itemSellRate: map[ModelCollaborationFields.itemSellRate] != null
+          ? double.tryParse(
+              map[ModelCollaborationFields.itemSellRate].toString(),
+            )
           : null,
-      itemPrice: map[ModelPoItemFields.itemPrice] != null
-          ? double.tryParse(map[ModelPoItemFields.itemPrice].toString())
+      itemPrice: map[ModelCollaborationFields.itemPrice] != null
+          ? double.tryParse(map[ModelCollaborationFields.itemPrice].toString())
           : null,
-      itemUnitMrp: map[ModelPoItemFields.itemUnitMrp] != null
-          ? double.tryParse(map[ModelPoItemFields.itemUnitMrp].toString())
+      itemUnitMrp: map[ModelCollaborationFields.itemUnitMrp] != null
+          ? double.tryParse(
+              map[ModelCollaborationFields.itemUnitMrp].toString(),
+            )
           : null,
-      profitToShop: map[ModelPoItemFields.profitToShop] != null
-          ? double.tryParse(map[ModelPoItemFields.profitToShop].toString())
+      profitToShop: map[ModelCollaborationFields.profitToShop] != null
+          ? double.tryParse(
+              map[ModelCollaborationFields.profitToShop].toString(),
+            )
           : null,
-      createdBy: map[ModelPoItemFields.createdBy]?.toString(),
-      updatedBy: map[ModelPoItemFields.updatedBy]?.toString(),
-      createdAt: map[ModelPoItemFields.createdAt] != null
-          ? DateTime.tryParse(map[ModelPoItemFields.createdAt].toString())
+      createdBy: map[ModelCollaborationFields.createdBy]?.toString(),
+      updatedBy: map[ModelCollaborationFields.updatedBy]?.toString(),
+      createdAt: map[ModelCollaborationFields.createdAt] != null
+          ? DateTime.tryParse(
+              map[ModelCollaborationFields.createdAt].toString(),
+            )
           : null,
-      updatedAt: map[ModelPoItemFields.updatedAt] != null
-          ? DateTime.tryParse(map[ModelPoItemFields.updatedAt].toString())
+      updatedAt: map[ModelCollaborationFields.updatedAt] != null
+          ? DateTime.tryParse(
+              map[ModelCollaborationFields.updatedAt].toString(),
+            )
           : null,
       resolvedLabels: labelEntries,
     );
@@ -149,26 +160,28 @@ class ModelPoItem {
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{};
 
-    if (poItemId != null) map[ModelPoItemFields.poItemId] = poItemId;
-    if (poId != null) map[ModelPoItemFields.poId] = poId;
-    if (productId != null) map[ModelPoItemFields.productId] = productId;
-    // if (itemName != null) map[ModelPoItemFields.itemName] = itemName;
-    if (itemQty != null) map[ModelPoItemFields.itemQty] = itemQty; // double
+    if (collaborationId != null)
+      map[ModelCollaborationFields.collaborationId] = collaborationId;
+    if (poId != null) map[ModelCollaborationFields.poId] = poId;
+    if (productId != null) map[ModelCollaborationFields.productId] = productId;
+    // if (itemName != null) map[ModelCollaborationFields.itemName] = itemName;
+    if (itemQty != null)
+      map[ModelCollaborationFields.itemQty] = itemQty; // double
     if (itemSellRate != null) {
-      map[ModelPoItemFields.itemSellRate] = itemSellRate;
+      map[ModelCollaborationFields.itemSellRate] = itemSellRate;
     }
-    if (itemPrice != null) map[ModelPoItemFields.itemPrice] = itemPrice;
-    // if (itemUnitMrp != null) map[ModelPoItemFields.itemUnitMrp] = itemUnitMrp;
+    if (itemPrice != null) map[ModelCollaborationFields.itemPrice] = itemPrice;
+    // if (itemUnitMrp != null) map[ModelCollaborationFields.itemUnitMrp] = itemUnitMrp;
     if (profitToShop != null) {
-      map[ModelPoItemFields.profitToShop] = profitToShop;
+      map[ModelCollaborationFields.profitToShop] = profitToShop;
     }
-    if (createdBy != null) map[ModelPoItemFields.createdBy] = createdBy;
-    if (updatedBy != null) map[ModelPoItemFields.updatedBy] = updatedBy;
+    if (createdBy != null) map[ModelCollaborationFields.createdBy] = createdBy;
+    if (updatedBy != null) map[ModelCollaborationFields.updatedBy] = updatedBy;
     if (createdAt != null) {
-      map[ModelPoItemFields.createdAt] = createdAt!.toIso8601String();
+      map[ModelCollaborationFields.createdAt] = createdAt!.toIso8601String();
     }
     if (updatedAt != null) {
-      map[ModelPoItemFields.updatedAt] = updatedAt!.toIso8601String();
+      map[ModelCollaborationFields.updatedAt] = updatedAt!.toIso8601String();
     }
 
     return map;
@@ -176,7 +189,7 @@ class ModelPoItem {
 
   Map<String, dynamic> toJson() {
     return {
-      'poItemId': poItemId,
+      'collaborationId': collaborationId,
       'poId': poId,
       'itemName': itemName,
       'itemQty': itemQty,
@@ -192,9 +205,9 @@ class ModelPoItem {
     };
   }
 
-  factory ModelPoItem.fromJson(Map<String, dynamic> json) {
-    return ModelPoItem(
-      poItemId: json['poItemId'] as String?,
+  factory ModelCollaboration.fromJson(Map<String, dynamic> json) {
+    return ModelCollaboration(
+      collaborationId: json['collaborationId'] as String?,
       poId: json['poId'] as String?,
       itemName: json['itemName'] as String?,
       itemQty: (json['itemQty'] as num).toDouble(),
@@ -211,10 +224,11 @@ class ModelPoItem {
   }
 }
 
-class ModelPoItemMapper implements EntityMapper<ModelPoItem> {
+class ModelCollaborationMapper implements EntityMapper<ModelCollaboration> {
   @override
-  ModelPoItem fromMap(Map<String, dynamic> map) => ModelPoItem.fromMap(map);
+  ModelCollaboration fromMap(Map<String, dynamic> map) =>
+      ModelCollaboration.fromMap(map);
 
   @override
-  Map<String, dynamic> toMap(ModelPoItem entity) => entity.toMap();
+  Map<String, dynamic> toMap(ModelCollaboration entity) => entity.toMap();
 }

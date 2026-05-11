@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../po_items/model/po_item_model.dart';
+import '../../collaborations/model/collaboration_model.dart';
 import '../../products/product_barrel.dart';
 import '../providers/cart_providers.dart';
 import '../../../../core/providers/localization_provider.dart';
 import '../../../../core/widgets/quantity_selector.dart';
 
 class CartItemCard extends ConsumerStatefulWidget {
-  final ModelPoItem entity;
+  final ModelCollaboration entity;
   final List<ModelProduct> products;
   final bool isReadOnly;
 
@@ -88,7 +88,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
       ref
           .read(cartProvider.notifier)
           .updateQuantity(
-            widget.entity.poItemId!,
+            widget.entity.collaborationId!,
             rounded - (widget.entity.itemQty ?? 0),
           );
     }
@@ -101,7 +101,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
       cartProvider.select((s) => s.lastModifiedItemId),
     );
 
-    if (lastModifiedId == widget.entity.poItemId && !_isHighlighted) {
+    if (lastModifiedId == widget.entity.collaborationId && !_isHighlighted) {
       Future.microtask(() => _triggerHighlight());
     }
 
@@ -211,7 +211,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                           GestureDetector(
                             onTap: () => ref
                                 .read(cartProvider.notifier)
-                                .removeItem(widget.entity.poItemId!),
+                                .removeItem(widget.entity.collaborationId!),
                             child: Icon(
                               Icons.delete_outline_rounded,
                               color: theme.colorScheme.error.withValues(

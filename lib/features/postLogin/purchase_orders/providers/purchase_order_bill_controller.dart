@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
 import '../../../../core/utils/file_save_helper.dart';
-import '../../po_items/providers/po_item_providers.dart';
-import '../../po_items/model/po_item_model.dart';
+import '../../collaborations/providers/collaboration_providers.dart';
+import '../../collaborations/model/collaboration_model.dart';
 import '../model/purchase_order_model.dart';
 import '../services/purchase_order_pdf_service.dart';
 
@@ -102,11 +102,11 @@ class PurchaseOrderBillController
 
     try {
       // Fetch all items for selected orders
-      final allItems = <List<ModelPoItem>>[];
+      final allItems = <List<ModelCollaboration>>[];
       for (final order in selectedOrders) {
         if (order.poId != null) {
           final items = await _ref.read(
-            poItemsByPoIdProvider(order.poId!).future,
+            collaborationsByPoIdProvider(order.poId!).future,
           );
           allItems.add(items);
         } else {
@@ -212,12 +212,12 @@ final purchaseOrderBillControllerProvider =
       return PurchaseOrderBillController(ref);
     });
 
-class AggregatedPoItem {
+class AggregatedCollaboration {
   final String itemName;
   final double totalQty;
   final String unit;
 
-  AggregatedPoItem({
+  AggregatedCollaboration({
     required this.itemName,
     required this.totalQty,
     required this.unit,
@@ -226,7 +226,7 @@ class AggregatedPoItem {
 
 class AggregatedGroup {
   final String type;
-  final List<AggregatedPoItem> products;
+  final List<AggregatedCollaboration> products;
 
   AggregatedGroup({required this.type, required this.products});
 }
@@ -239,10 +239,10 @@ final billAggregatedItemsProvider =
 
       if (poIds.isEmpty) return [];
 
-      final allItems = <ModelPoItem>[];
+      final allItems = <ModelCollaboration>[];
       for (final id in poIds) {
         try {
-          final items = await ref.read(poItemsByPoIdProvider(id).future);
+          final items = await ref.read(collaborationsByPoIdProvider(id).future);
           allItems.addAll(items);
         } catch (e) {
           debugPrint('Error fetching items for PO $id: $e');
@@ -250,7 +250,7 @@ final billAggregatedItemsProvider =
       }
 
       // Group by Item Type -> Product Name
-      final groupedMap = <String, Map<String, AggregatedPoItem>>{};
+      final groupedMap = <String, Map<String, AggregatedCollaboration>>{};
 
       for (var item in allItems) {
         final type =
@@ -264,13 +264,13 @@ final billAggregatedItemsProvider =
 
         if (typeGroup.containsKey(name)) {
           final existing = typeGroup[name]!;
-          typeGroup[name] = AggregatedPoItem(
+          typeGroup[name] = AggregatedCollaboration(
             itemName: name,
             totalQty: existing.totalQty + (item.itemQty ?? 0),
             unit: unit,
           );
         } else {
-          typeGroup[name] = AggregatedPoItem(
+          typeGroup[name] = AggregatedCollaboration(
             itemName: name,
             totalQty: item.itemQty ?? 0,
             unit: unit,

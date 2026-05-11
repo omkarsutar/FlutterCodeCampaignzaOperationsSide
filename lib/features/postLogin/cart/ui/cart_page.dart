@@ -139,7 +139,7 @@ class _CartPageState extends ConsumerState<CartPage>
                     itemBuilder: (context, index) {
                       final processedItem = viewData.items[index];
                       return CartItemCard(
-                        key: ValueKey(processedItem.item.poItemId),
+                        key: ValueKey(processedItem.item.collaborationId),
                         entity: processedItem.item,
                         products: products,
                         isReadOnly: isReadOnly,

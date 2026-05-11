@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:flutter_supabase_order_app_mobile/core/services/entity_service.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_items/model/po_item_model.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/model/collaboration_model.dart';
 import '../model/purchase_order_model.dart';
 import 'pdf_asset_loader.dart';
 import 'pdf_data_processor.dart';
@@ -15,7 +15,7 @@ import 'pdf_data_processor.dart';
 class PurchaseOrderPdfService {
   static Future<Uint8List> generateBillPdf(
     List<ModelPurchaseOrder> orders,
-    List<List<ModelPoItem>> allItems,
+    List<List<ModelCollaboration>> allItems,
     EntityAdapter<ModelPurchaseOrder> adapter, {
     Map<String, bool>? splitPreferences,
   }) async {
@@ -85,7 +85,7 @@ class PurchaseOrderPdfService {
 
   static Widget _buildOrderCard(
     ModelPurchaseOrder order,
-    List<ModelPoItem> items,
+    List<ModelCollaboration> items,
     EntityAdapter<ModelPurchaseOrder> adapter,
     Font font,
     Font boldFont,

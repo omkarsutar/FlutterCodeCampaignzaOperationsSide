@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
-import '../../po_items/model/po_item_model.dart';
+import '../../collaborations/model/collaboration_model.dart';
 
 class CartStorageService {
   static const String _pendingOrderKey = 'pending_order';
   static const String _orderMetadataKey = 'order_metadata';
 
   Future<void> savePendingOrder(
-    List<ModelPoItem> items, {
+    List<ModelCollaboration> items, {
     String? shopId,
     String? routeId,
     String? purchaseOrderId,
@@ -48,7 +48,7 @@ class CartStorageService {
 
       final List<dynamic> itemsJson = json.decode(pendingOrderJson);
       final items = itemsJson
-          .map((item) => ModelPoItem.fromJson(item))
+          .map((item) => ModelCollaboration.fromJson(item))
           .toList();
 
       final metadataJson = prefs.getString(_orderMetadataKey);

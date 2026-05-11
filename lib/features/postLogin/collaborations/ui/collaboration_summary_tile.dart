@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../model/po_item_model.dart';
+import '../model/collaboration_model.dart';
 
-class PoItemSummaryTile extends StatelessWidget {
-  final ModelPoItem item;
+class CollaborationSummaryTile extends StatelessWidget {
+  final ModelCollaboration item;
 
-  const PoItemSummaryTile({super.key, required this.item});
+  const CollaborationSummaryTile({super.key, required this.item});
 
   String get _qtyText {
     if (item.itemQty == null) return '-';
@@ -18,9 +18,8 @@ class PoItemSummaryTile extends StatelessWidget {
     }
   }
 
-  String get _rateText => item.itemSellRate != null
-      ? item.itemSellRate!.toStringAsFixed(2)
-      : '-';
+  String get _rateText =>
+      item.itemSellRate != null ? item.itemSellRate!.toStringAsFixed(2) : '-';
 
   String get _amountText =>
       item.itemPrice != null ? item.itemPrice!.toStringAsFixed(2) : '-';

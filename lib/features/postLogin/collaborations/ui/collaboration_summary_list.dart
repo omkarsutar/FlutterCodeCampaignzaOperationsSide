@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/po_item_providers.dart';
-import 'po_item_summary_tile.dart';
-import '../providers/po_item_summary_controller.dart';
+import '../providers/collaboration_providers.dart';
+import 'collaboration_summary_tile.dart';
+import '../providers/collaboration_summary_controller.dart';
 
-class PoItemSummaryList extends ConsumerWidget {
+class CollaborationSummaryList extends ConsumerWidget {
   final String poId;
   final String status;
 
-  const PoItemSummaryList({
+  const CollaborationSummaryList({
     super.key,
     required this.poId,
     required this.status,
@@ -16,10 +16,12 @@ class PoItemSummaryList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final poItemsAsync = ref.watch(processedPoSummaryItemsProvider(poId));
-    final isGrouped = ref.watch(poItemSummaryGroupedProvider);
+    final collaborationsAsync = ref.watch(
+      processedPoSummaryItemsProvider(poId),
+    );
+    final isGrouped = ref.watch(collaborationSummaryGroupedProvider);
 
-    return poItemsAsync.when(
+    return collaborationsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Text('Error loading items: $error'),
       data: (items) {
@@ -50,7 +52,10 @@ class PoItemSummaryList extends ConsumerWidget {
                           child: InkWell(
                             onTap: () {
                               ref
-                                  .read(poItemSummaryGroupedProvider.notifier)
+                                  .read(
+                                    collaborationSummaryGroupedProvider
+                                        .notifier,
+                                  )
                                   .update((state) => !state);
                             },
                             child: Icon(
@@ -89,7 +94,7 @@ class PoItemSummaryList extends ConsumerWidget {
               ],
             ),
             const Divider(),
-            ...items.map((item) => PoItemSummaryTile(item: item)),
+            ...items.map((item) => CollaborationSummaryTile(item: item)),
           ],
         );
       },

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/notes/note_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_items/po_item_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/purchase_orders/purchase_order_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
@@ -39,7 +39,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...RolesRoutesJson.routes,
       ...UsersRoutesJson.routes,
       ...PurchaseOrdersRoutesJson.routes,
-      ...PoItemsRoutesJson.routes,
+      ...CollaborationsRoutesJson.routes,
       ...ProductsRoutesJson.routes,
       ...RbacModulesRoutesJson.routes,
       ...RbacPermissionsRoutesJson.routes,

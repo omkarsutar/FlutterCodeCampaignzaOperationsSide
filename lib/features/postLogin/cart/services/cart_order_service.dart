@@ -5,19 +5,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../../core/services/connectivity_service.dart';
 import '../../purchase_orders/purchase_order_barrel.dart';
-import '../../po_items/model/po_item_model.dart';
-import '../../po_items/service/po_item_service_impl.dart';
+import '../../collaborations/model/collaboration_model.dart';
+import '../../collaborations/service/collaboration_service_impl.dart';
 import '../providers/cart_view_logic.dart';
 
 class CartOrderService {
   final SupabaseClient client;
   final PurchaseOrderServiceImpl poService;
-  final PoItemServiceImpl poItemService;
+  final CollaborationServiceImpl collaborationService;
 
   CartOrderService({
     required this.client,
     required this.poService,
-    required this.poItemService,
+    required this.collaborationService,
   });
 
   Future<void> placeOrder({
@@ -85,7 +85,8 @@ class CartOrderService {
       try {
         final existingPo = await poService.fetchById(purchaseOrderId);
         finalUserComment = existingPo.userComment;
-        if (existingPo.adminComment != null && existingPo.adminComment!.isNotEmpty) {
+        if (existingPo.adminComment != null &&
+            existingPo.adminComment!.isNotEmpty) {
           if (!existingPo.adminComment!.contains(adminComment)) {
             finalAdminComment = '${existingPo.adminComment} | $adminComment';
           } else {
@@ -116,7 +117,7 @@ class CartOrderService {
       await poService.update(purchaseOrderId, po);
       finalPoId = purchaseOrderId;
       // Delete old items
-      await poItemService.deleteAllByPo(finalPoId);
+      await collaborationService.deleteAllByPo(finalPoId);
     } else {
       // Create new PO
       final createdPo = await poService.create(po);
@@ -128,8 +129,8 @@ class CartOrderService {
     }
 
     for (final processedItem in viewData.items) {
-      final item = ModelPoItem(
-        poItemId: null,
+      final item = ModelCollaboration(
+        collaborationId: null,
         poId: finalPoId,
         productId: processedItem.item.productId,
         itemName: processedItem.item.itemName,
@@ -141,7 +142,7 @@ class CartOrderService {
         createdBy: userId,
         updatedBy: userId,
       );
-      await poItemService.create(item);
+      await collaborationService.create(item);
     }
 
     // WhatsApp sharing
