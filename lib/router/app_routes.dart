@@ -3,7 +3,7 @@
 /// This provides a single source of truth for all routes, supporting:
 /// - Route names (for GoRouter named navigation)
 /// - Route URLs/paths (for GoRouter configuration)
-/// - Path parameter building (e.g., /shops/:id → /shops/123)
+/// - Path parameter building (e.g., /brands/:id → /brands/123)
 /// - Type-safe route definitions
 
 library;
@@ -36,11 +36,11 @@ class AppRoute {
   /// ============================================================================
 
   /// ============================================================================
-  /// Shops Routes
+  /// Brands Routes
   /// ============================================================================
 
   /// ============================================================================
-  /// Route-Shop Links Routes
+  /// Route-Brand Links Routes
   /// ============================================================================
 
   /// ============================================================================

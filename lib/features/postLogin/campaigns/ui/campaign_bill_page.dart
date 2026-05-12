@@ -122,7 +122,7 @@ class CampaignBillPage extends ConsumerWidget {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Text(
-                                        '${billData.heavyOrdersCount} Shop(s) have more than 15 items.',
+                                        '${billData.heavyOrdersCount} Brand(s) have more than 15 items.',
                                         style: theme.textTheme.bodyMedium
                                             ?.copyWith(
                                               color: theme

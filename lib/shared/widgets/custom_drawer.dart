@@ -5,12 +5,12 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/c
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_shop_links/route_shop_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_brand_links/route_brand_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/shops/shop_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_shop_links/retailer_shop_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_brand_links/retailer_brand_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -87,20 +87,20 @@ class CustomDrawer extends ConsumerWidget {
           ),
 
           /* ListTile(
-            leading: const Icon(Icons.tab), // 🗂️ Shop Tabs
-            title: const Text('Shop Tabs'),
-            onTap: () => context.goNamed(ShopsRoutes.shopsWithoutTodaysPOsName),
+            leading: const Icon(Icons.tab), // 🗂️ Brand Tabs
+            title: const Text('Brand Tabs'),
+            onTap: () => context.goNamed(BrandsRoutes.brandsWithoutTodaysPOsName),
           ), */
           ReadEntityTile(
-            moduleName: ModelShopFields.table, // "shops"
-            routeName: ShopsRoutesJson.listRouteName,
-            title: 'Todays Shops',
+            moduleName: ModelBrandFields.table, // "brands"
+            routeName: BrandsRoutesJson.listRouteName,
+            title: 'Todays Brands',
             icon: Icons.store,
             queryParameters: {
               'tapCondition': 'listWithoutTodaysPOs',
               'route_filter': 'north',
             },
-            // Hide "Todays Shops" from drawer for deliveryperson and salesperson (they use "Todays Shops" or via POs)
+            // Hide "Todays Brands" from drawer for deliveryperson and salesperson (they use "Todays Brands" or via POs)
             // But they still have "Read" permission so the route works.
             visible: !['deliveryperson'].contains(rbacService.roleName),
           ),
@@ -143,13 +143,13 @@ class CustomDrawer extends ConsumerWidget {
               onTap: () => context.goNamed(AppRoute.profileName),
             ),
 
-          // Shops
+          // Brands
           ReadEntityTile(
-            moduleName: ModelShopFields.table, // "shops"
-            routeName: ShopsRoutesJson.listRouteName,
-            title: 'All Shops',
+            moduleName: ModelBrandFields.table, // "brands"
+            routeName: BrandsRoutesJson.listRouteName,
+            title: 'All Brands',
             icon: Icons.store,
-            // Hide "All Shops" from drawer for deliveryperson and salesperson (they use "Todays Shops" or via POs)
+            // Hide "All Brands" from drawer for deliveryperson and salesperson (they use "Todays Brands" or via POs)
             // But they still have "Read" permission so the route works.
             visible: ![
               'deliveryperson',
@@ -205,20 +205,20 @@ class CustomDrawer extends ConsumerWidget {
             icon: Icons.alt_route,
           ),
 
-          // Route Shop Links
+          // Route Brand Links
           ReadEntityTile(
-            moduleName: ModelRouteShopLinkFields.table, // "route_shop_links"
-            routeName: RouteShopLinksRoutesJson.listRouteName,
-            title: 'Route Shop Links',
+            moduleName: ModelRouteBrandLinkFields.table, // "route_brand_links"
+            routeName: RouteBrandLinksRoutesJson.listRouteName,
+            title: 'Route Brand Links',
             icon: Icons.link,
           ),
 
-          // Retailer Shop Links
+          // Retailer Brand Links
           ReadEntityTile(
             moduleName:
-                ModelRetailerShopLinkFields.table, // "retailer_shop_link"
-            routeName: RetailerShopLinkRoutesJson.listRouteName,
-            title: 'Retailer Shop Links',
+                ModelRetailerBrandLinkFields.table, // "retailer_brand_link"
+            routeName: RetailerBrandLinkRoutesJson.listRouteName,
+            title: 'Retailer Brand Links',
             icon: Icons.link,
           ),
 

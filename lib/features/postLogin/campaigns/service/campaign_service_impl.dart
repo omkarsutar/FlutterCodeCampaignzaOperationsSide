@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/shops/shop_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/config/field_config.dart';
@@ -50,10 +50,10 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
       idColumn: ModelRouteFields.routeId,
       labelColumn: ModelRouteFields.routeName,
     ),
-    ModelCampaignFields.poShopId: ForeignKeyConfig(
-      table: ModelShopFields.table,
-      idColumn: ModelShopFields.shopId,
-      labelColumn: ModelShopFields.shopName,
+    ModelCampaignFields.poBrandId: ForeignKeyConfig(
+      table: ModelBrandFields.table,
+      idColumn: ModelBrandFields.brandId,
+      labelColumn: ModelBrandFields.brandName,
     ),
     ModelCampaignFields.createdBy: ForeignKeyConfig(
       table: ModelUserFields.table,
@@ -69,10 +69,10 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
 
   // --- Custom helpers ---
 
-  /// Create an empty campaign for a given route and shop
+  /// Create an empty campaign for a given route and brand
   Future<Map<String, dynamic>> createEmptyCampaign({
     required String poRouteId,
-    required String poShopId,
+    required String poBrandId,
   }) async {
     final userId = _ref.read(userProfileStateProvider).profile?.userId;
     if (userId == null) throw Exception('No signed-in user found');
@@ -81,9 +81,9 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
       poTotalAmount: 0.0,
       poLineItemCount: 0,
       poRouteId: poRouteId,
-      poShopId: poShopId,
+      poBrandId: poBrandId,
       userComment: null,
-      profitToShop: null,
+      profitToBrand: null,
       poLat: null,
       poLong: null,
       status: null,
@@ -100,18 +100,18 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     return response;
   }
 
-  /// Fetch all campaigns for a given shop
-  Future<List<Map<String, dynamic>>> fetchCampaignsForShop(
-    String? selectedShopId,
+  /// Fetch all campaigns for a given brand
+  Future<List<Map<String, dynamic>>> fetchCampaignsForBrand(
+    String? selectedBrandId,
   ) async {
-    if (selectedShopId == null || selectedShopId.isEmpty) {
-      throw Exception('Shop ID not provided');
+    if (selectedBrandId == null || selectedBrandId.isEmpty) {
+      throw Exception('Brand ID not provided');
     }
 
     final campaigns = await client
         .from(ModelCampaignFields.tableViewWithForeignKeyLabels)
         .select('*')
-        .eq(ModelCampaignFields.poShopId, selectedShopId);
+        .eq(ModelCampaignFields.poBrandId, selectedBrandId);
 
     return List<Map<String, dynamic>>.from(campaigns);
   }
@@ -169,12 +169,14 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     return controller.stream;
   }
 
-  /// Fetch campaigns for a given shop with foreign labels resolved
-  Future<List<Map<String, dynamic>>> fetchEntitiesByShop(String shopId) async {
+  /// Fetch campaigns for a given brand with foreign labels resolved
+  Future<List<Map<String, dynamic>>> fetchEntitiesByBrand(
+    String brandId,
+  ) async {
     final List<dynamic> result = await client
         .from(ModelCampaignFields.tableViewWithForeignKeyLabels)
         .select()
-        .eq(ModelCampaignFields.poShopId, shopId)
+        .eq(ModelCampaignFields.poBrandId, brandId)
         .order(sortField ?? createdAt, ascending: sortAscending);
 
     return List<Map<String, dynamic>>.from(result);

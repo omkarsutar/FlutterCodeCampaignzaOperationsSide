@@ -340,7 +340,7 @@ class ProductViewPageRiverpod extends ConsumerWidget {
                   itemSellRate: product.purchaseRateForRetailer,
                   itemUnitMrp: product.mrp,
                   itemPrice: product.purchaseRateForRetailer,
-                  profitToShop: product.mrp - product.purchaseRateForRetailer,
+                  profitToBrand: product.mrp - product.purchaseRateForRetailer,
                 );
 
                 // Add to cart - this will set lastModifiedItemId and trigger highlight

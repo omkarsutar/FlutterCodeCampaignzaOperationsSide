@@ -211,7 +211,7 @@ class CollaborationServiceImpl
     data[ModelCollaborationFields.poId] = selectedPoId;
     data[ModelCollaborationFields.createdBy] = user.id;
     data[ModelCollaborationFields.updatedBy] = user.id;
-    data[ModelCollaborationFields.profitToShop] = calculateProfit(data);
+    data[ModelCollaborationFields.profitToBrand] = calculateProfit(data);
 
     final inserted = await client
         .from(tableName)

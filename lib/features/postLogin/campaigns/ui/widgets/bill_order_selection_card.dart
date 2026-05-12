@@ -23,11 +23,11 @@ class BillOrderSelectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final shopName =
+    final brandName =
         adapter
-            .getLabelValue(order, ModelCampaignFields.poShopId)
+            .getLabelValue(order, ModelCampaignFields.poBrandId)
             ?.toString() ??
-        'Unknown Shop';
+        'Unknown Brand';
     final totalAmount = (order.poTotalAmount ?? 0).ceil();
     final itemCount = order.poLineItemCount ?? 0;
 
@@ -60,7 +60,7 @@ class BillOrderSelectionCard extends StatelessWidget {
               ),
             ),
             title: Text(
-              shopName,
+              brandName,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

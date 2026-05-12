@@ -37,11 +37,11 @@ class CampaignDeliverySelectablePage extends ConsumerWidget {
           itemCount: orders.length,
           itemBuilder: (context, index) {
             final order = orders[index];
-            final shopName =
+            final brandName =
                 adapter
-                    .getLabelValue(order, ModelCampaignFields.poShopId)
+                    .getLabelValue(order, ModelCampaignFields.poBrandId)
                     ?.toString() ??
-                'Unknown Shop';
+                'Unknown Brand';
             final routeName =
                 adapter
                     .getLabelValue(order, ModelCampaignFields.poRouteId)
@@ -55,7 +55,7 @@ class CampaignDeliverySelectablePage extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        shopName,
+                        brandName,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),

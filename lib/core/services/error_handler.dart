@@ -18,7 +18,7 @@ class ErrorHandler {
   /// **Parameters:**
   /// - [error]: The error object
   /// - [stackTrace]: Stack trace for debugging
-  /// - [context]: Description of where the error occurred (e.g., 'Loading shops')
+  /// - [context]: Description of where the error occurred (e.g., 'Loading brands')
   /// - [showToUser]: Whether to show a snackbar to the user
   /// - [userMessage]: Custom message to show user (if null, generates one)
   /// - [logLevel]: Severity level (error, warning, info)
@@ -26,12 +26,12 @@ class ErrorHandler {
   /// **Example:**
   /// ```dart
   /// try {
-  ///   await fetchShops();
+  ///   await fetchBrands();
   /// } catch (e, stackTrace) {
   ///   ErrorHandler.handle(
   ///     e,
   ///     stackTrace,
-  ///     context: 'Fetching shops for route',
+  ///     context: 'Fetching brands for route',
   ///     showToUser: true,
   ///   );
   /// }
@@ -223,10 +223,10 @@ class ErrorHandler {
   ///
   /// **Example:**
   /// ```dart
-  /// final shops = await ErrorHandler.wrapAsync(
-  ///   () => shopService.fetchAll(),
-  ///   context: 'Loading shops',
-  ///   onError: () => <ModelShop>[], // Fallback value
+  /// final brands = await ErrorHandler.wrapAsync(
+  ///   () => brandService.fetchAll(),
+  ///   context: 'Loading brands',
+  ///   onError: () => <ModelBrand>[], // Fallback value
   /// );
   /// ```
   static Future<T> wrapAsync<T>(

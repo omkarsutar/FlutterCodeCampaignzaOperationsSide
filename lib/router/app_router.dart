@@ -6,11 +6,11 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/c
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_shop_links/route_shop_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_brand_links/route_brand_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/shops/shop_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_shop_links/retailer_shop_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_brand_links/retailer_brand_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
@@ -34,8 +34,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...authRoutes,
       ...NotesRoutesJson.routes,
       ...RoutesRoutesJson.routes,
-      ...ShopsRoutesJson.routes,
-      ...RouteShopLinksRoutesJson.routes,
+      ...BrandsRoutesJson.routes,
+      ...RouteBrandLinksRoutesJson.routes,
       ...RolesRoutesJson.routes,
       ...UsersRoutesJson.routes,
       ...CampaignsRoutesJson.routes,
@@ -44,7 +44,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...RbacModulesRoutesJson.routes,
       ...RbacPermissionsRoutesJson.routes,
       ...PoCollectionsRoutesJson.routes,
-      ...RetailerShopLinkRoutesJson.routes,
+      ...RetailerBrandLinkRoutesJson.routes,
     ],
     initialLocation: AppRoute.welcome,
     redirect: (context, state) async {
@@ -124,10 +124,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           return state.namedLocation(ProductsRoutesJson.listRouteName);
         }
 
-        // Redirect salesperson to Todays Shops
+        // Redirect salesperson to Todays Brands
         if (roleName == 'salesperson') {
           return state.namedLocation(
-            ShopsRoutesJson.listRouteName,
+            BrandsRoutesJson.listRouteName,
             queryParameters: {'tapCondition': 'listWithoutTodaysPOs'},
           );
         }

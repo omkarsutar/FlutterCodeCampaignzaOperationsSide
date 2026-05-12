@@ -94,11 +94,11 @@ class CampaignPdfService {
     int partIndex = 1,
     int totalParts = 1,
   }) {
-    final shopName =
+    final brandName =
         adapter
-            .getLabelValue(order, ModelCampaignFields.poShopId)
+            .getLabelValue(order, ModelCampaignFields.poBrandId)
             ?.toString() ??
-        'Unknown Shop';
+        'Unknown Brand';
     final routeName =
         adapter
             .getLabelValue(order, ModelCampaignFields.poRouteId)
@@ -157,7 +157,7 @@ class CampaignPdfService {
           ),
 
           Divider(color: PdfColors.grey400),
-          // Shop Logo
+          // Brand Logo
           Container(
             width: double.infinity,
             child: Image(
@@ -166,7 +166,7 @@ class CampaignPdfService {
             ),
           ),
 
-          // Shop Info Section
+          // Brand Info Section
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Column(
@@ -181,8 +181,8 @@ class CampaignPdfService {
                       ),
                       TextSpan(
                         text: totalParts > 1
-                            ? '$shopName (Part $partIndex/$totalParts)'
-                            : shopName,
+                            ? '$brandName (Part $partIndex/$totalParts)'
+                            : brandName,
                         style: TextStyle(font: boldFont, fontSize: 10),
                       ),
                     ],
@@ -200,12 +200,12 @@ class CampaignPdfService {
                 ),
                 SizedBox(height: 2),
                 Text(
-                  'Address: ${adapter.getLabelValue(order, 'shop_address')?.toString() ?? ''}',
+                  'Address: ${adapter.getLabelValue(order, 'brand_address')?.toString() ?? ''}',
                   style: TextStyle(font: font, fontSize: 8),
                 ),
                 SizedBox(height: 2),
                 Text(
-                  'Note 1: ${adapter.getLabelValue(order, 'shop_note')?.toString() ?? '-'}',
+                  'Note 1: ${adapter.getLabelValue(order, 'brand_note')?.toString() ?? '-'}',
                   style: TextStyle(font: font, fontSize: 8),
                 ),
                 SizedBox(height: 2),
@@ -395,7 +395,7 @@ class CampaignPdfService {
     // Shared column widths for alignment across headers and data tables
     const columnWidths = {
       0: FixedColumnWidth(20), // #
-      1: FlexColumnWidth(1), // Shop Name
+      1: FlexColumnWidth(1), // Brand Name
       2: FixedColumnWidth(45), // Bill Amount
       3: FixedColumnWidth(45), // Collected Amount
       4: FixedColumnWidth(35), // Cash
@@ -460,7 +460,7 @@ class CampaignPdfService {
                     decoration: const BoxDecoration(color: PdfColors.grey200),
                     children: [
                       Container(padding: const EdgeInsets.all(2)), // # (0)
-                      Container(padding: const EdgeInsets.all(2)), // Shop (1)
+                      Container(padding: const EdgeInsets.all(2)), // Brand (1)
                       Container(padding: const EdgeInsets.all(2)), // Bill (2)
                       Container(
                         padding: const EdgeInsets.all(2),
@@ -512,7 +512,7 @@ class CampaignPdfService {
                     verticalAlignment: TableCellVerticalAlignment.middle,
                     children: [
                       _buildTableCell('#', assets.bold, alignCenter: true),
-                      _buildTableCell('Shop Name', assets.bold),
+                      _buildTableCell('Brand Name', assets.bold),
                       _buildTableCell(
                         'Bill Amount',
                         assets.bold,
@@ -570,9 +570,9 @@ class CampaignPdfService {
                   ),
                   columnWidths: columnWidths,
                   children: routeOrders.map((order) {
-                    final shopName =
+                    final brandName =
                         adapter
-                            .getLabelValue(order, ModelCampaignFields.poShopId)
+                            .getLabelValue(order, ModelCampaignFields.poBrandId)
                             ?.toString() ??
                         'Unknown';
                     final amountRaw = order.poTotalAmount ?? 0;
@@ -585,7 +585,7 @@ class CampaignPdfService {
                           assets.regular,
                           alignCenter: true,
                         ),
-                        _buildTableCell(shopName, assets.regular),
+                        _buildTableCell(brandName, assets.regular),
                         _buildTableCell(
                           amountStr,
                           assets.bold,

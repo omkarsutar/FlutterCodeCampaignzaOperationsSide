@@ -8,7 +8,7 @@ abstract class LoggingEntityService<T> implements EntityService<T> {
 
   LoggingEntityService(this.logger);
 
-  /// Get the entity type name for logging (e.g., "ModelNote", "ModelShop")
+  /// Get the entity type name for logging (e.g., "ModelNote", "ModelBrand")
   String get entityTypeName;
 
   /// Get the table name for logging

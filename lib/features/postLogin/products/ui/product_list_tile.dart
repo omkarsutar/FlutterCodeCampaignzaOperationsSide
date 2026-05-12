@@ -364,7 +364,7 @@ class _ProductListTileState extends ConsumerState<ProductListTile> {
             itemSellRate: widget.entity.purchaseRateForRetailer,
             itemUnitMrp: widget.entity.mrp,
             itemPrice: widget.entity.purchaseRateForRetailer,
-            profitToShop:
+            profitToBrand:
                 (widget.entity.mrp) - (widget.entity.purchaseRateForRetailer),
           );
           cartNotifier.addItem(newItem);

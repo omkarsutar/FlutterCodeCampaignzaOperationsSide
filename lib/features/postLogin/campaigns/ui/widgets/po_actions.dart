@@ -34,14 +34,14 @@ class PoActions extends ConsumerWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // View Shop Button
-        if (entity.poShopId != null)
+        // View Brand Button
+        if (entity.poBrandId != null)
           _IconButton(
             icon: Icons.store,
             color: theme.colorScheme.primary,
             onPressed: () => context.pushNamed(
-              'viewShop',
-              pathParameters: {'id': entity.poShopId!},
+              'viewBrand',
+              pathParameters: {'id': entity.poBrandId!},
             ),
           ),
 

@@ -6,13 +6,13 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/pr
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_shop_links/route_shop_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_brand_links/route_brand_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/shops/shop_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_shop_links/retailer_shop_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_brand_links/retailer_brand_link_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/utils/web_utils.dart' as web_utils;
@@ -96,13 +96,13 @@ void main() async {
   await RbacModulesRoutesJson.initialize();
   await UsersRoutesJson.initialize();
   await ProductsRoutesJson.initialize();
-  await RouteShopLinksRoutesJson.initialize();
+  await RouteBrandLinksRoutesJson.initialize();
   await RbacPermissionsRoutesJson.initialize();
   await CampaignsRoutesJson.initialize();
   await CollaborationsRoutesJson.initialize();
-  await ShopsRoutesJson.initialize();
+  await BrandsRoutesJson.initialize();
   await PoCollectionsRoutesJson.initialize();
-  await RetailerShopLinkRoutesJson.initialize();
+  await RetailerBrandLinkRoutesJson.initialize();
 
   // Make error messages selectable on web
   ErrorWidget.builder = (FlutterErrorDetails details) {
@@ -144,7 +144,7 @@ class _MainAppState extends ConsumerState<MainApp> {
     final router = ref.watch(routerProvider);
 
     return RoleChangeDetector(
-      child: RetailerShopLinkChangeDetector(
+      child: RetailerBrandLinkChangeDetector(
         child: MaterialApp.router(
           scaffoldMessengerKey: scaffoldMessengerKey,
           routerConfig: router,
@@ -256,17 +256,17 @@ class RoleChangeDetector extends ConsumerWidget {
   }
 }
 
-/// A widget that listens for real-time changes to retailer_shop_links
+/// A widget that listens for real-time changes to retailer_brand_links
 /// and automatically refreshes the app state when links are created or updated for the current user.
-class RetailerShopLinkChangeDetector extends ConsumerWidget {
+class RetailerBrandLinkChangeDetector extends ConsumerWidget {
   final Widget child;
-  const RetailerShopLinkChangeDetector({super.key, required this.child});
+  const RetailerBrandLinkChangeDetector({super.key, required this.child});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen<
-      AsyncValue<List<ModelRetailerShopLink>>
-    >(retailerShopLinksStreamProvider, (previous, next) {
+      AsyncValue<List<ModelRetailerBrandLink>>
+    >(retailerBrandLinksStreamProvider, (previous, next) {
       // Only proceed if both previous and next have data
       if (previous == null || !previous.hasValue || !next.hasValue) {
         return;
@@ -279,7 +279,7 @@ class RetailerShopLinkChangeDetector extends ConsumerWidget {
       if (previousLinks.length != currentLinks.length ||
           _hasLinkChanges(previousLinks, currentLinks)) {
         debugPrint(
-          'RetailerShopLinkChangeDetector: Retailer shop link changes detected',
+          'RetailerBrandLinkChangeDetector: Retailer brand link changes detected',
         );
 
         // Show notification to user
@@ -292,7 +292,7 @@ class RetailerShopLinkChangeDetector extends ConsumerWidget {
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
-                    'Your shop assignments have changed. Reloading app...',
+                    'Your brand assignments have changed. Reloading app...',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -317,11 +317,11 @@ class RetailerShopLinkChangeDetector extends ConsumerWidget {
             ref.read(routerProvider).refresh();
 
             debugPrint(
-              'RetailerShopLinkChangeDetector: App successfully reloaded with new shop links',
+              'RetailerBrandLinkChangeDetector: App successfully reloaded with new brand links',
             );
           } catch (e) {
             debugPrint(
-              'RetailerShopLinkChangeDetector: Error during reload: $e',
+              'RetailerBrandLinkChangeDetector: Error during reload: $e',
             );
           }
         });
@@ -331,10 +331,10 @@ class RetailerShopLinkChangeDetector extends ConsumerWidget {
     return child;
   }
 
-  /// Check if there are actual changes in the retailer shop links
+  /// Check if there are actual changes in the retailer brand links
   bool _hasLinkChanges(
-    List<ModelRetailerShopLink> previousLinks,
-    List<ModelRetailerShopLink> currentLinks,
+    List<ModelRetailerBrandLink> previousLinks,
+    List<ModelRetailerBrandLink> currentLinks,
   ) {
     // Create maps for easier comparison
     final previousMap = {for (var link in previousLinks) link.linkId: link};
@@ -351,9 +351,9 @@ class RetailerShopLinkChangeDetector extends ConsumerWidget {
         return true;
       }
 
-      // Check if link data changed (userId or shopId)
+      // Check if link data changed (userId or brandId)
       if (previousLink.userId != currentLink.userId ||
-          previousLink.shopId != currentLink.shopId) {
+          previousLink.brandId != currentLink.brandId) {
         return true;
       }
     }

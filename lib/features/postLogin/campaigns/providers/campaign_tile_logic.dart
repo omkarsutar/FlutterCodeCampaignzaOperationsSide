@@ -51,11 +51,11 @@ class CampaignTileLogic {
       final updatedEntity = ModelCampaign(
         poId: entity.poId,
         poRouteId: entity.poRouteId,
-        poShopId: entity.poShopId,
+        poBrandId: entity.poBrandId,
         poTotalAmount: entity.poTotalAmount,
         poLineItemCount: entity.poLineItemCount,
         userComment: entity.userComment,
-        profitToShop: entity.profitToShop,
+        profitToBrand: entity.profitToBrand,
         poLat: entity.poLat,
         poLong: entity.poLong,
         status: newStatus,

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'ui/campaign_list_by_shop_id.dart';
+import 'ui/campaign_list_by_brand_id.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/models/route_permission.dart';
@@ -57,10 +57,10 @@ class CampaignsRoutesJson {
         return CampaignListTile(entity: entity, adapter: adapter, onTap: onTap);
       },
       customListBuilder: (context, state) {
-        final filterShopId = state.uri.queryParameters['filterShopId'];
+        final filterBrandId = state.uri.queryParameters['filterBrandId'];
 
-        if (filterShopId != null) {
-          return CampaignListByShopId(
+        if (filterBrandId != null) {
+          return CampaignListByBrandId(
             entityMeta: _config.entityMeta,
             idField: _config.table.idField,
             fieldConfigs: _config.fields,

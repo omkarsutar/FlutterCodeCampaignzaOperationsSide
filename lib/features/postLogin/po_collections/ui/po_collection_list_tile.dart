@@ -34,7 +34,7 @@ class PoCollectionListTile extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      entity.shopIdLabel ?? 'Unknown Shop',
+                      entity.brandIdLabel ?? 'Unknown Brand',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),

@@ -12,7 +12,7 @@ class ModelCollaborationFields {
   static const String itemSellRate = 'item_sell_rate';
   static const String itemPrice = 'item_price';
   static const String itemUnitMrp = 'item_unit_mrp';
-  static const String profitToShop = 'profit_to_shop';
+  static const String profitToBrand = 'profit_to_brand';
   static const String createdBy = 'created_by';
   static const String updatedBy = 'updated_by';
   static const String createdAt = 'created_at';
@@ -27,7 +27,7 @@ class ModelCollaborationFields {
     itemSellRate: 'Sell Rate',
     itemPrice: 'Price',
     itemUnitMrp: 'Unit MRP',
-    profitToShop: 'Profit to Shop',
+    profitToBrand: 'Profit to Brand',
     createdBy: 'Created By',
     updatedBy: 'Updated By',
     createdAt: 'Created At',
@@ -46,7 +46,7 @@ class ModelCollaboration {
   final double? itemSellRate;
   final double? itemPrice;
   final double? itemUnitMrp;
-  final double? profitToShop;
+  final double? profitToBrand;
   final String? createdBy;
   final String? updatedBy;
   final DateTime? createdAt;
@@ -62,7 +62,7 @@ class ModelCollaboration {
     this.itemSellRate,
     this.itemPrice,
     this.itemUnitMrp,
-    this.profitToShop,
+    this.profitToBrand,
     this.createdBy,
     this.updatedBy,
     this.createdAt,
@@ -81,7 +81,7 @@ class ModelCollaboration {
     double? itemSellRate,
     double? itemPrice,
     double? itemUnitMrp,
-    double? profitToShop,
+    double? profitToBrand,
     String? createdBy,
     String? updatedBy,
     DateTime? createdAt,
@@ -97,7 +97,7 @@ class ModelCollaboration {
       itemSellRate: itemSellRate ?? this.itemSellRate,
       itemPrice: itemPrice ?? this.itemPrice,
       itemUnitMrp: itemUnitMrp ?? this.itemUnitMrp,
-      profitToShop: profitToShop ?? this.profitToShop,
+      profitToBrand: profitToBrand ?? this.profitToBrand,
       createdBy: createdBy ?? this.createdBy,
       updatedBy: updatedBy ?? this.updatedBy,
       createdAt: createdAt ?? this.createdAt,
@@ -136,9 +136,9 @@ class ModelCollaboration {
               map[ModelCollaborationFields.itemUnitMrp].toString(),
             )
           : null,
-      profitToShop: map[ModelCollaborationFields.profitToShop] != null
+      profitToBrand: map[ModelCollaborationFields.profitToBrand] != null
           ? double.tryParse(
-              map[ModelCollaborationFields.profitToShop].toString(),
+              map[ModelCollaborationFields.profitToBrand].toString(),
             )
           : null,
       createdBy: map[ModelCollaborationFields.createdBy]?.toString(),
@@ -172,8 +172,8 @@ class ModelCollaboration {
     }
     if (itemPrice != null) map[ModelCollaborationFields.itemPrice] = itemPrice;
     // if (itemUnitMrp != null) map[ModelCollaborationFields.itemUnitMrp] = itemUnitMrp;
-    if (profitToShop != null) {
-      map[ModelCollaborationFields.profitToShop] = profitToShop;
+    if (profitToBrand != null) {
+      map[ModelCollaborationFields.profitToBrand] = profitToBrand;
     }
     if (createdBy != null) map[ModelCollaborationFields.createdBy] = createdBy;
     if (updatedBy != null) map[ModelCollaborationFields.updatedBy] = updatedBy;
@@ -196,7 +196,7 @@ class ModelCollaboration {
       'itemSellRate': itemSellRate,
       'itemPrice': itemPrice,
       'itemUnitMrp': itemUnitMrp,
-      'profitToShop': profitToShop,
+      'profitToBrand': profitToBrand,
       'createdBy': createdBy,
       'updatedBy': updatedBy,
       'createdAt': createdAt?.toIso8601String(),
@@ -214,7 +214,7 @@ class ModelCollaboration {
       itemSellRate: (json['itemSellRate'] as num).toDouble(),
       itemPrice: (json['itemPrice'] as num).toDouble(),
       itemUnitMrp: (json['itemUnitMrp'] as num?)?.toDouble(),
-      profitToShop: (json['profitToShop'] as num?)?.toDouble(),
+      profitToBrand: (json['profitToBrand'] as num?)?.toDouble(),
       createdBy: json['createdBy'] as String?,
       updatedBy: json['updatedBy'] as String?,
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),

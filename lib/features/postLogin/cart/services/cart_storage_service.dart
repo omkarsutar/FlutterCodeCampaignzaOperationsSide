@@ -9,7 +9,7 @@ class CartStorageService {
 
   Future<void> savePendingOrder(
     List<ModelCollaboration> items, {
-    String? shopId,
+    String? brandId,
     String? routeId,
     String? campaignId,
     String? status,
@@ -23,7 +23,7 @@ class CartStorageService {
       await prefs.setString(_pendingOrderKey, itemsJson);
 
       final metadata = {
-        'shopId': shopId,
+        'brandId': brandId,
         'routeId': routeId,
         'campaignId': campaignId,
         'status': status,

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/user_profile_state_provider.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/shops/shop_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_routes_json.dart';
 import 'package:go_router/go_router.dart';
 
@@ -32,7 +32,7 @@ class LoadingPage extends ConsumerWidget {
           context.goNamed(ProductsRoutesJson.listRouteName);
         } else if (roleName == 'salesperson') {
           context.goNamed(
-            ShopsRoutesJson.listRouteName,
+            BrandsRoutesJson.listRouteName,
             queryParameters: {'tapCondition': 'listWithoutTodaysPOs'},
           );
         } else {

@@ -196,7 +196,7 @@ class _ProductListPageRiverpodState<T>
             scale: _profitScaleAnimation,
             child: _buildSummaryItem(
               context,
-              ref.watch(l10nProvider)['shop_profit'] ?? 'Shop Profit\nOn MRP',
+              ref.watch(l10nProvider)['brand_profit'] ?? 'Brand Profit\nOn MRP',
               '₹${viewData.totalProfit}',
               color: Colors.green,
             ),
@@ -219,19 +219,18 @@ class _ProductListPageRiverpodState<T>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ...labelLines
-            .map(
-              (line) => Text(
-                line,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  height: 1.1,
-                ),
-              ),
+        ...labelLines.map(
+          (line) => Text(
+            line,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              height: 1.1,
             ),
+          ),
+        ),
         const SizedBox(height: 2),
         Text(
           value,

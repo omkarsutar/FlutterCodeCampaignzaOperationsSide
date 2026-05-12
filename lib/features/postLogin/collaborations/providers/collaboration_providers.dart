@@ -57,7 +57,7 @@ class CollaborationFormState {
   final int itemQuantity;
   final double itemPrice;
   final double itemSellRate;
-  final double? profitToShop;
+  final double? profitToBrand;
   final bool isLoading;
   final String? error;
 
@@ -67,7 +67,7 @@ class CollaborationFormState {
     this.itemQuantity = 0,
     this.itemPrice = 0.0,
     this.itemSellRate = 0.0,
-    this.profitToShop,
+    this.profitToBrand,
     this.isLoading = false,
     this.error,
   });
@@ -78,7 +78,7 @@ class CollaborationFormState {
     int? itemQuantity,
     double? itemPrice,
     double? itemSellRate,
-    double? profitToShop,
+    double? profitToBrand,
     bool? isLoading,
     String? error,
   }) {
@@ -88,7 +88,7 @@ class CollaborationFormState {
       itemQuantity: itemQuantity ?? this.itemQuantity,
       itemPrice: itemPrice ?? this.itemPrice,
       itemSellRate: itemSellRate ?? this.itemSellRate,
-      profitToShop: profitToShop ?? this.profitToShop,
+      profitToBrand: profitToBrand ?? this.profitToBrand,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -133,9 +133,9 @@ class CollaborationFormNotifier extends StateNotifier<CollaborationFormState> {
     state = state.copyWith(itemSellRate: sellRate, error: null);
   }
 
-  void updateProfitToShop(double? profit) {
+  void updateProfitToBrand(double? profit) {
     if (!_mounted) return;
-    state = state.copyWith(profitToShop: profit, error: null);
+    state = state.copyWith(profitToBrand: profit, error: null);
   }
 
   void setLoading(bool isLoading) {

@@ -8,10 +8,10 @@ class ModelCampaignFields {
   static const String poTotalAmount = 'po_total_amount';
   static const String poLineItemCount = 'po_line_item_count';
   static const String poRouteId = 'po_route_id';
-  static const String poShopId = 'po_shop_id';
+  static const String poBrandId = 'po_brand_id';
   static const String userComment = 'user_comment';
   static const String adminComment = 'admin_comment';
-  static const String profitToShop = 'profit_to_shop';
+  static const String profitToBrand = 'profit_to_brand';
   static const String poLat = 'po_lat';
   static const String poLong = 'po_long';
   static const String status = 'status';
@@ -26,10 +26,10 @@ class ModelCampaignFields {
     poTotalAmount: 'Total Amount',
     poLineItemCount: 'Line Item Count',
     poRouteId: 'Route',
-    poShopId: 'Shop',
+    poBrandId: 'Brand',
     userComment: 'User Comment',
     adminComment: 'Admin Comment',
-    profitToShop: 'Profit to Shop',
+    profitToBrand: 'Profit to Brand',
     poLat: 'Latitude',
     poLong: 'Longitude',
     status: 'Status',
@@ -48,10 +48,10 @@ class ModelCampaign {
   final double? poTotalAmount; // nullable
   final int? poLineItemCount; // nullable
   final String? poRouteId; // required FK
-  final String? poShopId; // required FK
+  final String? poBrandId; // required FK
   final String? userComment; // nullable
   final String? adminComment; // nullable
-  final double? profitToShop; // nullable
+  final double? profitToBrand; // nullable
   final double? poLat; // nullable
   final double? poLong; // nullable
   final String? status; // nullable, DB default
@@ -67,10 +67,10 @@ class ModelCampaign {
     this.poTotalAmount,
     this.poLineItemCount,
     this.poRouteId,
-    this.poShopId,
+    this.poBrandId,
     this.userComment,
     this.adminComment,
-    this.profitToShop,
+    this.profitToBrand,
     this.poLat,
     this.poLong,
     this.status,
@@ -101,11 +101,11 @@ class ModelCampaign {
           ? int.tryParse(map[ModelCampaignFields.poLineItemCount].toString())
           : null,
       poRouteId: map[ModelCampaignFields.poRouteId] as String?,
-      poShopId: map[ModelCampaignFields.poShopId] as String?,
+      poBrandId: map[ModelCampaignFields.poBrandId] as String?,
       userComment: map[ModelCampaignFields.userComment] as String?,
       adminComment: map[ModelCampaignFields.adminComment] as String?,
-      profitToShop: map[ModelCampaignFields.profitToShop] != null
-          ? double.tryParse(map[ModelCampaignFields.profitToShop].toString())
+      profitToBrand: map[ModelCampaignFields.profitToBrand] != null
+          ? double.tryParse(map[ModelCampaignFields.profitToBrand].toString())
           : null,
       poLat: map[ModelCampaignFields.poLat] != null
           ? double.tryParse(map[ModelCampaignFields.poLat].toString())
@@ -142,8 +142,8 @@ class ModelCampaign {
     if (poRouteId != null) {
       map[ModelCampaignFields.poRouteId] = poRouteId;
     }
-    if (poShopId != null) {
-      map[ModelCampaignFields.poShopId] = poShopId;
+    if (poBrandId != null) {
+      map[ModelCampaignFields.poBrandId] = poBrandId;
     }
     if (userComment != null) {
       map[ModelCampaignFields.userComment] = userComment;
@@ -151,8 +151,8 @@ class ModelCampaign {
     if (adminComment != null) {
       map[ModelCampaignFields.adminComment] = adminComment;
     }
-    if (profitToShop != null) {
-      map[ModelCampaignFields.profitToShop] = profitToShop;
+    if (profitToBrand != null) {
+      map[ModelCampaignFields.profitToBrand] = profitToBrand;
     }
     if (poLat != null) {
       map[ModelCampaignFields.poLat] = poLat;
@@ -182,10 +182,10 @@ class ModelCampaign {
       'poTotalAmount': poTotalAmount,
       'poLineItemCount': poLineItemCount,
       'poRouteId': poRouteId,
-      'poShopId': poShopId,
+      'poBrandId': poBrandId,
       'userComment': userComment,
       'adminComment': adminComment,
-      'profitToShop': profitToShop,
+      'profitToBrand': profitToBrand,
       'poLat': poLat,
       'poLong': poLong,
       'status': status,
@@ -203,10 +203,10 @@ class ModelCampaign {
       poTotalAmount: (json['poTotalAmount'] as num?)?.toDouble(),
       poLineItemCount: json['poLineItemCount'] as int?,
       poRouteId: json['poRouteId'] as String,
-      poShopId: json['poShopId'] as String,
+      poBrandId: json['poBrandId'] as String,
       userComment: json['userComment'] as String?,
       adminComment: json['adminComment'] as String?,
-      profitToShop: (json['profitToShop'] as num?)?.toDouble(),
+      profitToBrand: (json['profitToBrand'] as num?)?.toDouble(),
       poLat: (json['poLat'] as num?)?.toDouble(),
       poLong: (json['poLong'] as num?)?.toDouble(),
       status: json['status'] as String? ?? 'confirmed',

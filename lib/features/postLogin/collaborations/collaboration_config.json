@@ -112,8 +112,8 @@
             "prefix": "₹ "
         },
         {
-            "name": "profit_to_shop",
-            "label": "Profit to Shop",
+            "name": "profit_to_brand",
+            "label": "Profit to Brand",
             "type": "doubleField",
             "required": false,
             "visibleInList": false,

@@ -24,7 +24,7 @@ class CartOrderService {
     required ProcessedCartData viewData,
     required String userId,
     required String? roleName,
-    String? shopId,
+    String? brandId,
     String? routeId,
     String? campaignId,
   }) async {
@@ -34,8 +34,8 @@ class CartOrderService {
     }
 
     // Default hardcoded IDs for guest and salesperson
-    String poShopId =
-        shopId ??
+    String poBrandId =
+        brandId ??
         (roleName?.toLowerCase() == 'retailer'
             ? '322d2aeb-34b3-47ef-aa5b-e411add1c7ba'
             : '322d2aeb-34b3-47ef-aa5b-e411add1c7ba');
@@ -46,17 +46,17 @@ class CartOrderService {
             : '1ce6a931-4866-4645-a680-102b4b9e923b');
 
     // Handle Retailer specific IDs if not provided
-    if (shopId == null && roleName?.toLowerCase() == 'retailer') {
+    if (brandId == null && roleName?.toLowerCase() == 'retailer') {
       try {
         final link = await client
-            .from('retailer_shop_link')
-            .select('shop_id, shops!inner(shops_primary_route)')
+            .from('retailer_brand_link')
+            .select('brand_id, brands!inner(brands_primary_route)')
             .eq('user_id', userId)
             .maybeSingle();
 
         if (link != null) {
-          poShopId = link['shop_id'] as String;
-          poRouteId = link['shops']['shops_primary_route'] as String;
+          poBrandId = link['brand_id'] as String;
+          poRouteId = link['brands']['brands_primary_route'] as String;
         }
       } catch (e) {
         debugPrint('[CartOrderService] Error fetching retailer link: $e');
@@ -102,7 +102,7 @@ class CartOrderService {
       poId: campaignId,
       poTotalAmount: double.tryParse(viewData.totalAmount.replaceAll(',', '')),
       poLineItemCount: viewData.itemCount,
-      poShopId: poShopId,
+      poBrandId: poBrandId,
       poRouteId: poRouteId,
       status: 'confirmed',
       userComment: finalUserComment,
@@ -138,7 +138,7 @@ class CartOrderService {
         itemSellRate: processedItem.item.itemSellRate,
         itemPrice: processedItem.item.itemPrice,
         itemUnitMrp: processedItem.item.itemUnitMrp,
-        profitToShop: processedItem.item.profitToShop,
+        profitToBrand: processedItem.item.profitToBrand,
         createdBy: userId,
         updatedBy: userId,
       );
@@ -166,7 +166,7 @@ class CartOrderService {
     buffer.writeln('');
     buffer.writeln('━━━━━━━━━━━━━━━');
     buffer.writeln('💰 *Total Amount:* ₹${viewData.totalAmount}');
-    buffer.writeln('📈 *Shop Profit:* ₹${viewData.totalProfit}');
+    buffer.writeln('📈 *Brand Profit:* ₹${viewData.totalProfit}');
 
     final message = Uri.encodeComponent(buffer.toString());
     final whatsappUrl = 'https://wa.me/919421582162?text=$message';

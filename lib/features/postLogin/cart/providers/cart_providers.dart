@@ -12,7 +12,7 @@ class CartState {
   final bool isPromptAcknowledged;
   final bool isNewItemAdded;
 
-  final String? shopId;
+  final String? brandId;
   final String? routeId;
   final String? campaignId;
   final String? status;
@@ -25,7 +25,7 @@ class CartState {
     this.lastModifiedItemId,
     this.isPromptAcknowledged = false,
     this.isNewItemAdded = false,
-    this.shopId,
+    this.brandId,
     this.routeId,
     this.campaignId,
     this.status,
@@ -35,7 +35,7 @@ class CartState {
   double get totalAmount =>
       items.fold(0, (sum, item) => sum + (item.itemPrice ?? 0));
   double get totalProfit =>
-      items.fold(0, (sum, item) => sum + (item.profitToShop ?? 0));
+      items.fold(0, (sum, item) => sum + (item.profitToBrand ?? 0));
 
   bool get isReadOnly {
     if (status == null) return false;
@@ -50,7 +50,7 @@ class CartState {
     String? Function()? lastModifiedItemId,
     bool? isPromptAcknowledged,
     bool? isNewItemAdded,
-    String? Function()? shopId,
+    String? Function()? brandId,
     String? Function()? routeId,
     String? Function()? campaignId,
     String? Function()? status,
@@ -65,7 +65,7 @@ class CartState {
           : this.lastModifiedItemId,
       isPromptAcknowledged: isPromptAcknowledged ?? this.isPromptAcknowledged,
       isNewItemAdded: isNewItemAdded ?? this.isNewItemAdded,
-      shopId: shopId != null ? shopId() : this.shopId,
+      brandId: brandId != null ? brandId() : this.brandId,
       routeId: routeId != null ? routeId() : this.routeId,
       campaignId: campaignId != null ? campaignId() : this.campaignId,
       status: status != null ? status() : this.status,
@@ -95,7 +95,7 @@ class CartNotifier extends Notifier<CartState> {
         state = state.copyWith(
           items: items,
           isLoading: false,
-          shopId: () => result['shopId'],
+          brandId: () => result['brandId'],
           routeId: () => result['routeId'],
           campaignId: () => result['campaignId'],
           status: () => result['status'],
@@ -118,7 +118,7 @@ class CartNotifier extends Notifier<CartState> {
       } else {
         await storage.savePendingOrder(
           state.items,
-          shopId: state.shopId,
+          brandId: state.brandId,
           routeId: state.routeId,
           campaignId: state.campaignId,
           status: state.status,
@@ -143,7 +143,7 @@ class CartNotifier extends Notifier<CartState> {
   }
 
   void loadOrderIntoCart({
-    required String shopId,
+    required String brandId,
     required String routeId,
     required String campaignId,
     required String status,
@@ -152,7 +152,7 @@ class CartNotifier extends Notifier<CartState> {
   }) {
     state = state.copyWith(
       items: items,
-      shopId: () => shopId,
+      brandId: () => brandId,
       routeId: () => routeId,
       campaignId: () => campaignId,
       status: () => status,
@@ -164,14 +164,14 @@ class CartNotifier extends Notifier<CartState> {
   }
 
   void setOrderDetails({
-    String? shopId,
+    String? brandId,
     String? routeId,
     String? campaignId,
     String? status,
     int? itemCountInPo,
   }) {
     state = state.copyWith(
-      shopId: () => shopId,
+      brandId: () => brandId,
       routeId: () => routeId,
       campaignId: () => campaignId,
       status: () => status,
@@ -194,7 +194,7 @@ class CartNotifier extends Notifier<CartState> {
         existingItem.copyWith(
           itemQty: updatedQty,
           itemPrice: (item.itemSellRate ?? 0) * updatedQty,
-          profitToShop:
+          profitToBrand:
               ((item.itemUnitMrp ?? 0) - (item.itemSellRate ?? 0)) * updatedQty,
         ),
         moveToTop: true,
@@ -274,7 +274,7 @@ class CartNotifier extends Notifier<CartState> {
         item.copyWith(
           itemQty: newQty,
           itemPrice: (item.itemSellRate ?? 0) * newQty,
-          profitToShop:
+          profitToBrand:
               ((item.itemUnitMrp ?? 0) - (item.itemSellRate ?? 0)) * newQty,
         ),
       );
@@ -294,7 +294,7 @@ class CartNotifier extends Notifier<CartState> {
     state = state.copyWith(
       items: [],
       isPromptAcknowledged: false,
-      shopId: () => null,
+      brandId: () => null,
       routeId: () => null,
       campaignId: () => null,
       status: () => null,

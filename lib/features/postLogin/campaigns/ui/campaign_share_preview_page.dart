@@ -75,15 +75,15 @@ class _CampaignSharePreviewPageState extends State<CampaignSharePreviewPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final shopName =
+    final brandName =
         widget.adapter
-            .getLabelValue(widget.entity, ModelCampaignFields.poShopId)
+            .getLabelValue(widget.entity, ModelCampaignFields.poBrandId)
             ?.toString() ??
-        'Unknown Shop';
-    final shopMobile =
-        widget.entity.resolvedLabels['shop_mobile_label']?.toString() ?? '';
+        'Unknown Brand';
+    final brandMobile =
+        widget.entity.resolvedLabels['brand_mobile_label']?.toString() ?? '';
 
-    final profitStr = (widget.entity.profitToShop ?? 0).ceil();
+    final profitStr = (widget.entity.profitToBrand ?? 0).ceil();
     final amountStr = (widget.entity.poTotalAmount ?? 0).ceil();
     final itemCount = widget.entity.poLineItemCount ?? 0;
     final poDate =
@@ -146,9 +146,9 @@ class _CampaignSharePreviewPageState extends State<CampaignSharePreviewPage> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Shop name
+                                    // Brand name
                                     Text(
-                                      shopName,
+                                      brandName,
                                       style: theme.textTheme.headlineSmall
                                           ?.copyWith(
                                             fontWeight: FontWeight.w900,
@@ -160,8 +160,8 @@ class _CampaignSharePreviewPageState extends State<CampaignSharePreviewPage> {
 
                                     const SizedBox(height: 10),
 
-                                    // Shop Mobile
-                                    if (shopMobile.isNotEmpty)
+                                    // Brand Mobile
+                                    if (brandMobile.isNotEmpty)
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 10,
@@ -183,7 +183,7 @@ class _CampaignSharePreviewPageState extends State<CampaignSharePreviewPage> {
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
-                                              shopMobile,
+                                              brandMobile,
                                               style: theme.textTheme.titleMedium
                                                   ?.copyWith(
                                                     color: const Color(
@@ -231,7 +231,7 @@ class _CampaignSharePreviewPageState extends State<CampaignSharePreviewPage> {
                                         ),
                                         _buildSummaryColumn(
                                           context,
-                                          'Shop Profit',
+                                          'Brand Profit',
                                           'on MRP',
                                           '₹$profitStr',
                                           valueColor: const Color(0xFF1B5E20),

@@ -1,0 +1,79 @@
+{
+    "moduleName": "retailer_brand_link",
+    "entityMeta": {
+        "entityName": "Retailer Brand Link",
+        "entityNameLower": "retailer brand link",
+        "entityNamePlural": "Retailer Brand Links",
+        "entityNamePluralLower": "retailer brand links"
+    },
+    "table": {
+        "name": "retailer_brand_link",
+        "viewName": "view_retailer_brand_link",
+        "idField": "link_id",
+        "timestampField": "created_at"
+    },
+    "routes": {
+        "basePath": "/retailer-brand-links",
+        "listRouteName": "retailerBrandLinks",
+        "newRouteName": "newRetailerBrandLink",
+        "editRouteName": "editRetailerBrandLink",
+        "viewRouteName": "viewRetailerBrandLink"
+    },
+    "listPage": {
+        "sorting": {
+            "field": "created_at",
+            "sortAscending": false
+        },
+        "searchFields": [
+            "user_id",
+            "brand_id"
+        ]
+    },
+    "fields": [
+        {
+            "name": "user_id",
+            "label": "User",
+            "type": "dropdown",
+            "required": true,
+            "dropdownSource": {
+                "table": "users",
+                "valueKey": "user_id",
+                "labelKey": "full_name"
+            },
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "brand_id",
+            "label": "Brand",
+            "type": "selector",
+            "required": true,
+            "dropdownSource": {
+                "table": "brands",
+                "valueKey": "brand_id",
+                "labelKey": "brand_name",
+                "routeName": "brands"
+            },
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "created_at",
+            "label": "Created At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": true,
+            "visibleInForm": false
+        },
+        {
+            "name": "updated_at",
+            "label": "Updated At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        }
+    ]
+}

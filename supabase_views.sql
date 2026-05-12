@@ -1,22 +1,22 @@
 -- Run this script in your Supabase SQL Editor
 
-create view public.view_route_shop_links as
+create view public.view_route_brand_links as
 select
   l.link_id,
   l.route_id,
-  l.shop_id,
+  l.brand_id,
   l.visit_order,
   l.created_at,
   l.updated_at,
   r.route_name as route_id_label,
-  s.shop_name as shop_id_label,
-  s.shops_primary_route,
-  sr.route_name as shops_primary_route_label
+  s.brand_name as brand_id_label,
+  s.brands_primary_route,
+  sr.route_name as brands_primary_route_label
 from
-  route_shop_links l
+  route_brand_links l
   left join routes r on l.route_id = r.route_id
-  left join shops s on l.shop_id = s.shop_id
-  left join routes sr on s.shops_primary_route = sr.route_id
+  left join brands s on l.brand_id = s.brand_id
+  left join routes sr on s.brands_primary_route = sr.route_id
 where
   s.is_active = true
   and (
@@ -61,7 +61,7 @@ select
   i.item_sell_rate,
   i.item_price,
   i.item_unit_mrp,
-  i.profit_to_shop,
+  i.profit_to_brand,
   i.created_by,
   i.updated_by,
   i.created_at,
@@ -117,9 +117,9 @@ select
   po.po_total_amount,
   po.po_line_item_count,
   po.po_route_id,
-  po.po_shop_id,
+  po.po_brand_id,
   po.user_comment,
-  po.profit_to_shop,
+  po.profit_to_brand,
   po.po_lat,
   po.po_long,
   po.status,
@@ -128,51 +128,51 @@ select
   po.created_at,
   po.updated_at,
   r.route_name as po_route_id_label,
-  s.shop_name as po_shop_id_label,
-  s.shop_address as shop_address_label,
-  s.shop_note as shop_note_label,
-  s.shop_mobile_1 as shop_mobile_label,
+  s.brand_name as po_brand_id_label,
+  s.brand_address as brand_address_label,
+  s.brand_note as brand_note_label,
+  s.brand_mobile_1 as brand_mobile_label,
   uc.full_name as created_by_label,
   uu.full_name as updated_by_label,
   l.visit_order
 from
   purchase_order po
   left join routes r on po.po_route_id = r.route_id
-  left join shops s on po.po_shop_id = s.shop_id
-  left join route_shop_links l on po.po_shop_id = l.shop_id
+  left join brands s on po.po_brand_id = s.brand_id
+  left join route_brand_links l on po.po_brand_id = l.brand_id
   and po.po_route_id = l.route_id
   left join users uc on po.created_by = uc.user_id
   left join users uu on po.updated_by = uu.user_id;
 
 
     
-create view public.view_shops as
+create view public.view_brands as
 select
-  s.shop_id,
-  s.shop_name,
-  s.shops_primary_route,
-  s.shop_note,
+  s.brand_id,
+  s.brand_name,
+  s.brands_primary_route,
+  s.brand_note,
   s.hidden_note,
-  s.shop_mobile_1,
-  s.shop_mobile_2,
-  s.shop_person_name,
+  s.brand_mobile_1,
+  s.brand_mobile_2,
+  s.brand_person_name,
   s.is_active,
-  s.shop_location_url,
-  s.shop_landmark,
-  s.shop_address,
-  s.shop_photo_id,
-  s.shop_photo_url,
-  s.shop_lat,
-  s.shop_long,
+  s.brand_location_url,
+  s.brand_landmark,
+  s.brand_address,
+  s.brand_photo_id,
+  s.brand_photo_url,
+  s.brand_lat,
+  s.brand_long,
   s.created_at,
   s.updated_at,
-  r.route_name as shops_primary_route_label,
+  r.route_name as brands_primary_route_label,
   l.visit_order
 from
-  shops s
-  left join routes r on s.shops_primary_route = r.route_id
-  left join route_shop_links l on s.shop_id = l.shop_id
-  and s.shops_primary_route = l.route_id
+  brands s
+  left join routes r on s.brands_primary_route = r.route_id
+  left join route_brand_links l on s.brand_id = l.brand_id
+  and s.brands_primary_route = l.route_id
 where
   s.is_active = true
   and (
@@ -200,16 +200,16 @@ from
   
 
 
-create view public.view_shop_dropdown as
+create view public.view_brand_dropdown as
 select
-  shop_id,
-  shop_name
+  brand_id,
+  brand_name
 from
-  shops
+  brands
 where
   is_active = true
 order by
-  shop_name;
+  brand_name;
 
 
 create view public.view_po_collections as
@@ -230,39 +230,39 @@ select
   pc.updated_by,
   po.status as po_status_label,
   po.updated_at as po_updated_at,
-  s.shop_name as shop_id_label,
+  s.brand_name as brand_id_label,
   r.route_name as route_id_label,
   uc.full_name as created_by_label,
   uu.full_name as updated_by_label
 from
   po_collections pc
   left join purchase_order po on pc.po_id = po.po_id
-  left join shops s on po.po_shop_id = s.shop_id
+  left join brands s on po.po_brand_id = s.brand_id
   left join routes r on po.po_route_id = r.route_id
   left join users uc on pc.created_by = uc.user_id
   left join users uu on pc.updated_by = uu.user_id;
 
 
 
-DROP VIEW IF EXISTS public.view_retailer_shop_link;
-CREATE VIEW public.view_retailer_shop_link AS
+DROP VIEW IF EXISTS public.view_retailer_brand_link;
+CREATE VIEW public.view_retailer_brand_link AS
 SELECT
   rsl.link_id,
   rsl.user_id,
-  rsl.shop_id,
+  rsl.brand_id,
   rsl.created_at,
   rsl.updated_at,
   rsl.created_by,
   rsl.updated_by,
   u.full_name AS user_id_label,
   rr.role_name AS user_role_label,
-  s.shop_name AS shop_id_label,
-  r.route_name AS shop_route_label
+  s.brand_name AS brand_id_label,
+  r.route_name AS brand_route_label
 FROM
-  retailer_shop_link rsl
+  retailer_brand_link rsl
   LEFT JOIN users u ON rsl.user_id = u.user_id
   LEFT JOIN rbac_roles rr ON u.role_id = rr.role_id
-  LEFT JOIN shops s ON rsl.shop_id = s.shop_id
-  LEFT JOIN routes r ON s.shops_primary_route = r.route_id;
+  LEFT JOIN brands s ON rsl.brand_id = s.brand_id
+  LEFT JOIN routes r ON s.brands_primary_route = r.route_id;
 
 

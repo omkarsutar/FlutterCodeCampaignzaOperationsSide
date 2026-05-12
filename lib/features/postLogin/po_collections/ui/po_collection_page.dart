@@ -41,8 +41,8 @@ class CampaignCollectionPage extends ConsumerWidget {
         data: (po) {
           if (po == null) return const Center(child: Text('PO not found'));
 
-          final shopName =
-              po.resolvedLabels['po_shop_id_label'] ?? 'Unknown Shop';
+          final brandName =
+              po.resolvedLabels['po_brand_id_label'] ?? 'Unknown Brand';
           final billAmount = po.poTotalAmount ?? 0.0;
           final currencyFormat = NumberFormat.currency(
             symbol: '₹',
@@ -54,7 +54,7 @@ class CampaignCollectionPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Shop Information Card
+                // Brand Information Card
                 Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(
@@ -69,7 +69,7 @@ class CampaignCollectionPage extends ConsumerWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                shopName,
+                                brandName,
                                 style: theme.textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -196,7 +196,7 @@ class CampaignCollectionPage extends ConsumerWidget {
 
                 // Sign (Credit) Checkbox
                 CheckboxListTile(
-                  title: const Text('Sign (Credit given to shop)'),
+                  title: const Text('Sign (Credit given to brand)'),
                   value: formState.isSign,
                   onChanged: (v) => formNotifier.toggleSign(v ?? false),
                   controlAffinity: ListTileControlAffinity.leading,

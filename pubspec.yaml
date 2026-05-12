@@ -83,13 +83,13 @@ flutter:
     - lib/features/postLogin/rbac_modules/rbac_module_config.json
     - lib/features/postLogin/users/user_config.json
     - lib/features/postLogin/products/product_config.json
-    - lib/features/postLogin/route_shop_links/route_shop_link_config.json
+    - lib/features/postLogin/route_brand_links/route_brand_link_config.json
     - lib/features/postLogin/rbac_permissions/rbac_permission_config.json
     - lib/features/postLogin/campaigns/campaign_config.json
     - lib/features/postLogin/collaborations/collaboration_config.json
-    - lib/features/postLogin/shops/shop_config.json
+    - lib/features/postLogin/brands/brand_config.json
     - lib/features/postLogin/po_collections/po_collection_config.json
-    - lib/features/postLogin/retailer_shop_links/retailer_shop_link_config.json
+    - lib/features/postLogin/retailer_brand_links/retailer_brand_link_config.json
     - assets/images/rasoiaImageUsedOnBill.png
     - assets/images/google_logo.png
     - assets/fonts/Roboto-Regular.ttf

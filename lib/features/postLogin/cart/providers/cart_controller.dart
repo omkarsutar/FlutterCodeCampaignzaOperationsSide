@@ -10,7 +10,7 @@ import '../../campaigns/campaign_barrel.dart';
 import '../../collaborations/collaboration_barrel.dart';
 import '../../../../core/utils/dialogs.dart';
 import '../../../../core/providers/localization_provider.dart';
-import '../../shops/shop_barrel.dart';
+import '../../brands/brand_barrel.dart';
 import '../../../../core/globals.dart';
 
 final cartOrderServiceProvider = Provider(
@@ -132,16 +132,16 @@ class CartController {
     final poId = cartState.campaignId;
 
     if (poId == null || poId.isEmpty) {
-      // No PO selected -> Redirect for shop selection
+      // No PO selected -> Redirect for brand selection
       if (context.mounted) {
         scaffoldMessengerKey.currentState?.showSnackBar(
           const SnackBar(
-            content: Text('Redirecting to Today\'s Shops for selection...'),
+            content: Text('Redirecting to Today\'s Brands for selection...'),
             backgroundColor: Colors.blue,
           ),
         );
         context.goNamed(
-          ShopsRoutesJson.listRouteName,
+          BrandsRoutesJson.listRouteName,
           queryParameters: {'tapCondition': 'listWithoutTodaysPOs'},
         );
       }
@@ -189,7 +189,7 @@ class CartController {
         viewData: viewData,
         userId: userId,
         roleName: roleName,
-        shopId: cartState.shopId,
+        brandId: cartState.brandId,
         routeId: cartState.routeId,
         campaignId: cartState.campaignId,
       );
@@ -262,7 +262,7 @@ class CartController {
         ref
             .read(cartProvider.notifier)
             .loadOrderIntoCart(
-              shopId: po.poShopId ?? '',
+              brandId: po.poBrandId ?? '',
               routeId: po.poRouteId ?? '',
               campaignId: poId,
               status: po.status ?? 'pending',
@@ -407,7 +407,7 @@ class CartController {
                       ),
                     ),
                     child: Text(
-                      l10n['continue_shopping'] ?? 'Continue Shopping',
+                      l10n['continue_brandping'] ?? 'Continue Brandping',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

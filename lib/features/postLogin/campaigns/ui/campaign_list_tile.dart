@@ -8,7 +8,7 @@ import '../../collaborations/collaboration_barrel.dart';
 import '../model/campaign_model.dart';
 import '../providers/campaign_tile_logic.dart';
 import '../../cart/providers/cart_controller.dart';
-import 'widgets/po_shop_route_info.dart';
+import 'widgets/po_brand_route_info.dart';
 import 'widgets/po_actions.dart';
 
 class CampaignListTile extends ConsumerStatefulWidget {
@@ -49,11 +49,11 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
     final dateStr = widget.entity.createdAt != null
         ? formatTimestamp(widget.entity.createdAt!)
         : '';
-    final shopName =
+    final brandName =
         widget.adapter
-            .getLabelValue(widget.entity, ModelCampaignFields.poShopId)
+            .getLabelValue(widget.entity, ModelCampaignFields.poBrandId)
             ?.toString() ??
-        'Unknown Shop';
+        'Unknown Brand';
     final routeName =
         widget.adapter
             .getLabelValue(widget.entity, ModelCampaignFields.poRouteId)
@@ -86,8 +86,8 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                 _buildHeader(theme, dateStr, status, canUpdate),
                 const SizedBox(height: 8),
               ],
-              PoShopRouteInfo(
-                shopName: shopName,
+              PoBrandRouteInfo(
+                brandName: brandName,
                 routeName: routeName,
                 trailing: PoActions(
                   entity: widget.entity,
@@ -178,7 +178,7 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
 
   Widget _buildStatsRow(ThemeData theme, int itemCount) {
     final profitStr = CampaignTileLogic.formatCurrency(
-      widget.entity.profitToShop,
+      widget.entity.profitToBrand,
     );
     final amountStr = CampaignTileLogic.formatCurrency(
       widget.entity.poTotalAmount,
@@ -194,7 +194,7 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
           ),
         _StatItem(label: 'Items', value: '$itemCount'),
         _StatItem(
-          label: 'Shop Profit',
+          label: 'Brand Profit',
           value: '₹$profitStr',
           valueColor: Colors.green,
         ),

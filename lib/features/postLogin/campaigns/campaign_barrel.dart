@@ -13,7 +13,7 @@ export 'adapter/campaign_adapter.dart';
 export 'providers/campaign_providers.dart';
 // UI
 export 'ui/campaign_list_page_riverpod.dart';
-export 'ui/campaign_list_by_shop_id.dart';
+export 'ui/campaign_list_by_brand_id.dart';
 export 'ui/campaign_bill_page.dart';
 export 'ui/campaign_list_tile.dart';
 export 'ui/campaign_share_preview_page.dart';

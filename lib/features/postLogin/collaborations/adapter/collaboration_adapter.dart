@@ -21,8 +21,8 @@ class CollaborationAdapter implements EntityAdapter<ModelCollaboration> {
         return entity.itemPrice;
       case ModelCollaborationFields.itemUnitMrp:
         return entity.itemUnitMrp;
-      case ModelCollaborationFields.profitToShop:
-        return entity.profitToShop;
+      case ModelCollaborationFields.profitToBrand:
+        return entity.profitToBrand;
       case ModelCollaborationFields.createdBy:
         return entity.createdBy;
       case ModelCollaborationFields.updatedBy:

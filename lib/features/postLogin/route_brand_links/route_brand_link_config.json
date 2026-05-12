@@ -1,0 +1,96 @@
+{
+    "moduleName": "route_brand_links",
+    "entityMeta": {
+        "entityName": "Route Brand Link",
+        "entityNameLower": "route brand link",
+        "entityNamePlural": "Route Brand Links",
+        "entityNamePluralLower": "route brand links"
+    },
+    "table": {
+        "name": "route_brand_links",
+        "viewName": "view_route_brand_links",
+        "idField": "link_id",
+        "timestampField": "created_at"
+    },
+    "routes": {
+        "basePath": "/routeBrandLinks",
+        "listRouteName": "routeBrandLinks",
+        "newRouteName": "newRouteBrandLink",
+        "editRouteName": "editRouteBrandLink",
+        "viewRouteName": "viewRouteBrandLink"
+    },
+    "listPage": {
+        "sorting": {
+            "field": "visit_order",
+            "sortAscending": true
+        },
+        "searchFields": [
+            "route_id_label",
+            "brand_id_label"
+        ]
+    },
+    "fields": [
+        {
+            "name": "link_id",
+            "label": "Link ID",
+            "type": "text",
+            "required": true,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        },
+        {
+            "name": "route_id",
+            "label": "Route",
+            "type": "dropdown",
+            "required": true,
+            "dropdownSource": {
+                "table": "routes",
+                "valueKey": "route_id",
+                "labelKey": "route_name"
+            },
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "brand_id",
+            "label": "Brand",
+            "type": "dropdown",
+            "required": true,
+            "dropdownSource": {
+                "table": "brands",
+                "valueKey": "brand_id",
+                "labelKey": "brand_name"
+            },
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "visit_order",
+            "label": "Visit Order",
+            "type": "intField",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": true,
+            "visibleInForm": false
+        },
+        {
+            "name": "created_at",
+            "label": "Created At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        },
+        {
+            "name": "updated_at",
+            "label": "Updated At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        }
+    ]
+}

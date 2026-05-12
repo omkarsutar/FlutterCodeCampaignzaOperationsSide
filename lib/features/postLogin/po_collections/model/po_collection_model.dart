@@ -37,7 +37,7 @@ class ModelPoCollection {
 
   // From View
   final String? poStatusLabel;
-  final String? shopIdLabel;
+  final String? brandIdLabel;
   final String? routeIdLabel;
   final String? createdByLabel;
   final String? updatedByLabel;
@@ -59,7 +59,7 @@ class ModelPoCollection {
     this.createdBy,
     this.updatedBy,
     this.poStatusLabel,
-    this.shopIdLabel,
+    this.brandIdLabel,
     this.routeIdLabel,
     this.createdByLabel,
     this.updatedByLabel,
@@ -82,7 +82,7 @@ class ModelPoCollection {
     String? createdBy,
     String? updatedBy,
     String? poStatusLabel,
-    String? shopIdLabel,
+    String? brandIdLabel,
     String? routeIdLabel,
     String? createdByLabel,
     String? updatedByLabel,
@@ -104,7 +104,7 @@ class ModelPoCollection {
       createdBy: createdBy ?? this.createdBy,
       updatedBy: updatedBy ?? this.updatedBy,
       poStatusLabel: poStatusLabel ?? this.poStatusLabel,
-      shopIdLabel: shopIdLabel ?? this.shopIdLabel,
+      brandIdLabel: brandIdLabel ?? this.brandIdLabel,
       routeIdLabel: routeIdLabel ?? this.routeIdLabel,
       createdByLabel: createdByLabel ?? this.createdByLabel,
       updatedByLabel: updatedByLabel ?? this.updatedByLabel,
@@ -134,7 +134,7 @@ class ModelPoCollection {
       createdBy: map[ModelPoCollectionFields.createdBy],
       updatedBy: map[ModelPoCollectionFields.updatedBy],
       poStatusLabel: map['po_status_label'],
-      shopIdLabel: map['shop_id_label'],
+      brandIdLabel: map['brand_id_label'],
       routeIdLabel: map['route_id_label'],
       createdByLabel: map['created_by_label'],
       updatedByLabel: map['updated_by_label'],

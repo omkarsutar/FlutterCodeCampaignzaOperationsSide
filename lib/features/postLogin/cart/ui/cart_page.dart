@@ -7,9 +7,9 @@ import '../providers/cart_controller.dart';
 import '../providers/cart_providers.dart';
 import '../../../../core/providers/localization_provider.dart';
 import '../../products/product_barrel.dart';
-import '../../shops/shop_barrel.dart';
+import '../../brands/brand_barrel.dart';
 import '../../routes/route_barrel.dart';
-import '../../campaigns/ui/widgets/po_shop_route_info.dart';
+import '../../campaigns/ui/widgets/po_brand_route_info.dart';
 import '../../campaigns/ui/widgets/po_actions.dart';
 import '../../campaigns/campaign_barrel.dart';
 import 'cart_item_card.dart';
@@ -177,12 +177,12 @@ class _CartPageState extends ConsumerState<CartPage>
         bottom: false,
         child: Column(
           children: [
-            if (ref.watch(cartProvider).shopId != null) ...[
+            if (ref.watch(cartProvider).brandId != null) ...[
               Builder(
                 builder: (context) {
                   final cartState = ref.watch(cartProvider);
-                  final shopAsync = ref.watch(
-                    shopByIdProvider(cartState.shopId!),
+                  final brandAsync = ref.watch(
+                    brandByIdProvider(cartState.brandId!),
                   );
                   final routeAsync = ref.watch(
                     routeByIdProvider(cartState.routeId!),
@@ -192,13 +192,13 @@ class _CartPageState extends ConsumerState<CartPage>
                   // Create a dummy/temp PO entity for actions
                   final tempPo = ModelCampaign(
                     poId: cartState.campaignId,
-                    poShopId: cartState.shopId,
+                    poBrandId: cartState.brandId,
                     poRouteId: cartState.routeId,
                     status: cartState.status,
                   );
 
-                  return PoShopRouteInfo(
-                    shopName: shopAsync.value?.shopName ?? 'Loading...',
+                  return PoBrandRouteInfo(
+                    brandName: brandAsync.value?.brandName ?? 'Loading...',
                     routeName: routeAsync.value?.routeName ?? 'Loading...',
                     poId: null, // Hide PO ID on Cart Page
                     status: cartState.status,
@@ -249,7 +249,7 @@ class _CartPageState extends ConsumerState<CartPage>
                         scale: _profitScaleAnimation,
                         child: _buildSummaryItem(
                           context,
-                          l10n['shop_profit'] ?? 'Shop Profit on MRP',
+                          l10n['brand_profit'] ?? 'Brand Profit on MRP',
                           '₹${viewData.totalProfit}',
                           color: Colors.green[700],
                           valueSize: 18,

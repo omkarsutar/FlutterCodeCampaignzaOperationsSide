@@ -17,7 +17,7 @@ class PdfAssetLoader {
     final boldFontData = await rootBundle.load('assets/fonts/Roboto-Bold.ttf');
     final boldFont = Font.ttf(boldFontData.buffer.asByteData());
 
-    // Load the shop logo image
+    // Load the brand logo image
     final logoData = await rootBundle.load(
       'assets/images/rasoiaImageUsedOnBill.png',
     );

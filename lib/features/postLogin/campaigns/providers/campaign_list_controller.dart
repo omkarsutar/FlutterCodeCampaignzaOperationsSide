@@ -184,11 +184,11 @@ class CampaignListController
           // Default fallback search logic
           if (po.poId?.toLowerCase().contains(query) ?? false) return true;
 
-          final shopName = adapter
-              .getLabelValue(po, ModelCampaignFields.poShopId)
+          final brandName = adapter
+              .getLabelValue(po, ModelCampaignFields.poBrandId)
               ?.toString()
               .toLowerCase();
-          if (shopName?.contains(query) ?? false) return true;
+          if (brandName?.contains(query) ?? false) return true;
 
           final routeName = adapter
               .getLabelValue(po, ModelCampaignFields.poRouteId)

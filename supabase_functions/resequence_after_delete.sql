@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION resequence_visit_order_after_delete()
 RETURNS TRIGGER AS $$
 BEGIN
   -- Resequence all items in the same route that come after the deleted item
-  UPDATE route_shop_links rsl
+  UPDATE route_brand_links rsl
   SET visit_order = rsl.visit_order - 1
   WHERE rsl.route_id = OLD.route_id
     AND rsl.visit_order > OLD.visit_order;
@@ -15,6 +15,6 @@ $$ LANGUAGE plpgsql;
 
 -- Create trigger to run after delete
 CREATE TRIGGER resequence_after_delete
-  AFTER DELETE ON route_shop_links
+  AFTER DELETE ON route_brand_links
   FOR EACH ROW
   EXECUTE FUNCTION resequence_visit_order_after_delete();

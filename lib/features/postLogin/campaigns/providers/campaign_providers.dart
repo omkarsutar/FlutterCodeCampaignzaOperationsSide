@@ -85,11 +85,11 @@ final campaignStatusFilterProvider = StateProvider.family
 /// Form state for campaign
 class CampaignFormState {
   final String poRouteId;
-  final String poShopId;
+  final String poBrandId;
   final double? poTotalAmount;
   final int? poLineItemCount;
   final String? userComment;
-  final double? profitToShop;
+  final double? profitToBrand;
   final double? poLat;
   final double? poLong;
   final String? status;
@@ -98,11 +98,11 @@ class CampaignFormState {
 
   CampaignFormState({
     this.poRouteId = '',
-    this.poShopId = '',
+    this.poBrandId = '',
     this.poTotalAmount,
     this.poLineItemCount,
     this.userComment,
-    this.profitToShop,
+    this.profitToBrand,
     this.poLat,
     this.poLong,
     this.status = 'confirmed',
@@ -112,11 +112,11 @@ class CampaignFormState {
 
   CampaignFormState copyWith({
     String? poRouteId,
-    String? poShopId,
+    String? poBrandId,
     double? poTotalAmount,
     int? poLineItemCount,
     String? userComment,
-    double? profitToShop,
+    double? profitToBrand,
     double? poLat,
     double? poLong,
     String? status,
@@ -125,11 +125,11 @@ class CampaignFormState {
   }) {
     return CampaignFormState(
       poRouteId: poRouteId ?? this.poRouteId,
-      poShopId: poShopId ?? this.poShopId,
+      poBrandId: poBrandId ?? this.poBrandId,
       poTotalAmount: poTotalAmount ?? this.poTotalAmount,
       poLineItemCount: poLineItemCount ?? this.poLineItemCount,
       userComment: userComment ?? this.userComment,
-      profitToShop: profitToShop ?? this.profitToShop,
+      profitToBrand: profitToBrand ?? this.profitToBrand,
       poLat: poLat ?? this.poLat,
       poLong: poLong ?? this.poLong,
       status: status ?? this.status,
@@ -159,8 +159,8 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
       case ModelCampaignFields.poRouteId:
         state = state.copyWith(poRouteId: value as String, error: null);
         break;
-      case ModelCampaignFields.poShopId:
-        state = state.copyWith(poShopId: value as String, error: null);
+      case ModelCampaignFields.poBrandId:
+        state = state.copyWith(poBrandId: value as String, error: null);
         break;
       case ModelCampaignFields.poTotalAmount:
         state = state.copyWith(
@@ -181,9 +181,9 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
       case ModelCampaignFields.userComment:
         state = state.copyWith(userComment: value as String?, error: null);
         break;
-      case ModelCampaignFields.profitToShop:
+      case ModelCampaignFields.profitToBrand:
         state = state.copyWith(
-          profitToShop: value != null
+          profitToBrand: value != null
               ? double.tryParse(value.toString())
               : null,
           error: null,
@@ -215,8 +215,8 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
       state = state.copyWith(error: 'Route is required');
       return false;
     }
-    if (state.poShopId.trim().isEmpty) {
-      state = state.copyWith(error: 'Shop is required');
+    if (state.poBrandId.trim().isEmpty) {
+      state = state.copyWith(error: 'Brand is required');
       return false;
     }
 
@@ -227,11 +227,11 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
       final entity = ModelCampaign(
         poId: entityId,
         poRouteId: state.poRouteId.trim(),
-        poShopId: state.poShopId.trim(),
+        poBrandId: state.poBrandId.trim(),
         poTotalAmount: state.poTotalAmount,
         poLineItemCount: state.poLineItemCount,
         userComment: state.userComment,
-        profitToShop: state.profitToShop,
+        profitToBrand: state.profitToBrand,
         poLat: state.poLat,
         poLong: state.poLong,
         status: state.status,
@@ -282,11 +282,11 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
     if (!_mounted) return;
     state = CampaignFormState(
       poRouteId: entity.poRouteId ?? '',
-      poShopId: entity.poShopId ?? '',
+      poBrandId: entity.poBrandId ?? '',
       poTotalAmount: entity.poTotalAmount,
       poLineItemCount: entity.poLineItemCount,
       userComment: entity.userComment,
-      profitToShop: entity.profitToShop,
+      profitToBrand: entity.profitToBrand,
       poLat: entity.poLat,
       poLong: entity.poLong,
       status: entity.status ?? 'confirmed',

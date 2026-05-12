@@ -25,7 +25,7 @@
             "sortAscending": false
         },
         "searchFields": [
-            "shop_id_label",
+            "brand_id_label",
             "route_id_label",
             "cheque_no",
             "comments"
@@ -49,8 +49,8 @@
             "visibleInList": true
         },
         {
-            "name": "shop_id_label",
-            "label": "Shop",
+            "name": "brand_id_label",
+            "label": "Brand",
             "type": "text",
             "visibleInList": true,
             "readOnly": true
