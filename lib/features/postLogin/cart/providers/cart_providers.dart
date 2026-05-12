@@ -14,7 +14,7 @@ class CartState {
 
   final String? shopId;
   final String? routeId;
-  final String? purchaseOrderId;
+  final String? campaignId;
   final String? status;
   final int? itemCountInPo;
 
@@ -27,7 +27,7 @@ class CartState {
     this.isNewItemAdded = false,
     this.shopId,
     this.routeId,
-    this.purchaseOrderId,
+    this.campaignId,
     this.status,
     this.itemCountInPo,
   });
@@ -52,7 +52,7 @@ class CartState {
     bool? isNewItemAdded,
     String? Function()? shopId,
     String? Function()? routeId,
-    String? Function()? purchaseOrderId,
+    String? Function()? campaignId,
     String? Function()? status,
     int? Function()? itemCountInPo,
   }) {
@@ -67,9 +67,7 @@ class CartState {
       isNewItemAdded: isNewItemAdded ?? this.isNewItemAdded,
       shopId: shopId != null ? shopId() : this.shopId,
       routeId: routeId != null ? routeId() : this.routeId,
-      purchaseOrderId: purchaseOrderId != null
-          ? purchaseOrderId()
-          : this.purchaseOrderId,
+      campaignId: campaignId != null ? campaignId() : this.campaignId,
       status: status != null ? status() : this.status,
       itemCountInPo: itemCountInPo != null
           ? itemCountInPo()
@@ -99,7 +97,7 @@ class CartNotifier extends Notifier<CartState> {
           isLoading: false,
           shopId: () => result['shopId'],
           routeId: () => result['routeId'],
-          purchaseOrderId: () => result['purchaseOrderId'],
+          campaignId: () => result['campaignId'],
           status: () => result['status'],
           itemCountInPo: () => result['itemCountInPo'],
         );
@@ -115,14 +113,14 @@ class CartNotifier extends Notifier<CartState> {
     try {
       final storage = ref.read(cartStorageServiceProvider);
       // Clear storage only if the cart is truly empty (no items AND no linked PO)
-      if (state.items.isEmpty && state.purchaseOrderId == null) {
+      if (state.items.isEmpty && state.campaignId == null) {
         await storage.clearPendingOrder();
       } else {
         await storage.savePendingOrder(
           state.items,
           shopId: state.shopId,
           routeId: state.routeId,
-          purchaseOrderId: state.purchaseOrderId,
+          campaignId: state.campaignId,
           status: state.status,
           itemCountInPo: state.itemCountInPo,
         );
@@ -147,7 +145,7 @@ class CartNotifier extends Notifier<CartState> {
   void loadOrderIntoCart({
     required String shopId,
     required String routeId,
-    required String purchaseOrderId,
+    required String campaignId,
     required String status,
     required int itemCountInPo,
     required List<ModelCollaboration> items,
@@ -156,7 +154,7 @@ class CartNotifier extends Notifier<CartState> {
       items: items,
       shopId: () => shopId,
       routeId: () => routeId,
-      purchaseOrderId: () => purchaseOrderId,
+      campaignId: () => campaignId,
       status: () => status,
       itemCountInPo: () => itemCountInPo,
       isLoading: false,
@@ -168,14 +166,14 @@ class CartNotifier extends Notifier<CartState> {
   void setOrderDetails({
     String? shopId,
     String? routeId,
-    String? purchaseOrderId,
+    String? campaignId,
     String? status,
     int? itemCountInPo,
   }) {
     state = state.copyWith(
       shopId: () => shopId,
       routeId: () => routeId,
-      purchaseOrderId: () => purchaseOrderId,
+      campaignId: () => campaignId,
       status: () => status,
       itemCountInPo: () => itemCountInPo,
     );
@@ -298,7 +296,7 @@ class CartNotifier extends Notifier<CartState> {
       isPromptAcknowledged: false,
       shopId: () => null,
       routeId: () => null,
-      purchaseOrderId: () => null,
+      campaignId: () => null,
       status: () => null,
       itemCountInPo: () => null,
     );

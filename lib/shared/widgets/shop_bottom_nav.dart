@@ -60,7 +60,7 @@ void navigateToShopTab(BuildContext context, WidgetRef ref, int index) {
   tile.navigate(context, ref); // ✅ RBAC-aware navigation
 }
 
-/// Builds the bottom navigation bar, shared between Shops and Purchase Orders pages
+/// Builds the bottom navigation bar, shared between Shops and Campaigns pages
 BottomNavigationBar? buildShopBottomNav({
   required BuildContext context,
   required WidgetRef ref,

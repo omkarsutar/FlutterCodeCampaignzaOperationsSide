@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/user_profile_state_provider.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/purchase_orders/purchase_order_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/shops/shop_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_routes_json.dart';
 import 'package:go_router/go_router.dart';
@@ -36,7 +36,7 @@ class LoadingPage extends ConsumerWidget {
             queryParameters: {'tapCondition': 'listWithoutTodaysPOs'},
           );
         } else {
-          context.goNamed(PurchaseOrdersRoutesJson.listRouteName);
+          context.goNamed(CampaignsRoutesJson.listRouteName);
         }
       });
     }

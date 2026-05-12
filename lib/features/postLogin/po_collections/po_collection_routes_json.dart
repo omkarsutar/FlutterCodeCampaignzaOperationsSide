@@ -45,8 +45,7 @@ class PoCollectionsRoutesJson {
       entityByIdProvider: poCollectionByIdProvider,
       formProvider: poCollectionFormProvider,
       customListBuilder: (context, state) => const PoCollectionListPage(),
-      customViewBuilder: (context, poId) =>
-          PurchaseOrderCollectionPage(poId: poId),
+      customViewBuilder: (context, poId) => CampaignCollectionPage(poId: poId),
     );
 
     _initialized = true;

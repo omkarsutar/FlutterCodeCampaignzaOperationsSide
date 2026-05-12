@@ -307,13 +307,12 @@ class _ShopListPageRiverpodState extends ConsumerState<ShopListPageRiverpod> {
       isSelectionMode: widget.isSelectionMode,
       viewRouteName: widget.viewRouteName,
       idField: widget.idField,
-      handleCreatePO: (ctx, ent, adp) =>
-          ShopListPageLogic.handleCreatePurchaseOrder(
-            context: ctx,
-            ref: ref,
-            entity: ent,
-            adapter: adp,
-          ),
+      handleCreatePO: (ctx, ent, adp) => ShopListPageLogic.handleCreateCampaign(
+        context: ctx,
+        ref: ref,
+        entity: ent,
+        adapter: adp,
+      ),
     );
   }
 }

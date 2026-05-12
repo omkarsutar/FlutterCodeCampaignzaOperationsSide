@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/config/module_config.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/purchase_orders/purchase_order_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/shared_widget_barrel.dart';
 import '../providers/collaboration_providers.dart';
 import '../providers/collaboration_list_controller.dart';
@@ -62,8 +62,8 @@ class _CollaborationListPageRiverpodState
       collaborationListControllerProvider(widget.poId),
     );
 
-    // Watch the purchase order itself by ID
-    final poAsync = ref.watch(purchaseOrderStreamByIdProvider(widget.poId));
+    // Watch the campaign itself by ID
+    final poAsync = ref.watch(campaignStreamByIdProvider(widget.poId));
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -77,16 +77,16 @@ class _CollaborationListPageRiverpodState
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
-                // Purchase Order card at the top (Header)
+                // Campaign card at the top (Header)
                 SliverToBoxAdapter(
                   child: poAsync.when(
                     loading: () => const LinearProgressIndicator(),
                     error: (err, _) => Text('Error loading order: $err'),
                     data: (po) {
                       if (po == null) return const Text('Order not found');
-                      return PurchaseOrderListTile(
+                      return CampaignListTile(
                         entity: po,
-                        adapter: ref.read(purchaseOrderAdapterProvider),
+                        adapter: ref.read(campaignAdapterProvider),
                         onTap: null,
                         collaborationTile: true,
                       );

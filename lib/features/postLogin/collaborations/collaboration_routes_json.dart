@@ -47,13 +47,13 @@ class CollaborationsRoutesJson {
       formProvider: collaborationFormProvider,
       customListBuilder: (context, state) {
         final poId = state.uri.queryParameters['po_id'] ?? '';
-        // final po = state.extra as ModelPurchaseOrder; // <-- get the extra
+        // final po = state.extra as ModelCampaign; // <-- get the extra
 
-        /* // Navigate to Purchase Orders list if po_id is not provided
+        /* // Navigate to Campaigns list if po_id is not provided
         if (poId.isEmpty) {
           // Use WidgetsBinding to navigate safely after frame
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            context.go('/purchase_orders');
+            context.go('/campaigns');
           });
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),

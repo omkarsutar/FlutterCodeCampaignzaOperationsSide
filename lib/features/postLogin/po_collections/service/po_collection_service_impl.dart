@@ -3,7 +3,7 @@ import '../../../../core/services/entity_service.dart';
 import '../../../../core/services/logger_service.dart';
 import '../../../../core/config/field_config.dart';
 import '../model/po_collection_model.dart';
-import '../../purchase_orders/purchase_order_barrel.dart';
+import '../../campaigns/campaign_barrel.dart';
 
 class PoCollectionServiceImpl
     extends ForeignKeyAwareService<ModelPoCollection> {
@@ -79,13 +79,13 @@ class PoCollectionServiceImpl
   @override
   Map<String, ForeignKeyConfig> get foreignKeys => {
     ModelPoCollectionFields.poId: const ForeignKeyConfig(
-      table: ModelPurchaseOrderFields.table,
-      idColumn: ModelPurchaseOrderFields.poId,
-      labelColumn: ModelPurchaseOrderFields.poId, // Fallback
+      table: ModelCampaignFields.table,
+      idColumn: ModelCampaignFields.poId,
+      labelColumn: ModelCampaignFields.poId, // Fallback
     ),
   };
 
-  /// Fetch collection for a specific purchase order
+  /// Fetch collection for a specific campaign
   Future<ModelPoCollection?> fetchByPoId(String poId) async {
     try {
       final response = await client

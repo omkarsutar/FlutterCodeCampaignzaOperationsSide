@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/purchase_orders/purchase_order_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/config/field_config.dart';
@@ -37,9 +37,9 @@ class CollaborationServiceImpl
   @override
   Map<String, ForeignKeyConfig> get foreignKeys => {
     ModelCollaborationFields.poId: ForeignKeyConfig(
-      table: ModelPurchaseOrderFields.table,
-      idColumn: ModelPurchaseOrderFields.poId,
-      labelColumn: ModelPurchaseOrderFields.poId,
+      table: ModelCampaignFields.table,
+      idColumn: ModelCampaignFields.poId,
+      labelColumn: ModelCampaignFields.poId,
     ),
     ModelCollaborationFields.createdBy: ForeignKeyConfig(
       table: ModelUserFields.table,
@@ -122,7 +122,7 @@ class CollaborationServiceImpl
 
   // --- Custom helpers ---
 
-  /// Fetch raw items for a given purchase order (without mapping)
+  /// Fetch raw items for a given campaign (without mapping)
   Future<List<Map<String, dynamic>>> fetchItemsForPo(String poId) async {
     if (poId.isEmpty) {
       throw Exception('PO ID not provided');
@@ -222,7 +222,7 @@ class CollaborationServiceImpl
     return mapper.fromMap(inserted);
   }
 
-  /// Delete all items for a specific purchase order
+  /// Delete all items for a specific campaign
   Future<void> deleteAllByPo(String poId) async {
     if (poId.isEmpty) throw Exception('PO ID not provided');
     await client

@@ -3,7 +3,7 @@ import 'package:flutter_supabase_order_app_mobile/core/providers/user_profile_st
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/shops/model/shop_model.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/shops/providers/shop_providers.dart';
 
-/// Provider to fetch shops classified by purchase order item status
+/// Provider to fetch shops classified by campaign item status
 /// Returns a map with keys: 'noPOs', 'emptyPOs', 'filledPOs'
 final shopsByPOStatusProvider = StreamProvider.autoDispose
     .family<Map<String, List<ModelShop>>, String?>((ref, routeId) {

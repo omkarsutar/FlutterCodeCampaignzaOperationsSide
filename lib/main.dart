@@ -10,7 +10,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_shop_
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/shops/shop_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/purchase_orders/purchase_order_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_shop_links/retailer_shop_link_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -98,7 +98,7 @@ void main() async {
   await ProductsRoutesJson.initialize();
   await RouteShopLinksRoutesJson.initialize();
   await RbacPermissionsRoutesJson.initialize();
-  await PurchaseOrdersRoutesJson.initialize();
+  await CampaignsRoutesJson.initialize();
   await CollaborationsRoutesJson.initialize();
   await ShopsRoutesJson.initialize();
   await PoCollectionsRoutesJson.initialize();

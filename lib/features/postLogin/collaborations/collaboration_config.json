@@ -42,12 +42,12 @@
         },
         {
             "name": "po_id",
-            "label": "Purchase Order",
+            "label": "Campaign",
             "type": "dropdown",
             "required": true,
             "visibleInList": true,
             "dropdownSource": {
-                "table": "purchase_order",
+                "table": "campaign",
                 "valueKey": "po_id",
                 "labelKey": "po_id"
             },

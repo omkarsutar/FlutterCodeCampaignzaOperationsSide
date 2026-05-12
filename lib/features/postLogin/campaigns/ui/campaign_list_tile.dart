@@ -1,0 +1,366 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
+import 'package:flutter_supabase_order_app_mobile/core/utils/date_utils.dart';
+
+import '../../../../core/services/entity_service.dart';
+import '../../collaborations/collaboration_barrel.dart';
+import '../model/campaign_model.dart';
+import '../providers/campaign_tile_logic.dart';
+import '../../cart/providers/cart_controller.dart';
+import 'widgets/po_shop_route_info.dart';
+import 'widgets/po_actions.dart';
+
+class CampaignListTile extends ConsumerStatefulWidget {
+  final ModelCampaign entity;
+  final EntityAdapter<ModelCampaign> adapter;
+  final VoidCallback? onTap;
+  final bool? collaborationTile;
+  final bool showShare;
+  final void Function(String oldStatus, String newStatus)? onStatusChanged;
+
+  const CampaignListTile({
+    super.key,
+    required this.entity,
+    required this.adapter,
+    this.onTap,
+    this.collaborationTile,
+    this.showShare = false,
+    this.onStatusChanged,
+  });
+
+  @override
+  ConsumerState<CampaignListTile> createState() => _CampaignListTileState();
+}
+
+class _CampaignListTileState extends ConsumerState<CampaignListTile> {
+  bool _isExpanded = false;
+  bool _isUpdating = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isRbacReady = ref.watch(rbacInitializationProvider);
+    final rbacService = ref.watch(rbacServiceProvider);
+
+    final canUpdate = isRbacReady && rbacService.canUpdate('campaign');
+    final canDelete = isRbacReady && rbacService.canDelete('campaign');
+
+    final dateStr = widget.entity.createdAt != null
+        ? formatTimestamp(widget.entity.createdAt!)
+        : '';
+    final shopName =
+        widget.adapter
+            .getLabelValue(widget.entity, ModelCampaignFields.poShopId)
+            ?.toString() ??
+        'Unknown Shop';
+    final routeName =
+        widget.adapter
+            .getLabelValue(widget.entity, ModelCampaignFields.poRouteId)
+            ?.toString() ??
+        'Unknown Route';
+    final status = widget.entity.status ?? 'pending';
+    final itemCount = widget.entity.poLineItemCount ?? 0;
+    final commentStr = widget.entity.userComment ?? '';
+    final adminCommentStr = widget.entity.adminComment ?? '';
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap:
+            widget.onTap ??
+            () {
+              ref
+                  .read(cartControllerProvider)
+                  .editCampaign(context, widget.entity);
+            },
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.collaborationTile != true) ...[
+                _buildHeader(theme, dateStr, status, canUpdate),
+                const SizedBox(height: 8),
+              ],
+              PoShopRouteInfo(
+                shopName: shopName,
+                routeName: routeName,
+                trailing: PoActions(
+                  entity: widget.entity,
+                  adapter: widget.adapter,
+                  showShare: widget.showShare,
+                  canDelete: canDelete,
+                  status: status,
+                  isUpdating: _isUpdating,
+                  onUpdating: (val) {
+                    if (mounted) setState(() => _isUpdating = val);
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildStatsRow(theme, itemCount),
+              if (_isExpanded && widget.entity.poId != null) ...[
+                const SizedBox(height: 16),
+                CollaborationSummaryList(
+                  poId: widget.entity.poId!,
+                  status: status,
+                ),
+              ],
+              if (commentStr.isNotEmpty)
+                _buildComment(theme, 'User Comment', commentStr),
+              if (adminCommentStr.isNotEmpty)
+                _buildComment(
+                  theme,
+                  'Admin Comment',
+                  adminCommentStr,
+                  color: Colors.red.shade700,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(
+    ThemeData theme,
+    String dateStr,
+    String status,
+    bool canUpdate,
+  ) {
+    final statusColor = CampaignTileLogic.getStatusColor(status);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
+            dateStr,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        if (_isUpdating)
+          const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else if (canUpdate)
+          _StatusSelector(
+            status: status,
+            statusColor: statusColor,
+            onChanged: (newValue) async {
+              if (newValue != null && newValue != status) {
+                final success = await CampaignTileLogic.updateStatus(
+                  context: context,
+                  ref: ref,
+                  entity: widget.entity,
+                  newStatus: newValue,
+                  setUpdating: (updating) {
+                    if (mounted) setState(() => _isUpdating = updating);
+                  },
+                );
+                if (success) widget.onStatusChanged?.call(status, newValue);
+              }
+            },
+          )
+        else
+          _StatusBadge(status: status, statusColor: statusColor),
+      ],
+    );
+  }
+
+  Widget _buildStatsRow(ThemeData theme, int itemCount) {
+    final profitStr = CampaignTileLogic.formatCurrency(
+      widget.entity.profitToShop,
+    );
+    final amountStr = CampaignTileLogic.formatCurrency(
+      widget.entity.poTotalAmount,
+    );
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        if (itemCount > 0)
+          _ExpandToggle(
+            isExpanded: _isExpanded,
+            onToggle: () => setState(() => _isExpanded = !_isExpanded),
+          ),
+        _StatItem(label: 'Items', value: '$itemCount'),
+        _StatItem(
+          label: 'Shop Profit',
+          value: '₹$profitStr',
+          valueColor: Colors.green,
+        ),
+        _StatItem(
+          label: 'Total Amount',
+          value: '₹$amountStr',
+          valueColor: theme.colorScheme.primary,
+          crossAxisAlignment: CrossAxisAlignment.end,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildComment(
+    ThemeData theme,
+    String title,
+    String commentStr, {
+    Color? color,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Text(
+        '$title: $commentStr',
+        style: theme.textTheme.bodySmall?.copyWith(
+          fontStyle: FontStyle.italic,
+          color: color ?? theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusSelector extends StatelessWidget {
+  final String status;
+  final Color statusColor;
+  final ValueChanged<String?> onChanged;
+
+  const _StatusSelector({
+    required this.status,
+    required this.statusColor,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        color: statusColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: statusColor, width: 1),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: status.toLowerCase(),
+          icon: Icon(Icons.arrow_drop_down, color: statusColor, size: 16),
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: statusColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 10,
+          ),
+          onChanged: onChanged,
+          items: CampaignTileLogic.statusOptions
+              .map(
+                (s) => DropdownMenuItem(value: s, child: Text(s.toUpperCase())),
+              )
+              .toList(),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  final String status;
+  final Color statusColor;
+
+  const _StatusBadge({required this.status, required this.statusColor});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: statusColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: statusColor, width: 1),
+      ),
+      child: Text(
+        status.toUpperCase(),
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: statusColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 10,
+        ),
+      ),
+    );
+  }
+}
+
+class _ExpandToggle extends StatelessWidget {
+  final bool isExpanded;
+  final VoidCallback onToggle;
+
+  const _ExpandToggle({required this.isExpanded, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onToggle,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary.withValues(alpha: 0.15),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: theme.colorScheme.primary.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Icon(
+          isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+          size: 32,
+        ),
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? valueColor;
+  final CrossAxisAlignment crossAxisAlignment;
+
+  const _StatItem({
+    required this.label,
+    required this.value,
+    this.valueColor,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: crossAxisAlignment,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Text(
+          value,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: valueColor,
+          ),
+        ),
+      ],
+    );
+  }
+}

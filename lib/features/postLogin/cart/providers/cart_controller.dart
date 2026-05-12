@@ -6,7 +6,7 @@ import 'cart_providers.dart';
 import 'cart_view_logic.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
-import '../../purchase_orders/purchase_order_barrel.dart';
+import '../../campaigns/campaign_barrel.dart';
 import '../../collaborations/collaboration_barrel.dart';
 import '../../../../core/utils/dialogs.dart';
 import '../../../../core/providers/localization_provider.dart';
@@ -16,7 +16,7 @@ import '../../../../core/globals.dart';
 final cartOrderServiceProvider = Provider(
   (ref) => CartOrderService(
     client: ref.watch(supabaseClientProvider),
-    poService: ref.watch(purchaseOrderServiceProvider),
+    poService: ref.watch(campaignServiceProvider),
     collaborationService: ref.watch(collaborationServiceProvider),
   ),
 );
@@ -129,7 +129,7 @@ class CartController {
 
     // Authorized Flow (Salesperson / Admin)
     final cartState = ref.read(cartProvider);
-    final poId = cartState.purchaseOrderId;
+    final poId = cartState.campaignId;
 
     if (poId == null || poId.isEmpty) {
       // No PO selected -> Redirect for shop selection
@@ -153,7 +153,7 @@ class CartController {
     final String title = isUpdate ? 'Update Order?' : 'Create Order?';
     final String message = isUpdate
         ? 'Are you sure you want to update this order?'
-        : 'Are you sure you want to create this purchase order?';
+        : 'Are you sure you want to create this campaign?';
 
     final confirm = await _showConfirmDialog(
       context: context,
@@ -191,7 +191,7 @@ class CartController {
         roleName: roleName,
         shopId: cartState.shopId,
         routeId: cartState.routeId,
-        purchaseOrderId: cartState.purchaseOrderId,
+        campaignId: cartState.campaignId,
       );
 
       if (context.mounted) {
@@ -217,10 +217,7 @@ class CartController {
     }
   }
 
-  Future<void> editPurchaseOrder(
-    BuildContext context,
-    ModelPurchaseOrder po,
-  ) async {
+  Future<void> editCampaign(BuildContext context, ModelCampaign po) async {
     final l10n = ref.read(l10nProvider);
 
     // 1. Show loading dialog
@@ -267,7 +264,7 @@ class CartController {
             .loadOrderIntoCart(
               shopId: po.poShopId ?? '',
               routeId: po.poRouteId ?? '',
-              purchaseOrderId: poId,
+              campaignId: poId,
               status: po.status ?? 'pending',
               itemCountInPo: dbItemCount,
               items: itemsToLoad,

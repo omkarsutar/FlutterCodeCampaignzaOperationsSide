@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/notes/note_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/purchase_orders/purchase_order_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
@@ -38,7 +38,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...RouteShopLinksRoutesJson.routes,
       ...RolesRoutesJson.routes,
       ...UsersRoutesJson.routes,
-      ...PurchaseOrdersRoutesJson.routes,
+      ...CampaignsRoutesJson.routes,
       ...CollaborationsRoutesJson.routes,
       ...ProductsRoutesJson.routes,
       ...RbacModulesRoutesJson.routes,
@@ -132,7 +132,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         }
 
-        return state.namedLocation(PurchaseOrdersRoutesJson.listRouteName);
+        return state.namedLocation(CampaignsRoutesJson.listRouteName);
       }
 
       // --- RBAC Route Protection ---
@@ -206,10 +206,10 @@ final authRoutes = [
     builder: (context, state) => const CartPage(),
   ),
   GoRoute(
-    name: 'purchase_order_collection',
-    path: '/purchase_orders/:poId/collect',
+    name: 'campaign_collection',
+    path: '/campaigns/:poId/collect',
     builder: (context, state) =>
-        PurchaseOrderCollectionPage(poId: state.pathParameters['poId']!),
+        CampaignCollectionPage(poId: state.pathParameters['poId']!),
   ),
   GoRoute(
     name: AppRoute.unauthorizedName,

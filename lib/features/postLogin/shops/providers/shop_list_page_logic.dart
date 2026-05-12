@@ -5,7 +5,7 @@ import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/services/core_services_barrel.dart';
 import '../../../../core/utils/core_utils_barrel.dart';
 import '../../../../shared/widgets/shop_bottom_nav.dart';
-import '../../purchase_orders/purchase_order_barrel.dart';
+import '../../campaigns/campaign_barrel.dart';
 import '../model/shop_model.dart';
 
 /// Logic for Shop List Page navigation and actions
@@ -42,7 +42,7 @@ class ShopListPageLogic {
     if (tapCondition == 'listWithTodaysEmptyPOs' ||
         tapCondition == 'listWithTodaysFilledPOs') {
       return () => context.pushNamed(
-        PurchaseOrdersRoutesJson.listRouteName,
+        CampaignsRoutesJson.listRouteName,
         queryParameters: {
           'filterShopId': shopId,
           'showBackButton': 'true',
@@ -60,7 +60,7 @@ class ShopListPageLogic {
   }
 
   /// Handles the complete PO creation workflow
-  static Future<void> handleCreatePurchaseOrder({
+  static Future<void> handleCreateCampaign({
     required BuildContext context,
     required WidgetRef ref,
     required ModelShop entity,
@@ -81,8 +81,8 @@ class ShopListPageLogic {
     // Confirmation dialog
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'New Purchase Order',
-      content: 'Are you sure you want to create a new Purchase Order?',
+      title: 'New Campaign',
+      content: 'Are you sure you want to create a new Campaign?',
       confirmLabel: 'Create',
     );
     if (!confirmed) return;
@@ -90,18 +90,18 @@ class ShopListPageLogic {
     // Create PO
     try {
       await ref
-          .read(purchaseOrderServiceProvider)
-          .createEmptyPurchaseOrder(poRouteId: routeId, poShopId: shopId);
+          .read(campaignServiceProvider)
+          .createEmptyCampaign(poRouteId: routeId, poShopId: shopId);
 
       if (!context.mounted) return;
-      SnackbarUtils.showSuccess('Purchase Order Created');
+      SnackbarUtils.showSuccess('Campaign Created');
       if (!context.mounted) return;
 
       // Navigate to PO list with tapCondition
       final queryParams = getShopQueryParams(context);
 
       context.pushNamed(
-        PurchaseOrdersRoutesJson.listRouteName,
+        CampaignsRoutesJson.listRouteName,
         queryParameters: {
           'filterShopId': shopId,
           if (queryParams.tapCondition != null)
@@ -114,7 +114,7 @@ class ShopListPageLogic {
       ErrorHandler.handle(
         e,
         stackTrace,
-        context: 'Creating purchase order for shop',
+        context: 'Creating campaign for shop',
         showToUser: true,
       );
     }

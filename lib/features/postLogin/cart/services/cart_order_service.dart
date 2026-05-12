@@ -4,14 +4,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../../core/services/connectivity_service.dart';
-import '../../purchase_orders/purchase_order_barrel.dart';
+import '../../campaigns/campaign_barrel.dart';
 import '../../collaborations/model/collaboration_model.dart';
 import '../../collaborations/service/collaboration_service_impl.dart';
 import '../providers/cart_view_logic.dart';
 
 class CartOrderService {
   final SupabaseClient client;
-  final PurchaseOrderServiceImpl poService;
+  final CampaignServiceImpl poService;
   final CollaborationServiceImpl collaborationService;
 
   CartOrderService({
@@ -26,7 +26,7 @@ class CartOrderService {
     required String? roleName,
     String? shopId,
     String? routeId,
-    String? purchaseOrderId,
+    String? campaignId,
   }) async {
     // Check connectivity before placing order
     if (!await ConnectivityService.isOnline()) {
@@ -81,9 +81,9 @@ class CartOrderService {
 
     String finalAdminComment = adminComment;
     String? finalUserComment;
-    if (purchaseOrderId != null && purchaseOrderId.isNotEmpty) {
+    if (campaignId != null && campaignId.isNotEmpty) {
       try {
-        final existingPo = await poService.fetchById(purchaseOrderId);
+        final existingPo = await poService.fetchById(campaignId);
         finalUserComment = existingPo.userComment;
         if (existingPo.adminComment != null &&
             existingPo.adminComment!.isNotEmpty) {
@@ -98,8 +98,8 @@ class CartOrderService {
       }
     }
 
-    final po = ModelPurchaseOrder(
-      poId: purchaseOrderId,
+    final po = ModelCampaign(
+      poId: campaignId,
       poTotalAmount: double.tryParse(viewData.totalAmount.replaceAll(',', '')),
       poLineItemCount: viewData.itemCount,
       poShopId: poShopId,
@@ -112,10 +112,10 @@ class CartOrderService {
     );
 
     String finalPoId;
-    if (purchaseOrderId != null && purchaseOrderId.isNotEmpty) {
+    if (campaignId != null && campaignId.isNotEmpty) {
       // Update existing PO
-      await poService.update(purchaseOrderId, po);
-      finalPoId = purchaseOrderId;
+      await poService.update(campaignId, po);
+      finalPoId = campaignId;
       // Delete old items
       await collaborationService.deleteAllByPo(finalPoId);
     } else {

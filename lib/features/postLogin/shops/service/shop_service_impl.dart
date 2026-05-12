@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/purchase_orders/purchase_order_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_shop_links/route_shop_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -71,9 +71,9 @@ class ShopServiceImpl extends ForeignKeyAwareService<ModelShop> {
   ) async* {
     // Supabase live streams
     final poStream = client
-        .from(ModelPurchaseOrderFields.table)
-        .stream(primaryKey: [ModelPurchaseOrderFields.poId])
-        .eq(ModelPurchaseOrderFields.poRouteId, preferredRouteId);
+        .from(ModelCampaignFields.table)
+        .stream(primaryKey: [ModelCampaignFields.poId])
+        .eq(ModelCampaignFields.poRouteId, preferredRouteId);
 
     final collaborationStream = client
         .from(ModelCollaborationFields.table)
@@ -90,7 +90,7 @@ class ShopServiceImpl extends ForeignKeyAwareService<ModelShop> {
     }
   }
 
-  /// Classify shops by purchase order item status for today
+  /// Classify shops by campaign item status for today
   Future<Map<String, List<ModelShop>>> fetchShopsByCollaborationStatus({
     required String? preferredRouteId,
   }) async {
@@ -125,25 +125,21 @@ class ShopServiceImpl extends ForeignKeyAwareService<ModelShop> {
     final endUtc = endOfDayLocal.toUtc();
 
     final poData = await client
-        .from(ModelPurchaseOrderFields.table)
-        .select(
-          '${ModelPurchaseOrderFields.poId}, ${ModelPurchaseOrderFields.poShopId}',
-        )
-        .inFilter(ModelPurchaseOrderFields.poShopId, shopIdsInRouteOrder)
-        .gte(ModelPurchaseOrderFields.createdAt, startUtc.toIso8601String())
-        .lt(ModelPurchaseOrderFields.createdAt, endUtc.toIso8601String());
+        .from(ModelCampaignFields.table)
+        .select('${ModelCampaignFields.poId}, ${ModelCampaignFields.poShopId}')
+        .inFilter(ModelCampaignFields.poShopId, shopIdsInRouteOrder)
+        .gte(ModelCampaignFields.createdAt, startUtc.toIso8601String())
+        .lt(ModelCampaignFields.createdAt, endUtc.toIso8601String());
 
     final poByShop = <String, List<String>>{};
     for (final po in poData) {
-      final shopId = po[ModelPurchaseOrderFields.poShopId];
-      final poId = po[ModelPurchaseOrderFields.poId];
+      final shopId = po[ModelCampaignFields.poShopId];
+      final poId = po[ModelCampaignFields.poId];
       poByShop.putIfAbsent(shopId, () => []).add(poId);
     }
 
     // Step 3: Get collaboration counts for today's POs
-    final allPoIds = poData
-        .map((e) => e[ModelPurchaseOrderFields.poId])
-        .toList();
+    final allPoIds = poData.map((e) => e[ModelCampaignFields.poId]).toList();
     final collaborations = await client
         .from(ModelCollaborationFields.table)
         .select(ModelCollaborationFields.poId)
@@ -273,23 +269,20 @@ class ShopServiceImpl extends ForeignKeyAwareService<ModelShop> {
 
     if (shopIds.isEmpty) return [];
 
-    // Step 2: Get shop_ids that HAVE purchase orders today
+    // Step 2: Get shop_ids that HAVE campaigns today
     final nowUtc = DateTime.now().toUtc();
     final startOfDayUtc = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day);
     final endOfDayUtc = startOfDayUtc.add(Duration(days: 1));
 
-    final purchaseOrders = await client
-        .from(ModelPurchaseOrderFields.table)
-        .select(ModelPurchaseOrderFields.poShopId)
-        .inFilter(ModelPurchaseOrderFields.poShopId, shopIds)
-        .gte(
-          ModelPurchaseOrderFields.createdAt,
-          startOfDayUtc.toIso8601String(),
-        )
-        .lt(ModelPurchaseOrderFields.createdAt, endOfDayUtc.toIso8601String());
+    final campaigns = await client
+        .from(ModelCampaignFields.table)
+        .select(ModelCampaignFields.poShopId)
+        .inFilter(ModelCampaignFields.poShopId, shopIds)
+        .gte(ModelCampaignFields.createdAt, startOfDayUtc.toIso8601String())
+        .lt(ModelCampaignFields.createdAt, endOfDayUtc.toIso8601String());
 
     final shopsWithPOsToday = Set<String>.from(
-      purchaseOrders.map((e) => e[ModelPurchaseOrderFields.poShopId]),
+      campaigns.map((e) => e[ModelCampaignFields.poShopId]),
     );
 
     // Step 3: Filter shopIds based on PO status

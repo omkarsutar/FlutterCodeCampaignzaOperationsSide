@@ -9,9 +9,9 @@ import '../../../../core/providers/localization_provider.dart';
 import '../../products/product_barrel.dart';
 import '../../shops/shop_barrel.dart';
 import '../../routes/route_barrel.dart';
-import '../../purchase_orders/ui/widgets/po_shop_route_info.dart';
-import '../../purchase_orders/ui/widgets/po_actions.dart';
-import '../../purchase_orders/purchase_order_barrel.dart';
+import '../../campaigns/ui/widgets/po_shop_route_info.dart';
+import '../../campaigns/ui/widgets/po_actions.dart';
+import '../../campaigns/campaign_barrel.dart';
 import 'cart_item_card.dart';
 
 class CartPage extends ConsumerStatefulWidget {
@@ -187,11 +187,11 @@ class _CartPageState extends ConsumerState<CartPage>
                   final routeAsync = ref.watch(
                     routeByIdProvider(cartState.routeId!),
                   );
-                  final adapter = ref.watch(purchaseOrderAdapterProvider);
+                  final adapter = ref.watch(campaignAdapterProvider);
 
                   // Create a dummy/temp PO entity for actions
-                  final tempPo = ModelPurchaseOrder(
-                    poId: cartState.purchaseOrderId,
+                  final tempPo = ModelCampaign(
+                    poId: cartState.campaignId,
                     poShopId: cartState.shopId,
                     poRouteId: cartState.routeId,
                     status: cartState.status,

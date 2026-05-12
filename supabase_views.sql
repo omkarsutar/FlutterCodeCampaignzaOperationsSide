@@ -111,7 +111,7 @@ where
 
 
 
-create view public.view_purchase_orders as
+create view public.view_campaign as
 select
   po.po_id,
   po.po_total_amount,

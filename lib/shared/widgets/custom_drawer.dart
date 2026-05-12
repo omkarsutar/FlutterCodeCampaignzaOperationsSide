@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/notes/note_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/purchase_orders/purchase_order_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
@@ -105,11 +105,11 @@ class CustomDrawer extends ConsumerWidget {
             visible: !['deliveryperson'].contains(rbacService.roleName),
           ),
 
-          // Purchase Orders
+          // Campaigns
           ReadEntityTile(
-            moduleName: ModelPurchaseOrderFields.table, // "purchase_orders"
-            routeName: PurchaseOrdersRoutesJson.listRouteName,
-            title: 'Purchase Orders',
+            moduleName: ModelCampaignFields.table, // "campaigns"
+            routeName: CampaignsRoutesJson.listRouteName,
+            title: 'Campaigns',
             icon: Icons.receipt_long,
           ),
 

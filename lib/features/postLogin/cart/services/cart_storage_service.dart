@@ -11,7 +11,7 @@ class CartStorageService {
     List<ModelCollaboration> items, {
     String? shopId,
     String? routeId,
-    String? purchaseOrderId,
+    String? campaignId,
     String? status,
     int? itemCountInPo,
   }) async {
@@ -25,7 +25,7 @@ class CartStorageService {
       final metadata = {
         'shopId': shopId,
         'routeId': routeId,
-        'purchaseOrderId': purchaseOrderId,
+        'campaignId': campaignId,
         'status': status,
         'itemCountInPo': itemCountInPo,
       };

@@ -3,19 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../purchase_orders/purchase_order_barrel.dart';
+import '../../campaigns/campaign_barrel.dart';
 import '../providers/po_collection_providers.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/snackbar_utils.dart';
 
-class PurchaseOrderCollectionPage extends ConsumerWidget {
+class CampaignCollectionPage extends ConsumerWidget {
   final String poId;
 
-  const PurchaseOrderCollectionPage({super.key, required this.poId});
+  const CampaignCollectionPage({super.key, required this.poId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final poAsync = ref.watch(purchaseOrderByIdProvider(poId));
+    final poAsync = ref.watch(campaignByIdProvider(poId));
     final formState = ref.watch(poCollectionFormProvider);
     final formNotifier = ref.read(poCollectionFormProvider.notifier);
     final theme = Theme.of(context);

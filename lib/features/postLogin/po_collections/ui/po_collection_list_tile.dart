@@ -20,7 +20,7 @@ class PoCollectionListTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         onTap: () {
           context.pushNamed(
-            'purchase_order_collection',
+            'campaign_collection',
             pathParameters: {'poId': entity.poId},
           );
         },
