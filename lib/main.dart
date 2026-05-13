@@ -6,8 +6,8 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/pr
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_brand_links/route_brand_link_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agency_brand_links/agency_brand_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
@@ -92,11 +92,11 @@ void main() async {
   // Initialize JSON-based routes
   await NotesRoutesJson.initialize();
   await RolesRoutesJson.initialize();
-  await RoutesRoutesJson.initialize();
+  await AgenciesRoutesJson.initialize();
   await RbacModulesRoutesJson.initialize();
   await UsersRoutesJson.initialize();
   await ProductsRoutesJson.initialize();
-  await RouteBrandLinksRoutesJson.initialize();
+  await AgencyBrandLinksRoutesJson.initialize();
   await RbacPermissionsRoutesJson.initialize();
   await CampaignsRoutesJson.initialize();
   await CollaborationsRoutesJson.initialize();

@@ -8,9 +8,9 @@ import '../../../../core/models/entity_meta.dart';
 import '../../../../core/services/entity_service.dart';
 import '../../../../shared/widgets/shared_widget_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/entity_page/entity_page_barrel.dart';
-import '../route_brand_link_barrel.dart';
+import '../agency_brand_link_barrel.dart';
 
-class RouteBrandLinkListPageRiverpod extends ConsumerStatefulWidget {
+class AgencyBrandLinkListPageRiverpod extends ConsumerStatefulWidget {
   final EntityMeta entityMeta;
   final String idField;
   final List<FieldConfig> fieldConfigs;
@@ -22,19 +22,19 @@ class RouteBrandLinkListPageRiverpod extends ConsumerStatefulWidget {
   final SortingConfig? initialSorting;
 
   // Search function
-  final bool Function(ModelRouteBrandLink entity, String query)? searchMatcher;
+  final bool Function(ModelAgencyBrandLink entity, String query)? searchMatcher;
   final List<String>? searchFields;
 
   // Custom Item Builder
   final Widget Function(
     BuildContext context,
-    ModelRouteBrandLink entity,
-    EntityAdapter<ModelRouteBrandLink> adapter,
+    ModelAgencyBrandLink entity,
+    EntityAdapter<ModelAgencyBrandLink> adapter,
     VoidCallback onTap,
   )?
   customItemBuilder;
 
-  const RouteBrandLinkListPageRiverpod({
+  const AgencyBrandLinkListPageRiverpod({
     super.key,
     required this.entityMeta,
     required this.idField,
@@ -51,12 +51,12 @@ class RouteBrandLinkListPageRiverpod extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<RouteBrandLinkListPageRiverpod> createState() =>
-      _RouteBrandLinkListPageRiverpodState();
+  ConsumerState<AgencyBrandLinkListPageRiverpod> createState() =>
+      _AgencyBrandLinkListPageRiverpodState();
 }
 
-class _RouteBrandLinkListPageRiverpodState
-    extends ConsumerState<RouteBrandLinkListPageRiverpod> {
+class _AgencyBrandLinkListPageRiverpodState
+    extends ConsumerState<AgencyBrandLinkListPageRiverpod> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -66,7 +66,7 @@ class _RouteBrandLinkListPageRiverpodState
     // Set sorting configuration once when widget is created
     if (widget.initialSorting != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final service = ref.read(routeBrandLinkServiceProvider);
+        final service = ref.read(agencyBrandLinkServiceProvider);
         service.setSortingConfig(
           widget.initialSorting!.field,
           widget.initialSorting!.sortAscending,
@@ -84,21 +84,23 @@ class _RouteBrandLinkListPageRiverpodState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final adapter = ref.watch(routeBrandLinkAdapterProvider);
-    final service = ref.watch(routeBrandLinkServiceProvider);
+    final adapter = ref.watch(agencyBrandLinkAdapterProvider);
+    final service = ref.watch(agencyBrandLinkServiceProvider);
 
-    final listState = ref.watch(routeBrandLinkListControllerProvider);
-    final controller = ref.read(routeBrandLinkListControllerProvider.notifier);
+    final listState = ref.watch(agencyBrandLinkListControllerProvider);
+    final controller = ref.read(agencyBrandLinkListControllerProvider.notifier);
 
     // Watch the Backend Data
-    final asyncEntities = listState.selectedRouteId == null
-        ? const AsyncValue<List<ModelRouteBrandLink>>.loading()
-        : ref.watch(routeBrandLinksByRouteProvider(listState.selectedRouteId!));
+    final asyncEntities = listState.selectedAgencyId == null
+        ? const AsyncValue<List<ModelAgencyBrandLink>>.loading()
+        : ref.watch(
+            agencyBrandLinksByAgencyProvider(listState.selectedAgencyId!),
+          );
 
     // Sync local state when provider data changes
-    if (listState.selectedRouteId != null) {
-      ref.listen<AsyncValue<List<ModelRouteBrandLink>>>(
-        routeBrandLinksByRouteProvider(listState.selectedRouteId!),
+    if (listState.selectedAgencyId != null) {
+      ref.listen<AsyncValue<List<ModelAgencyBrandLink>>>(
+        agencyBrandLinksByAgencyProvider(listState.selectedAgencyId!),
         (previous, next) {
           next.whenData((data) {
             controller.setEntities(data);
@@ -110,7 +112,7 @@ class _RouteBrandLinkListPageRiverpodState
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: CustomAppBar(
-        title: 'Route Brand Links',
+        title: 'Agency Brand Links',
         showBack: widget.isSelectionMode,
       ),
       drawer: widget.isSelectionMode ? null : const CustomDrawer(),
@@ -120,8 +122,8 @@ class _RouteBrandLinkListPageRiverpodState
               moduleName: widget.rbacModule,
               newRouteName: widget.newRouteName,
               entityLabel: widget.entityMeta.entityName,
-              queryParameters: listState.selectedRouteId != null
-                  ? {'routeId': listState.selectedRouteId!}
+              queryParameters: listState.selectedAgencyId != null
+                  ? {'agencyId': listState.selectedAgencyId!}
                   : null,
             ),
       body: Container(
@@ -141,9 +143,9 @@ class _RouteBrandLinkListPageRiverpodState
             CollapsibleSearchBar(
               dropdown: Container(
                 padding: const EdgeInsets.only(right: 8),
-                child: RouteDropdown(
-                  initialRouteId: listState.selectedRouteId,
-                  onRouteSelected: controller.setRouteId,
+                child: AgencyDropdown(
+                  initialAgencyId: listState.selectedAgencyId,
+                  onAgencySelected: controller.setAgencyId,
                 ),
               ),
               controller: _searchController,
@@ -152,7 +154,7 @@ class _RouteBrandLinkListPageRiverpodState
 
             // 2. Scrollable Reorderable List Content
             Expanded(
-              child: listState.selectedRouteId == null
+              child: listState.selectedAgencyId == null
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -166,12 +168,12 @@ class _RouteBrandLinkListPageRiverpodState
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Please select a route',
+                            'Please select an agency',
                             style: theme.textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Select a route from the dropdown above to view brands.',
+                            'Select an agency from the dropdown above to view brands.',
                             style: theme.textTheme.bodySmall,
                             textAlign: TextAlign.center,
                           ),
@@ -240,7 +242,7 @@ class _RouteBrandLinkListPageRiverpodState
                                 Text(
                                   isSearchEmpty
                                       ? 'No matching ${widget.entityMeta.entityNamePluralLower}'
-                                      : 'No ${widget.entityMeta.entityNamePluralLower} in this route',
+                                      : 'No ${widget.entityMeta.entityNamePluralLower} in this agency',
                                   style: theme.textTheme.titleMedium?.copyWith(
                                     color: theme.colorScheme.onSurface
                                         .withValues(alpha: 0.6),
@@ -287,7 +289,7 @@ class _RouteBrandLinkListPageRiverpodState
                                       entity,
                                       adapter,
                                       service,
-                                      listState.selectedRouteId,
+                                      listState.selectedAgencyId,
                                     ),
                                   );
                                 },
@@ -302,7 +304,7 @@ class _RouteBrandLinkListPageRiverpodState
                                     entity,
                                     adapter,
                                     service,
-                                    listState.selectedRouteId,
+                                    listState.selectedAgencyId,
                                   );
                                 },
                               );
@@ -317,10 +319,10 @@ class _RouteBrandLinkListPageRiverpodState
 
   Widget _buildItem(
     BuildContext context,
-    ModelRouteBrandLink entity,
-    EntityAdapter<ModelRouteBrandLink> adapter,
-    EntityService<ModelRouteBrandLink> service,
-    String? selectedRouteId,
+    ModelAgencyBrandLink entity,
+    EntityAdapter<ModelAgencyBrandLink> adapter,
+    EntityService<ModelAgencyBrandLink> service,
+    String? selectedAgencyId,
   ) {
     if (widget.customItemBuilder != null) {
       return widget.customItemBuilder!(context, entity, adapter, () async {
@@ -331,16 +333,16 @@ class _RouteBrandLinkListPageRiverpodState
           },
         );
         // Refresh data on return
-        if (mounted && selectedRouteId != null) {
+        if (mounted && selectedAgencyId != null) {
           ref
-              .read(routeBrandLinkListControllerProvider.notifier)
+              .read(agencyBrandLinkListControllerProvider.notifier)
               .setEntities([]); // Optional: clear list to show loading/refresh
           await Future.delayed(const Duration(milliseconds: 500));
-          ref.invalidate(routeBrandLinksByRouteProvider(selectedRouteId));
+          ref.invalidate(agencyBrandLinksByAgencyProvider(selectedAgencyId));
         }
       });
     }
-    return EntityCard<ModelRouteBrandLink>(
+    return EntityCard<ModelAgencyBrandLink>(
       entity: entity,
       adapter: adapter,
       entityService: service,

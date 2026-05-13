@@ -16,12 +16,12 @@ class CampaignCollectionPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final poAsync = ref.watch(campaignByIdProvider(poId));
-    final formState = ref.watch(poCollectionFormProvider);
-    final formNotifier = ref.read(poCollectionFormProvider.notifier);
+    final formState = ref.watch(campaignCollectionFormProvider);
+    final formNotifier = ref.read(campaignCollectionFormProvider.notifier);
     final theme = Theme.of(context);
 
     // Load existing collection if any
-    ref.listen(poCollectionByPoIdProvider(poId), (previous, next) {
+    ref.listen(campaignCollectionByCampaignIdProvider(poId), (previous, next) {
       // Ensure poId is set in the notifier
       formNotifier.updateField('po_id', poId);
 
@@ -39,7 +39,7 @@ class CampaignCollectionPage extends ConsumerWidget {
       appBar: AppBar(title: const Text('Collect Payment')),
       body: poAsync.when(
         data: (po) {
-          if (po == null) return const Center(child: Text('PO not found'));
+          if (po == null) return const Center(child: Text('Campaign not found'));
 
           final brandName =
               po.resolvedLabels['po_brand_id_label'] ?? 'Unknown Brand';
@@ -81,14 +81,14 @@ class CampaignCollectionPage extends ConsumerWidget {
                         Row(
                           children: [
                             const Icon(
-                              Icons.route,
+                              Icons.alt_route,
                               size: 16,
                               color: Colors.grey,
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              po.resolvedLabels['po_route_id_label'] ??
-                                  'No Route',
+                              po.resolvedLabels['po_agency_id_label'] ??
+                                  'No Agency',
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: Colors.grey[700],
                               ),
@@ -111,7 +111,7 @@ class CampaignCollectionPage extends ConsumerWidget {
                                   const SizedBox(width: 4),
                                   Flexible(
                                     child: Text(
-                                      'PO Updated: ${formatTimestamp(po.updatedAt)}',
+                                      'Campaign Updated: ${formatTimestamp(po.updatedAt)}',
                                       style: theme.textTheme.bodySmall,
                                       overflow: TextOverflow.ellipsis,
                                     ),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/services/entity_service.dart';
-import '../model/route_brand_link_model.dart';
+import '../model/agency_brand_link_model.dart';
 
-class RouteBrandLinkListTile extends StatelessWidget {
-  final ModelRouteBrandLink entity;
-  final EntityAdapter<ModelRouteBrandLink> adapter;
+class AgencyBrandLinkListTile extends StatelessWidget {
+  final ModelAgencyBrandLink entity;
+  final EntityAdapter<ModelAgencyBrandLink> adapter;
   final VoidCallback? onTap;
 
-  const RouteBrandLinkListTile({
+  const AgencyBrandLinkListTile({
     super.key,
     required this.entity,
     required this.adapter,
@@ -30,26 +30,26 @@ class RouteBrandLinkListTile extends StatelessWidget {
     }
 
     // Extract values using adapter
-    final routeLabel =
+    final agencyLabel =
         adapter
-            .getLabelValue(entity, ModelRouteBrandLinkFields.routeId)
+            .getLabelValue(entity, ModelAgencyBrandLinkFields.agencyId)
             ?.toString() ??
-        'Route not set';
+        'Agency not set';
     final brandLabel =
         adapter
-            .getLabelValue(entity, ModelRouteBrandLinkFields.brandId)
+            .getLabelValue(entity, ModelAgencyBrandLinkFields.brandId)
             ?.toString() ??
         'Brand not set';
-    final brandsPrimaryRouteLabel =
-        entity.resolvedLabels['brands_primary_route_label']?.toString() ?? '';
+    final brandsPrimaryAgencyLabel =
+        entity.resolvedLabels['brands_primary_agency_label']?.toString() ?? '';
     final visitOrder =
         adapter
-            .getFieldValue(entity, ModelRouteBrandLinkFields.visitOrder)
+            .getFieldValue(entity, ModelAgencyBrandLinkFields.visitOrder)
             ?.toString() ??
         '-';
 
     final updatedAt = formatTs(
-      adapter.getFieldValue(entity, ModelRouteBrandLinkFields.updatedAt),
+      adapter.getFieldValue(entity, ModelAgencyBrandLinkFields.updatedAt),
     );
 
     return Card(
@@ -64,7 +64,7 @@ class RouteBrandLinkListTile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Row 1: Route + Brand
+              // Row 1: Agency + Brand
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -83,9 +83,9 @@ class RouteBrandLinkListTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (brandsPrimaryRouteLabel.isNotEmpty)
+                        if (brandsPrimaryAgencyLabel.isNotEmpty)
                           Text(
-                            "P Route: $brandsPrimaryRouteLabel",
+                            "P Agency: $brandsPrimaryAgencyLabel",
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
@@ -107,19 +107,19 @@ class RouteBrandLinkListTile extends StatelessWidget {
               ),
               const SizedBox(height: 8),
 
-              // Row 2: Visit Order
+              // Row 2: Visit Order / Agency
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.route,
+                    Icons.alt_route,
                     size: 16,
                     color: theme.colorScheme.secondary,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      routeLabel,
+                      agencyLabel,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: theme.colorScheme.onSurface,

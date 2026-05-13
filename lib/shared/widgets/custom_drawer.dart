@@ -5,8 +5,8 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/c
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_brand_links/route_brand_link_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agency_brand_links/agency_brand_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
@@ -199,17 +199,18 @@ class CustomDrawer extends ConsumerWidget {
 
           // Routes
           ReadEntityTile(
-            moduleName: ModelRouteFields.table, // "routes"
-            routeName: RoutesRoutesJson.listRouteName,
-            title: 'Routes',
+            moduleName: ModelAgencyFields.table, // "routes"
+            routeName: AgenciesRoutesJson.listRouteName,
+            title: 'Agencies',
             icon: Icons.alt_route,
           ),
 
           // Route Brand Links
           ReadEntityTile(
-            moduleName: ModelRouteBrandLinkFields.table, // "route_brand_links"
-            routeName: RouteBrandLinksRoutesJson.listRouteName,
-            title: 'Route Brand Links',
+            moduleName:
+                ModelAgencyBrandLinkFields.table, // "agency_brand_links"
+            routeName: AgencyBrandLinksRoutesJson.listRouteName,
+            title: 'Agency Brand Links',
             icon: Icons.link,
           ),
 

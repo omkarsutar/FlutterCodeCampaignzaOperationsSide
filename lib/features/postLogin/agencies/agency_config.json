@@ -1,23 +1,23 @@
 {
-    "moduleName": "routes",
+    "moduleName": "agencies",
     "entityMeta": {
-        "entityName": "Route",
-        "entityNameLower": "route",
-        "entityNamePlural": "Routes",
-        "entityNamePluralLower": "routes"
+        "entityName": "Agency",
+        "entityNameLower": "agency",
+        "entityNamePlural": "Agencies",
+        "entityNamePluralLower": "agencies"
     },
     "table": {
-        "name": "routes",
-        "viewName": "view_routes",
-        "idField": "route_id",
+        "name": "agencies",
+        "viewName": "view_agencies",
+        "idField": "agency_id",
         "timestampField": "created_at"
     },
     "routes": {
-        "basePath": "/routes",
-        "listRouteName": "routes",
-        "newRouteName": "newRoute",
-        "editRouteName": "editRoute",
-        "viewRouteName": "viewRoute"
+        "basePath": "/agencies",
+        "listRouteName": "agencies",
+        "newRouteName": "newAgency",
+        "editRouteName": "editAgency",
+        "viewRouteName": "viewAgency"
     },
     "listPage": {
         "sorting": {
@@ -25,13 +25,22 @@
             "sortAscending": true
         },
         "searchFields": [
-            "route_name"
+            "agency_name"
         ]
     },
     "fields": [
         {
-            "name": "route_name",
-            "label": "Route Name",
+            "name": "agency_id",
+            "label": "Agency ID",
+            "type": "text",
+            "required": true,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        },
+        {
+            "name": "agency_name",
+            "label": "Agency Name",
             "type": "text",
             "required": true,
             "maxLength": 100,
@@ -39,8 +48,8 @@
             "visibleInForm": true
         },
         {
-            "name": "route_note",
-            "label": "Route Note",
+            "name": "agency_note",
+            "label": "Agency Note",
             "type": "textarea",
             "required": false,
             "maxLength": 500,

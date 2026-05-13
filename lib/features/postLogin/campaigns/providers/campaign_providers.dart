@@ -84,7 +84,7 @@ final campaignStatusFilterProvider = StateProvider.family
 
 /// Form state for campaign
 class CampaignFormState {
-  final String poRouteId;
+  final String poAgencyId;
   final String poBrandId;
   final double? poTotalAmount;
   final int? poLineItemCount;
@@ -97,7 +97,7 @@ class CampaignFormState {
   final String? error;
 
   CampaignFormState({
-    this.poRouteId = '',
+    this.poAgencyId = '',
     this.poBrandId = '',
     this.poTotalAmount,
     this.poLineItemCount,
@@ -111,7 +111,7 @@ class CampaignFormState {
   });
 
   CampaignFormState copyWith({
-    String? poRouteId,
+    String? poAgencyId,
     String? poBrandId,
     double? poTotalAmount,
     int? poLineItemCount,
@@ -124,7 +124,7 @@ class CampaignFormState {
     String? error,
   }) {
     return CampaignFormState(
-      poRouteId: poRouteId ?? this.poRouteId,
+      poAgencyId: poAgencyId ?? this.poAgencyId,
       poBrandId: poBrandId ?? this.poBrandId,
       poTotalAmount: poTotalAmount ?? this.poTotalAmount,
       poLineItemCount: poLineItemCount ?? this.poLineItemCount,
@@ -156,8 +156,8 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
     if (!_mounted) return;
 
     switch (fieldName) {
-      case ModelCampaignFields.poRouteId:
-        state = state.copyWith(poRouteId: value as String, error: null);
+      case ModelCampaignFields.poAgencyId:
+        state = state.copyWith(poAgencyId: value as String, error: null);
         break;
       case ModelCampaignFields.poBrandId:
         state = state.copyWith(poBrandId: value as String, error: null);
@@ -211,7 +211,7 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
     if (!_mounted) return false;
 
     // Validation
-    if (state.poRouteId.trim().isEmpty) {
+    if (state.poAgencyId.trim().isEmpty) {
       state = state.copyWith(error: 'Route is required');
       return false;
     }
@@ -226,7 +226,7 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
       final service = ref.read(campaignServiceProvider);
       final entity = ModelCampaign(
         poId: entityId,
-        poRouteId: state.poRouteId.trim(),
+        poAgencyId: state.poAgencyId.trim(),
         poBrandId: state.poBrandId.trim(),
         poTotalAmount: state.poTotalAmount,
         poLineItemCount: state.poLineItemCount,
@@ -281,7 +281,7 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
   void loadEntity(ModelCampaign entity) {
     if (!_mounted) return;
     state = CampaignFormState(
-      poRouteId: entity.poRouteId ?? '',
+      poAgencyId: entity.poAgencyId ?? '',
       poBrandId: entity.poBrandId ?? '',
       poTotalAmount: entity.poTotalAmount,
       poLineItemCount: entity.poLineItemCount,

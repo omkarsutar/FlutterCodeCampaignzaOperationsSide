@@ -2,93 +2,93 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/auth_providers.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/services/entity_service.dart';
-import '../adapter/route_adapter.dart';
-import '../model/route_model.dart';
-import '../service/route_service_impl.dart';
+import '../adapter/agency_adapter.dart';
+import '../model/agency_model.dart';
+import '../service/agency_service_impl.dart';
 
 /// Mapper provider
-final routeMapperProvider = Provider<EntityMapper<ModelRoute>>((ref) {
-  return ModelRouteMapper();
+final agencyMapperProvider = Provider<EntityMapper<ModelAgency>>((ref) {
+  return ModelAgencyMapper();
 });
 
 /// Service provider
-final routeServiceProvider = Provider<RouteServiceImpl>((ref) {
-  return RouteServiceImpl(
-    ref.watch(routeMapperProvider),
+final agencyServiceProvider = Provider<AgencyServiceImpl>((ref) {
+  return AgencyServiceImpl(
+    ref.watch(agencyMapperProvider),
     ref.watch(supabaseClientProvider),
     ref.watch(loggerServiceProvider),
   );
 });
 
 /// Adapter provider
-final routeAdapterProvider = Provider<RouteAdapter>((ref) {
+final agencyAdapterProvider = Provider<RouteAdapter>((ref) {
   return RouteAdapter();
 });
 
-/// Fetches all routes with automatic disposal
+/// Fetches all agencies with automatic disposal
 /// Uses StreamProvider for real-time updates
-final routesStreamProvider = StreamProvider.autoDispose<List<ModelRoute>>((
+final agenciesStreamProvider = StreamProvider.autoDispose<List<ModelAgency>>((
   ref,
 ) {
-  final service = ref.read(routeServiceProvider);
+  final service = ref.read(agencyServiceProvider);
   return service.streamEntities();
 });
 
-/// Fetches a single route by ID
-final routeByIdProvider = FutureProvider.autoDispose
-    .family<ModelRoute?, String>((ref, routeId) async {
-      final service = ref.read(routeServiceProvider);
-      return await service.fetchById(routeId);
+/// Fetches a single agency by ID
+final agencyByIdProvider = FutureProvider.autoDispose
+    .family<ModelAgency?, String>((ref, agencyId) async {
+      final service = ref.read(agencyServiceProvider);
+      return await service.fetchById(agencyId);
     });
 
-/// Provider for the current user's route name
-final currentRouteNameProvider = FutureProvider.autoDispose<String>((
+/// Provider for the current user's agency name
+final currentAgencyNameProvider = FutureProvider.autoDispose<String>((
   ref,
 ) async {
   final userProfile = ref.watch(userProfileProvider).value;
-  final routeId = userProfile?.preferredRouteId;
-  if (routeId == null || routeId.isEmpty) return 'Unknown';
+  final agencyId = userProfile?.preferredAgencyId;
+  if (agencyId == null || agencyId.isEmpty) return 'Unknown';
 
   try {
-    final route = await ref.watch(routeByIdProvider(routeId).future);
-    return route?.routeName ?? 'Unknown';
+    final agency = await ref.watch(agencyByIdProvider(agencyId).future);
+    return agency?.agencyName ?? 'Unknown';
   } catch (e) {
     return 'Unknown';
   }
 });
 
-/// State provider for managing route creation/editing
-final routeFormProvider =
-    StateNotifierProvider.autoDispose<RouteFormNotifier, RouteFormState>(
-      (ref) => RouteFormNotifier(ref),
+/// State provider for managing agency creation/editing
+final agencyFormProvider =
+    StateNotifierProvider.autoDispose<AgencyFormNotifier, AgencyFormState>(
+      (ref) => AgencyFormNotifier(ref),
     );
 
-/// Form state for route
-class RouteFormState {
-  final String routeName;
-  final String routeNote;
+/// Form state for agency
+class AgencyFormState {
+  final String agencyName;
+  final String agencyNote;
   final bool isActive;
   final bool isLoading;
   final String? error;
 
-  RouteFormState({
-    this.routeName = '',
-    this.routeNote = '',
+  AgencyFormState({
+    this.agencyName = '',
+    this.agencyNote = '',
     this.isActive = true,
     this.isLoading = false,
     this.error,
   });
 
-  RouteFormState copyWith({
-    String? routeName,
-    String? routeNote,
+  AgencyFormState copyWith({
+    String? agencyName,
+    String? agencyNote,
     bool? isActive,
     bool? isLoading,
     String? error,
   }) {
-    return RouteFormState(
-      routeName: routeName ?? this.routeName,
-      routeNote: routeNote ?? this.routeNote,
+    return AgencyFormState(
+      agencyName: agencyName ?? this.agencyName,
+      agencyNote: agencyNote ?? this.agencyNote,
       isActive: isActive ?? this.isActive,
       isLoading: isLoading ?? this.isLoading,
       error: error,
@@ -96,11 +96,11 @@ class RouteFormState {
   }
 }
 
-/// Notifier for managing route form state
-class RouteFormNotifier extends StateNotifier<RouteFormState> {
+/// Notifier for managing agency form state
+class AgencyFormNotifier extends StateNotifier<AgencyFormState> {
   final Ref ref;
 
-  RouteFormNotifier(this.ref) : super(RouteFormState());
+  AgencyFormNotifier(this.ref) : super(AgencyFormState());
 
   @override
   void dispose() {
@@ -110,14 +110,14 @@ class RouteFormNotifier extends StateNotifier<RouteFormState> {
 
   bool _mounted = true;
 
-  void updateRouteName(String name) {
+  void updateAgencyName(String name) {
     if (!_mounted) return;
-    state = state.copyWith(routeName: name, error: null);
+    state = state.copyWith(agencyName: name, error: null);
   }
 
-  void updateRouteNote(String note) {
+  void updateAgencyNote(String note) {
     if (!_mounted) return;
-    state = state.copyWith(routeNote: note, error: null);
+    state = state.copyWith(agencyNote: note, error: null);
   }
 
   void updateIsActive(bool isActive) {
@@ -125,11 +125,11 @@ class RouteFormNotifier extends StateNotifier<RouteFormState> {
     state = state.copyWith(isActive: isActive, error: null);
   }
 
-  void loadEntity(ModelRoute entity) {
+  void loadEntity(ModelAgency entity) {
     if (!_mounted) return;
-    state = RouteFormState(
-      routeName: entity.routeName,
-      routeNote: entity.routeNote ?? '',
+    state = AgencyFormState(
+      agencyName: entity.agencyName,
+      agencyNote: entity.agencyNote ?? '',
       isActive: entity.isActive,
     );
   }
@@ -140,12 +140,12 @@ class RouteFormNotifier extends StateNotifier<RouteFormState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final service = ref.read(routeServiceProvider);
+      final service = ref.read(agencyServiceProvider);
 
-      final entity = ModelRoute(
-        routeId: entityId,
-        routeName: state.routeName,
-        routeNote: state.routeNote.isEmpty ? null : state.routeNote,
+      final entity = ModelAgency(
+        agencyId: entityId,
+        agencyName: state.agencyName,
+        agencyNote: state.agencyNote.isEmpty ? null : state.agencyNote,
         isActive: state.isActive,
       );
 
@@ -175,7 +175,7 @@ class RouteFormNotifier extends StateNotifier<RouteFormState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final service = ref.read(routeServiceProvider);
+      final service = ref.read(agencyServiceProvider);
       await service.deleteEntityById(entityId);
 
       if (_mounted) {
@@ -194,13 +194,13 @@ class RouteFormNotifier extends StateNotifier<RouteFormState> {
   void updateField(String field, dynamic value) {
     if (!_mounted) return;
     switch (field) {
-      case ModelRouteFields.routeName:
-        updateRouteName(value as String);
+      case ModelAgencyFields.agencyName:
+        updateAgencyName(value as String);
         break;
-      case ModelRouteFields.routeNote:
-        updateRouteNote(value as String);
+      case ModelAgencyFields.agencyNote:
+        updateAgencyNote(value as String);
         break;
-      case ModelRouteFields.isActive:
+      case ModelAgencyFields.isActive:
         updateIsActive(value as bool);
         break;
     }

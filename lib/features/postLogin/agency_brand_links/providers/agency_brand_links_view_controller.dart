@@ -4,25 +4,25 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../core/config/field_config.dart';
 import '../../../../../core/utils/core_utils_barrel.dart';
-import 'route_brand_link_controller.dart';
+import 'agency_brand_link_controller.dart';
 
-class RouteBrandLinksViewState {
+class AgencyBrandLinksViewState {
   final bool isLoading;
   final String? error;
   final bool isDeleted;
 
-  const RouteBrandLinksViewState({
+  const AgencyBrandLinksViewState({
     this.isLoading = false,
     this.error,
     this.isDeleted = false,
   });
 
-  RouteBrandLinksViewState copyWith({
+  AgencyBrandLinksViewState copyWith({
     bool? isLoading,
     String? error,
     bool? isDeleted,
   }) {
-    return RouteBrandLinksViewState(
+    return AgencyBrandLinksViewState(
       isLoading: isLoading ?? this.isLoading,
       error: error, // Nullable update
       isDeleted: isDeleted ?? this.isDeleted,
@@ -30,11 +30,11 @@ class RouteBrandLinksViewState {
   }
 }
 
-class RouteBrandLinksViewController
-    extends AutoDisposeFamilyNotifier<RouteBrandLinksViewState, String> {
+class AgencyBrandLinksViewController
+    extends AutoDisposeFamilyNotifier<AgencyBrandLinksViewState, String> {
   @override
-  RouteBrandLinksViewState build(String arg) {
-    return const RouteBrandLinksViewState();
+  AgencyBrandLinksViewState build(String arg) {
+    return const AgencyBrandLinksViewState();
   }
 
   // URL and phone launching methods
@@ -85,20 +85,20 @@ class RouteBrandLinksViewController
 
   // Field icon and color determination
   ({IconData icon, Color color}) getFieldIconAndColor(String fieldName) {
-    final icon = RouteBrandLinkController.getFieldIcon(fieldName, '');
-    final color = RouteBrandLinkController.getFieldColor(fieldName, '');
+    final icon = AgencyBrandLinkController.getFieldIcon(fieldName, '');
+    final color = AgencyBrandLinkController.getFieldColor(fieldName, '');
     return (icon: icon, color: color);
   }
 
   // Field type checking methods for UI
   bool isPhoneField(String fieldName) =>
-      RouteBrandLinkController.isPhoneField(fieldName);
+      AgencyBrandLinkController.isPhoneField(fieldName);
   bool isLocationField(String fieldName, String? value) =>
-      RouteBrandLinkController.isLocationUrlField(fieldName, value);
-  bool isRouteField(String fieldName) =>
-      RouteBrandLinkController.isRouteField(fieldName);
+      AgencyBrandLinkController.isLocationUrlField(fieldName, value);
+  bool isAgencyField(String fieldName) =>
+      AgencyBrandLinkController.isAgencyField(fieldName);
   bool isBrandField(String fieldName) =>
-      RouteBrandLinkController.isBrandField(fieldName);
+      AgencyBrandLinkController.isBrandField(fieldName);
 
   // Delete confirmation dialog
   Future<bool> showDeleteConfirmation(
@@ -152,7 +152,7 @@ class RouteBrandLinksViewController
 
   // Handle side effects (snackbar and navigation)
   void handleSideEffects(
-    RouteBrandLinksViewState state,
+    AgencyBrandLinksViewState state,
     BuildContext context,
     String entityName,
   ) {
@@ -184,7 +184,7 @@ class RouteBrandLinksViewController
   }
 }
 
-final routeBrandLinksViewControllerProvider = NotifierProvider.autoDispose
-    .family<RouteBrandLinksViewController, RouteBrandLinksViewState, String>(
-      () => RouteBrandLinksViewController(),
+final agencyBrandLinksViewControllerProvider = NotifierProvider.autoDispose
+    .family<AgencyBrandLinksViewController, AgencyBrandLinksViewState, String>(
+      () => AgencyBrandLinksViewController(),
     );

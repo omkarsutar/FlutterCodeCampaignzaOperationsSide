@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/config/field_config.dart';
 import '../../../../core/services/core_services_barrel.dart';
 import '../../roles/role_barrel.dart';
-import '../../routes/route_barrel.dart';
+import '../../agencies/agency_barrel.dart';
 import '../model/user_model.dart';
 
 class UserServiceImpl extends ForeignKeyAwareService<ModelUser> {
@@ -31,10 +31,10 @@ class UserServiceImpl extends ForeignKeyAwareService<ModelUser> {
       idColumn: ModelRoleFields.roleId,
       labelColumn: ModelRoleFields.roleName,
     ),
-    ModelUserFields.preferredRouteId: ForeignKeyConfig(
-      table: ModelRouteFields.table,
-      idColumn: ModelRouteFields.routeId,
-      labelColumn: ModelRouteFields.routeName,
+    ModelUserFields.preferredAgencyId: ForeignKeyConfig(
+      table: ModelAgencyFields.table,
+      idColumn: ModelAgencyFields.agencyId,
+      labelColumn: ModelAgencyFields.agencyName,
     ),
   };
 

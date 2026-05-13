@@ -1,51 +1,51 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/core_services_barrel.dart';
-import '../model/route_model.dart';
+import '../model/agency_model.dart';
 
-class RouteServiceImpl extends SupabaseEntityService<ModelRoute> {
-  final EntityMapper<ModelRoute> _mapper;
+class AgencyServiceImpl extends SupabaseEntityService<ModelAgency> {
+  final EntityMapper<ModelAgency> _mapper;
 
-  RouteServiceImpl(this._mapper, SupabaseClient client, LoggerService logger)
+  AgencyServiceImpl(this._mapper, SupabaseClient client, LoggerService logger)
     : super(client, logger);
 
   @override
-  EntityMapper<ModelRoute> get mapper => _mapper;
+  EntityMapper<ModelAgency> get mapper => _mapper;
 
   @override
-  String get entityTypeName => 'ModelRoute';
+  String get entityTypeName => 'ModelAgency';
 
   @override
-  String get tableName => ModelRouteFields.table;
+  String get tableName => ModelAgencyFields.table;
 
   @override
-  String get idColumn => ModelRouteFields.routeId;
+  String get idColumn => ModelAgencyFields.agencyId;
   @override
-  String get createdAt => ModelRouteFields.createdAt;
+  String get createdAt => ModelAgencyFields.createdAt;
 
-  Future<List<Map<String, dynamic>>> fetchRoutes() async {
+  Future<List<Map<String, dynamic>>> fetchAgencies() async {
     final response = await client
         .from(tableName)
-        .select('$idColumn, ${ModelRouteFields.routeName}')
+        .select('$idColumn, ${ModelAgencyFields.agencyName}')
         .order(sortField ?? createdAt, ascending: sortAscending);
 
     return List<Map<String, dynamic>>.from(response);
   }
 
-  Future<String?> fetchRouteName(String routeId) async {
+  Future<String?> fetchAgencyName(String agencyId) async {
     try {
       final response = await client
           .from(tableName)
-          .select(ModelRouteFields.routeName)
-          .eq(idColumn, routeId)
+          .select(ModelAgencyFields.agencyName)
+          .eq(idColumn, agencyId)
           .single();
-      return response[ModelRouteFields.routeName] as String?;
+      return response[ModelAgencyFields.agencyName] as String?;
     } catch (_) {
       return null;
     }
   }
 
   Future<List<Map<String, dynamic>>> getAllEntities() async {
-    final routes = await fetchAllImpl("RouteServiceImpl");
-    return routes.map((r) => mapper.toMap(r)).toList();
+    final agencies = await fetchAllImpl("AgencyServiceImpl");
+    return agencies.map((r) => mapper.toMap(r)).toList();
   }
 }

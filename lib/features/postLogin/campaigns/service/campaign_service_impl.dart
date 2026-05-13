@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -45,10 +45,10 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
 
   @override
   Map<String, ForeignKeyConfig> get foreignKeys => {
-    ModelCampaignFields.poRouteId: ForeignKeyConfig(
-      table: ModelRouteFields.table,
-      idColumn: ModelRouteFields.routeId,
-      labelColumn: ModelRouteFields.routeName,
+    ModelCampaignFields.poAgencyId: ForeignKeyConfig(
+      table: ModelAgencyFields.table,
+      idColumn: ModelAgencyFields.agencyId,
+      labelColumn: ModelAgencyFields.agencyName,
     ),
     ModelCampaignFields.poBrandId: ForeignKeyConfig(
       table: ModelBrandFields.table,
@@ -71,7 +71,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
 
   /// Create an empty campaign for a given route and brand
   Future<Map<String, dynamic>> createEmptyCampaign({
-    required String poRouteId,
+    required String poAgencyId,
     required String poBrandId,
   }) async {
     final userId = _ref.read(userProfileStateProvider).profile?.userId;
@@ -80,7 +80,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     final entity = ModelCampaign(
       poTotalAmount: 0.0,
       poLineItemCount: 0,
-      poRouteId: poRouteId,
+      poAgencyId: poAgencyId,
       poBrandId: poBrandId,
       userComment: null,
       profitToBrand: null,
@@ -126,7 +126,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
   }
 
   /// Stream campaigns filtered by route
-  Stream<List<ModelCampaign>> streamEntitiesByRoute(String routeId) {
+  Stream<List<ModelCampaign>> streamEntitiesByRoute(String agencyId) {
     final controller = StreamController<List<ModelCampaign>>();
     RealtimeChannel? channel;
 
@@ -135,7 +135,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
         final List<dynamic> data = await client
             .from(ModelCampaignFields.tableViewWithForeignKeyLabels)
             .select()
-            .eq(ModelCampaignFields.poRouteId, routeId)
+            .eq(ModelCampaignFields.poAgencyId, agencyId)
             .order(sortField ?? createdAt, ascending: sortAscending);
 
         if (!controller.isClosed) {
@@ -148,15 +148,15 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
 
     void startSubscription() {
       fetch();
-      channel = client.channel('public:$tableName:$routeId')
+      channel = client.channel('public:$tableName:$agencyId')
         ..onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',
           table: tableName,
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
-            column: ModelCampaignFields.poRouteId,
-            value: routeId,
+            column: ModelCampaignFields.poAgencyId,
+            value: agencyId,
           ),
           callback: (_) => fetch(),
         )

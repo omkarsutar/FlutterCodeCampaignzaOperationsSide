@@ -27,7 +27,7 @@
         "searchFields": [
             "brand_name",
             "brand_person_name",
-            "brands_primary_route_label"
+            "brands_primary_agency_label"
         ]
     },
     "fields": [
@@ -49,14 +49,14 @@
             "visibleInForm": true
         },
         {
-            "name": "brands_primary_route",
-            "label": "Primary Route",
+            "name": "brands_primary_agency",
+            "label": "Primary Agency",
             "type": "dropdown",
             "required": false,
             "dropdownSource": {
-                "table": "routes",
-                "valueKey": "route_id",
-                "labelKey": "route_name"
+                "table": "agencies",
+                "valueKey": "agency_id",
+                "labelKey": "agency_name"
             },
             "visibleInList": true,
             "visibleInForm": true

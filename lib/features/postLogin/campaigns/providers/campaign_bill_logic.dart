@@ -30,10 +30,14 @@ class CampaignBillLogic {
     sorted.sort((a, b) {
       // 1. Sort by Route
       final routeA =
-          adapter.getLabelValue(a, ModelCampaignFields.poRouteId)?.toString() ??
+          adapter
+              .getLabelValue(a, ModelCampaignFields.poAgencyId)
+              ?.toString() ??
           '';
       final routeB =
-          adapter.getLabelValue(b, ModelCampaignFields.poRouteId)?.toString() ??
+          adapter
+              .getLabelValue(b, ModelCampaignFields.poAgencyId)
+              ?.toString() ??
           '';
 
       final routeCompare = routeA.compareTo(routeB);
@@ -69,12 +73,15 @@ class CampaignBillLogic {
 
       final currentRoute =
           adapter
-              .getLabelValue(sortedOrders[i], ModelCampaignFields.poRouteId)
+              .getLabelValue(sortedOrders[i], ModelCampaignFields.poAgencyId)
               ?.toString() ??
           'Unknown Route';
       final prevRoute =
           adapter
-              .getLabelValue(sortedOrders[i - 1], ModelCampaignFields.poRouteId)
+              .getLabelValue(
+                sortedOrders[i - 1],
+                ModelCampaignFields.poAgencyId,
+              )
               ?.toString() ??
           'Unknown Route';
 

@@ -1,23 +1,23 @@
 {
-    "moduleName": "route_brand_links",
+    "moduleName": "agency_brand_links",
     "entityMeta": {
-        "entityName": "Route Brand Link",
-        "entityNameLower": "route brand link",
-        "entityNamePlural": "Route Brand Links",
-        "entityNamePluralLower": "route brand links"
+        "entityName": "Agency Brand Link",
+        "entityNameLower": "agency brand link",
+        "entityNamePlural": "Agency Brand Links",
+        "entityNamePluralLower": "agency brand links"
     },
     "table": {
-        "name": "route_brand_links",
-        "viewName": "view_route_brand_links",
+        "name": "agency_brand_links",
+        "viewName": "view_agency_brand_links",
         "idField": "link_id",
         "timestampField": "created_at"
     },
     "routes": {
-        "basePath": "/routeBrandLinks",
-        "listRouteName": "routeBrandLinks",
-        "newRouteName": "newRouteBrandLink",
-        "editRouteName": "editRouteBrandLink",
-        "viewRouteName": "viewRouteBrandLink"
+        "basePath": "/agencyBrandLinks",
+        "listRouteName": "agencyBrandLinks",
+        "newRouteName": "newAgencyBrandLink",
+        "editRouteName": "editAgencyBrandLink",
+        "viewRouteName": "viewAgencyBrandLink"
     },
     "listPage": {
         "sorting": {
@@ -25,7 +25,7 @@
             "sortAscending": true
         },
         "searchFields": [
-            "route_id_label",
+            "agency_id_label",
             "brand_id_label"
         ]
     },
@@ -40,14 +40,14 @@
             "visibleInForm": false
         },
         {
-            "name": "route_id",
-            "label": "Route",
+            "name": "agency_id",
+            "label": "Agency",
             "type": "dropdown",
             "required": true,
             "dropdownSource": {
-                "table": "routes",
-                "valueKey": "route_id",
-                "labelKey": "route_name"
+                "table": "agencies",
+                "valueKey": "agency_id",
+                "labelKey": "agency_name"
             },
             "visibleInList": true,
             "visibleInForm": true

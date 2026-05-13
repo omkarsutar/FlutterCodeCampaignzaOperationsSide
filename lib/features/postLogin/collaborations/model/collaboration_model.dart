@@ -160,13 +160,19 @@ class ModelCollaboration {
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{};
 
-    if (collaborationId != null)
+    if (collaborationId != null) {
       map[ModelCollaborationFields.collaborationId] = collaborationId;
-    if (poId != null) map[ModelCollaborationFields.poId] = poId;
-    if (productId != null) map[ModelCollaborationFields.productId] = productId;
+    }
+    if (poId != null) {
+      map[ModelCollaborationFields.poId] = poId;
+    }
+    if (productId != null) {
+      map[ModelCollaborationFields.productId] = productId;
+    }
     // if (itemName != null) map[ModelCollaborationFields.itemName] = itemName;
-    if (itemQty != null)
+    if (itemQty != null) {
       map[ModelCollaborationFields.itemQty] = itemQty; // double
+    }
     if (itemSellRate != null) {
       map[ModelCollaborationFields.itemSellRate] = itemSellRate;
     }

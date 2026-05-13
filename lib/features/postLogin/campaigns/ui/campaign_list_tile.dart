@@ -54,11 +54,11 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
             .getLabelValue(widget.entity, ModelCampaignFields.poBrandId)
             ?.toString() ??
         'Unknown Brand';
-    final routeName =
+    final agencyName =
         widget.adapter
-            .getLabelValue(widget.entity, ModelCampaignFields.poRouteId)
+            .getLabelValue(widget.entity, ModelCampaignFields.poAgencyId)
             ?.toString() ??
-        'Unknown Route';
+        'Unknown Agency';
     final status = widget.entity.status ?? 'pending';
     final itemCount = widget.entity.poLineItemCount ?? 0;
     final commentStr = widget.entity.userComment ?? '';
@@ -86,10 +86,10 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                 _buildHeader(theme, dateStr, status, canUpdate),
                 const SizedBox(height: 8),
               ],
-              PoBrandRouteInfo(
+              CampaignBrandAgencyInfo(
                 brandName: brandName,
-                routeName: routeName,
-                trailing: PoActions(
+                agencyName: agencyName,
+                trailing: CampaignActions(
                   entity: widget.entity,
                   adapter: widget.adapter,
                   showShare: widget.showShare,

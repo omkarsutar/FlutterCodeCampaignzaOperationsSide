@@ -50,14 +50,14 @@ final userFormProvider =
 class UserFormState {
   final String fullName;
   final String? roleId;
-  final String? preferredRouteId;
+  final String? preferredAgencyId;
   final bool isLoading;
   final String? error;
 
   UserFormState({
     this.fullName = '',
     this.roleId,
-    this.preferredRouteId,
+    this.preferredAgencyId,
     this.isLoading = false,
     this.error,
   });
@@ -65,14 +65,14 @@ class UserFormState {
   UserFormState copyWith({
     String? fullName,
     String? roleId,
-    String? preferredRouteId,
+    String? preferredAgencyId,
     bool? isLoading,
     String? error,
   }) {
     return UserFormState(
       fullName: fullName ?? this.fullName,
       roleId: roleId ?? this.roleId,
-      preferredRouteId: preferredRouteId ?? this.preferredRouteId,
+      preferredAgencyId: preferredAgencyId ?? this.preferredAgencyId,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -103,9 +103,9 @@ class UserFormNotifier extends StateNotifier<UserFormState> {
     state = state.copyWith(roleId: roleId, error: null);
   }
 
-  void updatePreferredRouteId(String? routeId) {
+  void updatePreferredAgencyId(String? agencyId) {
     if (!_mounted) return;
-    state = state.copyWith(preferredRouteId: routeId, error: null);
+    state = state.copyWith(preferredAgencyId: agencyId, error: null);
   }
 
   /// Generic update method for ModuleRouteGenerator
@@ -118,8 +118,8 @@ class UserFormNotifier extends StateNotifier<UserFormState> {
       case ModelUserFields.roleId:
         updateRoleId(value as String?);
         break;
-      case ModelUserFields.preferredRouteId:
-        updatePreferredRouteId(value as String?);
+      case ModelUserFields.preferredAgencyId:
+        updatePreferredAgencyId(value as String?);
         break;
     }
   }
@@ -137,7 +137,7 @@ class UserFormNotifier extends StateNotifier<UserFormState> {
             entityId ?? '', // entityId ignored on create usually, or generated
         fullName: state.fullName,
         roleId: state.roleId,
-        preferredRouteId: state.preferredRouteId,
+        preferredAgencyId: state.preferredAgencyId,
       );
 
       if (entityId == null) {

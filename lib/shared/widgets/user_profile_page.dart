@@ -27,13 +27,11 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
     super.dispose();
   }
 
-  Future<void> _updateProfile(
-    ModelUser profile,
-  ) async {
+  Future<void> _updateProfile(ModelUser profile) async {
     if (_formKey.currentState!.validate()) {
       final updatedData = {
         ModelUserFields.fullName: _nameController.text,
-        ModelUserFields.preferredRouteId: _routeController.text,
+        ModelUserFields.preferredAgencyId: _routeController.text,
       };
 
       await Supabase.instance.client
@@ -60,15 +58,14 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
         // Initialize controllers once
         if (!_initialized) {
           _nameController.text = profile.fullName ?? '';
-          _routeController.text = profile.preferredRouteId ?? '';
+          _routeController.text = profile.preferredAgencyId ?? '';
           _initialized = true;
         }
 
         final fullName = profile.fullName ?? '';
-        final initials =
-            fullName.isNotEmpty
-                ? fullName.trim().split(' ').take(2).map((e) => e[0]).join()
-                : '?';
+        final initials = fullName.isNotEmpty
+            ? fullName.trim().split(' ').take(2).map((e) => e[0]).join()
+            : '?';
 
         return Scaffold(
           appBar: CustomAppBar(title: 'Your Profile', showBack: false),
@@ -152,9 +149,9 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              RouteDropdown(
-                                initialRouteId: profile.preferredRouteId,
-                                onRouteSelected: (selectedRouteId) {
+                              AgencyDropdown(
+                                initialAgencyId: profile.preferredAgencyId,
+                                onAgencySelected: (selectedRouteId) {
                                   if (selectedRouteId != null) {
                                     _routeController.text = selectedRouteId;
                                   }
@@ -195,9 +192,8 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
           ),
         );
       },
-      loading:
-          () =>
-              const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
     );
   }

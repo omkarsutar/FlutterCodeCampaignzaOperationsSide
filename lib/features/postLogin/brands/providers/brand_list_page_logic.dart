@@ -66,14 +66,14 @@ class BrandListPageLogic {
     required ModelBrand entity,
     required EntityAdapter<ModelBrand> adapter,
   }) async {
-    final routeId = ref
+    final agencyId = ref
         .read(userProfileStateProvider)
         .profile
-        ?.preferredRouteId;
+        ?.preferredAgencyId;
     final brandId = adapter.getFieldValue(entity, ModelBrandFields.brandId);
 
     // Validation
-    if (routeId == null || brandId == null) {
+    if (agencyId == null || brandId == null) {
       SnackbarUtils.showError('Missing route or brand ID');
       return;
     }
@@ -91,7 +91,7 @@ class BrandListPageLogic {
     try {
       await ref
           .read(campaignServiceProvider)
-          .createEmptyCampaign(poRouteId: routeId, poBrandId: brandId);
+          .createEmptyCampaign(poAgencyId: agencyId, poBrandId: brandId);
 
       if (!context.mounted) return;
       SnackbarUtils.showSuccess('Campaign Created');

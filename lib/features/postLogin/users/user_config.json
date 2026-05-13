@@ -52,14 +52,14 @@
             "visibleInForm": true
         },
         {
-            "name": "preferred_route_id",
-            "label": "Preferred Route",
+            "name": "preferred_agency_id",
+            "label": "Preferred Agency",
             "type": "dropdown",
             "required": false,
             "dropdownSource": {
-                "table": "routes",
-                "valueKey": "route_id",
-                "labelKey": "route_name"
+                "table": "agencies",
+                "valueKey": "agency_id",
+                "labelKey": "agency_name"
             },
             "visibleInList": true,
             "visibleInForm": true

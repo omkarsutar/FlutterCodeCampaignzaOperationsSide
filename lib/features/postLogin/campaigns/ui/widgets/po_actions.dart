@@ -7,7 +7,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/m
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/providers/campaign_tile_logic.dart';
 import '../campaign_share_preview_page.dart';
 
-class PoActions extends ConsumerWidget {
+class CampaignActions extends ConsumerWidget {
   final ModelCampaign entity;
   final EntityAdapter<ModelCampaign> adapter;
   final bool showShare;
@@ -16,7 +16,7 @@ class PoActions extends ConsumerWidget {
   final bool isUpdating;
   final ValueChanged<bool> onUpdating;
 
-  const PoActions({
+  const CampaignActions({
     super.key,
     required this.entity,
     required this.adapter,

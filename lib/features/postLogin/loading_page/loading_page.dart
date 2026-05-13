@@ -20,8 +20,8 @@ class LoadingPage extends ConsumerWidget {
     final isGuest = roleName == 'guest';
 
     // If both are ready, proceed to redirect
-    // Guests don't need preferredRouteId
-    if (isRbacInitialized && (isGuest || profile?.preferredRouteId != null)) {
+    // Guests don't need preferredAgencyId
+    if (isRbacInitialized && (isGuest || profile?.preferredAgencyId != null)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
 

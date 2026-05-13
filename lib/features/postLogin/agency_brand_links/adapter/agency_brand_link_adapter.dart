@@ -1,21 +1,21 @@
 import '../../../../core/services/entity_service.dart';
-import '../model/route_brand_link_model.dart';
+import '../model/agency_brand_link_model.dart';
 
-class RouteBrandLinkAdapter implements EntityAdapter<ModelRouteBrandLink> {
+class AgencyBrandLinkAdapter implements EntityAdapter<ModelAgencyBrandLink> {
   @override
-  dynamic getFieldValue(ModelRouteBrandLink entity, String fieldName) {
+  dynamic getFieldValue(ModelAgencyBrandLink entity, String fieldName) {
     switch (fieldName) {
-      case ModelRouteBrandLinkFields.linkId:
+      case ModelAgencyBrandLinkFields.linkId:
         return entity.linkId;
-      case ModelRouteBrandLinkFields.routeId:
-        return entity.routeId;
-      case ModelRouteBrandLinkFields.brandId:
+      case ModelAgencyBrandLinkFields.agencyId:
+        return entity.agencyId;
+      case ModelAgencyBrandLinkFields.brandId:
         return entity.brandId;
-      case ModelRouteBrandLinkFields.visitOrder:
+      case ModelAgencyBrandLinkFields.visitOrder:
         return entity.visitOrder;
-      case ModelRouteBrandLinkFields.createdAt:
+      case ModelAgencyBrandLinkFields.createdAt:
         return entity.createdAt;
-      case ModelRouteBrandLinkFields.updatedAt:
+      case ModelAgencyBrandLinkFields.updatedAt:
         return entity.updatedAt;
       default:
         return null;
@@ -23,20 +23,15 @@ class RouteBrandLinkAdapter implements EntityAdapter<ModelRouteBrandLink> {
   }
 
   @override
-  dynamic getLabelValue(ModelRouteBrandLink entity, String fieldName) {
+  dynamic getLabelValue(ModelAgencyBrandLink entity, String fieldName) {
     return entity.resolvedLabels['${fieldName}_label'];
   }
 
-  /* @override
-  dynamic getLabelValue(ModelRouteBrandLink entity, String fieldName) {
-    return null; // or custom label logic
-  } */
+  @override
+  dynamic getId(ModelAgencyBrandLink entity, String idField) => entity.linkId;
 
   @override
-  dynamic getId(ModelRouteBrandLink entity, String idField) => entity.linkId;
-
-  @override
-  dynamic getTimestamp(ModelRouteBrandLink entity, String timestampField) {
+  dynamic getTimestamp(ModelAgencyBrandLink entity, String timestampField) {
     return entity.createdAt;
   }
 }

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../features/postLogin/routes/route_barrel.dart';
+import '../../features/postLogin/agencies/agency_barrel.dart';
 
-class RouteLabelWidget extends ConsumerWidget {
-  const RouteLabelWidget({super.key});
+class AgencyLabelWidget extends ConsumerWidget {
+  const AgencyLabelWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final routeNameAsync = ref.watch(currentRouteNameProvider);
+    final agencyNameAsync = ref.watch(currentAgencyNameProvider);
 
-    return routeNameAsync.when(
-      data: (routeName) => Container(
+    return agencyNameAsync.when(
+      data: (agencyName) => Container(
         width: double.infinity,
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         padding: const EdgeInsets.all(8),
@@ -27,7 +27,7 @@ class RouteLabelWidget extends ConsumerWidget {
         ),
         child: Center(
           child: Text(
-            'Route: $routeName',
+            'Agency: $agencyName',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),

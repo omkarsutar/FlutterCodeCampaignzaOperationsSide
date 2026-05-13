@@ -4,30 +4,30 @@ import '../../../../core/services/entity_service.dart';
 
 import '../../../../core/config/module_config.dart';
 
-import '../adapter/route_brand_link_adapter.dart';
-import '../model/route_brand_link_model.dart';
-import '../service/route_brand_link_service_impl.dart';
+import '../adapter/agency_brand_link_adapter.dart';
+import '../model/agency_brand_link_model.dart';
+import '../service/agency_brand_link_service_impl.dart';
 
 /// Mapper provider
-final routeBrandLinkMapperProvider =
-    Provider<EntityMapper<ModelRouteBrandLink>>((ref) {
-      return ModelRouteBrandLinkMapper();
+final agencyBrandLinkMapperProvider =
+    Provider<EntityMapper<ModelAgencyBrandLink>>((ref) {
+      return ModelAgencyBrandLinkMapper();
     });
 
 /// Cache for module configuration to avoid circular dependencies
-class RouteBrandLinkConfigCache {
+class AgencyBrandLinkConfigCache {
   static ModuleConfig? config;
 }
 
 /// Service provider
-final routeBrandLinkServiceProvider = Provider<RouteBrandLinkServiceImpl>((
+final agencyBrandLinkServiceProvider = Provider<AgencyBrandLinkServiceImpl>((
   ref,
 ) {
   // Extract initial sorting from cached config if available
-  final initialSorting = RouteBrandLinkConfigCache.config?.listPage?.sorting;
+  final initialSorting = AgencyBrandLinkConfigCache.config?.listPage?.sorting;
 
-  return RouteBrandLinkServiceImpl(
-    ref.watch(routeBrandLinkMapperProvider),
+  return AgencyBrandLinkServiceImpl(
+    ref.watch(agencyBrandLinkMapperProvider),
     ref.watch(supabaseClientProvider),
     ref.watch(loggerServiceProvider),
     initialSorting: initialSorting,
@@ -35,64 +35,64 @@ final routeBrandLinkServiceProvider = Provider<RouteBrandLinkServiceImpl>((
 });
 
 /// Adapter provider
-final routeBrandLinkAdapterProvider = Provider<RouteBrandLinkAdapter>((ref) {
-  return RouteBrandLinkAdapter();
+final agencyBrandLinkAdapterProvider = Provider<AgencyBrandLinkAdapter>((ref) {
+  return AgencyBrandLinkAdapter();
 });
 
-/// Fetches all route-brand links with automatic disposal
+/// Fetches all agency-brand links with automatic disposal
 /// Uses StreamProvider for real-time updates
-final routeBrandLinksStreamProvider =
-    StreamProvider.autoDispose<List<ModelRouteBrandLink>>((ref) {
-      final service = ref.read(routeBrandLinkServiceProvider);
+final agencyBrandLinksStreamProvider =
+    StreamProvider.autoDispose<List<ModelAgencyBrandLink>>((ref) {
+      final service = ref.read(agencyBrandLinkServiceProvider);
       return service.streamEntities();
     });
 
-/// Fetches a single route-brand link by ID
-final routeBrandLinkByIdProvider = FutureProvider.autoDispose
-    .family<ModelRouteBrandLink?, String>((ref, linkId) async {
-      final service = ref.read(routeBrandLinkServiceProvider);
+/// Fetches a single agency-brand link by ID
+final agencyBrandLinkByIdProvider = FutureProvider.autoDispose
+    .family<ModelAgencyBrandLink?, String>((ref, linkId) async {
+      final service = ref.read(agencyBrandLinkServiceProvider);
       return await service.fetchById(linkId);
     });
 
-/// Fetches route-brand links for a specific route ID using the view/RPC
-final routeBrandLinksByRouteProvider = StreamProvider.autoDispose
-    .family<List<ModelRouteBrandLink>, String>((ref, routeId) {
-      final service = ref.read(routeBrandLinkServiceProvider);
-      return service.streamEntitiesByRoute(routeId);
+/// Fetches agency-brand links for a specific agency ID using the view/RPC
+final agencyBrandLinksByAgencyProvider = StreamProvider.autoDispose
+    .family<List<ModelAgencyBrandLink>, String>((ref, agencyId) {
+      final service = ref.read(agencyBrandLinkServiceProvider);
+      return service.streamEntitiesByRoute(agencyId);
     });
 
-/// State provider for managing route-brand link creation/editing
-final routeBrandLinkFormProvider =
+/// State provider for managing agency-brand link creation/editing
+final agencyBrandLinkFormProvider =
     StateNotifierProvider.autoDispose<
-      RouteBrandLinkFormNotifier,
-      RouteBrandLinkFormState
-    >((ref) => RouteBrandLinkFormNotifier(ref));
+      AgencyBrandLinkFormNotifier,
+      AgencyBrandLinkFormState
+    >((ref) => AgencyBrandLinkFormNotifier(ref));
 
-/// Form state for route-brand link
-class RouteBrandLinkFormState {
-  final String? routeId;
+/// Form state for agency-brand link
+class AgencyBrandLinkFormState {
+  final String? agencyId;
   final String? brandId;
   final int? visitOrder;
   final bool isLoading;
   final String? error;
 
-  RouteBrandLinkFormState({
-    this.routeId,
+  AgencyBrandLinkFormState({
+    this.agencyId,
     this.brandId,
     this.visitOrder,
     this.isLoading = false,
     this.error,
   });
 
-  RouteBrandLinkFormState copyWith({
-    String? routeId,
+  AgencyBrandLinkFormState copyWith({
+    String? agencyId,
     String? brandId,
     int? visitOrder,
     bool? isLoading,
     String? error,
   }) {
-    return RouteBrandLinkFormState(
-      routeId: routeId ?? this.routeId,
+    return AgencyBrandLinkFormState(
+      agencyId: agencyId ?? this.agencyId,
       brandId: brandId ?? this.brandId,
       visitOrder: visitOrder ?? this.visitOrder,
       isLoading: isLoading ?? this.isLoading,
@@ -101,12 +101,12 @@ class RouteBrandLinkFormState {
   }
 }
 
-/// Notifier for managing route-brand link form state
-class RouteBrandLinkFormNotifier
-    extends StateNotifier<RouteBrandLinkFormState> {
+/// Notifier for managing agency-brand link form state
+class AgencyBrandLinkFormNotifier
+    extends StateNotifier<AgencyBrandLinkFormState> {
   final Ref ref;
 
-  RouteBrandLinkFormNotifier(this.ref) : super(RouteBrandLinkFormState());
+  AgencyBrandLinkFormNotifier(this.ref) : super(AgencyBrandLinkFormState());
 
   bool _mounted = true;
 
@@ -116,9 +116,9 @@ class RouteBrandLinkFormNotifier
     super.dispose();
   }
 
-  void updateRouteId(String routeId) {
+  void updateAgencyId(String agencyId) {
     if (!_mounted) return;
-    state = state.copyWith(routeId: routeId, error: null);
+    state = state.copyWith(agencyId: agencyId, error: null);
   }
 
   void updateBrandId(String brandId) {
@@ -133,18 +133,18 @@ class RouteBrandLinkFormNotifier
 
   Future<bool> saveEntity({String? entityId}) async {
     if (!_mounted) return false;
-    if (state.routeId == null || state.brandId == null) {
-      state = state.copyWith(error: 'Route and Brand must be selected');
+    if (state.agencyId == null || state.brandId == null) {
+      state = state.copyWith(error: 'Agency and Brand must be selected');
       return false;
     }
 
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final service = ref.read(routeBrandLinkServiceProvider);
-      final entity = ModelRouteBrandLink(
+      final service = ref.read(agencyBrandLinkServiceProvider);
+      final entity = ModelAgencyBrandLink(
         linkId: entityId,
-        routeId: state.routeId!,
+        agencyId: state.agencyId!,
         brandId: state.brandId!,
         visitOrder: state.visitOrder,
         createdAt: DateTime.now(),
@@ -166,7 +166,7 @@ class RouteBrandLinkFormNotifier
       if (!_mounted) return false;
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to save route-brand link: $e',
+        error: 'Failed to save agency-brand link: $e',
       );
       return false;
     }
@@ -177,8 +177,8 @@ class RouteBrandLinkFormNotifier
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final service = ref.read(routeBrandLinkServiceProvider);
-      await service.delete(entityId);
+      final service = ref.read(agencyBrandLinkServiceProvider);
+      await service.deleteEntityById(entityId);
       if (!_mounted) return true;
       state = state.copyWith(isLoading: false);
       return true;
@@ -186,16 +186,16 @@ class RouteBrandLinkFormNotifier
       if (!_mounted) return false;
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to delete route-brand link: $e',
+        error: 'Failed to delete agency-brand link: $e',
       );
       return false;
     }
   }
 
-  void loadEntity(ModelRouteBrandLink entity) {
+  void loadEntity(ModelAgencyBrandLink entity) {
     if (!_mounted) return;
     state = state.copyWith(
-      routeId: entity.routeId,
+      agencyId: entity.agencyId,
       brandId: entity.brandId,
       visitOrder: entity.visitOrder,
     );
@@ -203,20 +203,20 @@ class RouteBrandLinkFormNotifier
 
   void reset() {
     if (!_mounted) return;
-    state = RouteBrandLinkFormState();
+    state = AgencyBrandLinkFormState();
   }
 
   /// Generic update method for ModuleRouteGenerator
   void updateField(String field, dynamic value) {
     if (!_mounted) return;
     switch (field) {
-      case ModelRouteBrandLinkFields.routeId:
-        updateRouteId(value as String);
+      case ModelAgencyBrandLinkFields.agencyId:
+        updateAgencyId(value as String);
         break;
-      case ModelRouteBrandLinkFields.brandId:
+      case ModelAgencyBrandLinkFields.brandId:
         updateBrandId(value as String);
         break;
-      case ModelRouteBrandLinkFields.visitOrder:
+      case ModelAgencyBrandLinkFields.visitOrder:
         final intValue = value == null
             ? null
             : (value is int ? value : int.tryParse(value.toString()));

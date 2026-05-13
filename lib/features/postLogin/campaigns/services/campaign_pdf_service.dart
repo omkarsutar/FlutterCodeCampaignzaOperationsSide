@@ -101,7 +101,7 @@ class CampaignPdfService {
         'Unknown Brand';
     final routeName =
         adapter
-            .getLabelValue(order, ModelCampaignFields.poRouteId)
+            .getLabelValue(order, ModelCampaignFields.poAgencyId)
             ?.toString() ??
         'Unknown Route';
     final amount =

@@ -7,49 +7,49 @@ import '../service/po_collection_service_impl.dart';
 import '../adapter/po_collection_adapter.dart';
 
 /// Mapper provider
-final poCollectionMapperProvider = Provider<EntityMapper<ModelPoCollection>>((
+final campaignCollectionMapperProvider = Provider<EntityMapper<ModelPoCollection>>((
   ref,
 ) {
   return ModelPoCollectionMapper();
 });
 
 /// Service provider
-final poCollectionServiceProvider = Provider<PoCollectionServiceImpl>((ref) {
-  return PoCollectionServiceImpl(
-    ref.watch(poCollectionMapperProvider),
+final campaignCollectionServiceProvider = Provider<CampaignCollectionServiceImpl>((ref) {
+  return CampaignCollectionServiceImpl(
+    ref.watch(campaignCollectionMapperProvider),
     ref.watch(supabaseClientProvider),
     ref.watch(loggerServiceProvider),
   );
 });
 
 /// Adapter provider
-final poCollectionAdapterProvider = Provider<PoCollectionAdapter>((ref) {
+final campaignCollectionAdapterProvider = Provider<PoCollectionAdapter>((ref) {
   return PoCollectionAdapter();
 });
 
-/// State provider for a collection associated with a PO
-final poCollectionByPoIdProvider = FutureProvider.family
-    .autoDispose<ModelPoCollection?, String>((ref, poId) async {
-      final service = ref.read(poCollectionServiceProvider);
-      return await service.fetchByPoId(poId);
+/// State provider for a collection associated with a campaign
+final campaignCollectionByCampaignIdProvider = FutureProvider.family
+    .autoDispose<ModelPoCollection?, String>((ref, campaignId) async {
+      final service = ref.read(campaignCollectionServiceProvider);
+      return await service.fetchByCampaignId(campaignId);
     });
 
 /// Fetches a single collection by its own ID
-final poCollectionByIdProvider = FutureProvider.autoDispose
+final campaignCollectionByIdProvider = FutureProvider.autoDispose
     .family<ModelPoCollection?, String>((ref, collectionId) async {
-      final service = ref.read(poCollectionServiceProvider);
+      final service = ref.read(campaignCollectionServiceProvider);
       return await service.fetchById(collectionId);
     });
 
 /// Real-time stream of all collections
-final poCollectionsStreamProvider =
+final campaignCollectionsStreamProvider =
     StreamProvider.autoDispose<List<ModelPoCollection>>((ref) {
-      final service = ref.read(poCollectionServiceProvider);
+      final service = ref.read(campaignCollectionServiceProvider);
       return service.streamEntities();
     });
 
-/// Form state for PO Collection
-class PoCollectionFormState {
+/// Form state for Campaign Collection
+class CampaignCollectionFormState {
   final double collectedAmount;
   final bool isCash;
   final bool isOnline;
@@ -61,7 +61,7 @@ class PoCollectionFormState {
   final bool isLoading;
   final String? error;
 
-  PoCollectionFormState({
+  CampaignCollectionFormState({
     this.collectedAmount = 0.0,
     this.isCash = false,
     this.isOnline = false,
@@ -74,7 +74,7 @@ class PoCollectionFormState {
     this.error,
   });
 
-  PoCollectionFormState copyWith({
+  CampaignCollectionFormState copyWith({
     double? collectedAmount,
     bool? isCash,
     bool? isOnline,
@@ -86,7 +86,7 @@ class PoCollectionFormState {
     bool? isLoading,
     String? error,
   }) {
-    return PoCollectionFormState(
+    return CampaignCollectionFormState(
       collectedAmount: collectedAmount ?? this.collectedAmount,
       isCash: isCash ?? this.isCash,
       isOnline: isOnline ?? this.isOnline,
@@ -101,11 +101,11 @@ class PoCollectionFormState {
   }
 }
 
-/// Notifier for managing PO Collection form state
-class PoCollectionFormNotifier extends StateNotifier<PoCollectionFormState> {
+/// Notifier for managing Campaign Collection form state
+class CampaignCollectionFormNotifier extends StateNotifier<CampaignCollectionFormState> {
   final Ref ref;
 
-  PoCollectionFormNotifier(this.ref) : super(PoCollectionFormState());
+  CampaignCollectionFormNotifier(this.ref) : super(CampaignCollectionFormState());
 
   void updateCollectedAmount(double value) {
     state = state.copyWith(collectedAmount: value);
@@ -136,18 +136,14 @@ class PoCollectionFormNotifier extends StateNotifier<PoCollectionFormState> {
   Future<bool> save({String? entityId}) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final service = ref.read(poCollectionServiceProvider);
+      final service = ref.read(campaignCollectionServiceProvider);
       final userId = ref.read(userProfileStateProvider).profile?.userId;
 
       if (userId == null) throw Exception('User not logged in');
 
-      // For generic form, we need to know poId. If it's not in state,
-      // we might need to handle it. Actually poId is a required field.
-      // In generic form, it should be passed via initialValues or updated via updateField.
-
       final entity = ModelPoCollection(
         collectionId: entityId,
-        poId: _currentPoId ?? '', // Fallback if not set
+        poId: _currentCampaignId ?? '', // Fallback if not set
         collectedAmount: state.collectedAmount,
         isCash: state.isCash,
         isOnline: state.isOnline,
@@ -174,7 +170,7 @@ class PoCollectionFormNotifier extends StateNotifier<PoCollectionFormState> {
     }
   }
 
-  String? _currentPoId;
+  String? _currentCampaignId;
 
   /// Generic update method for ModuleRouteGenerator
   void updateField(String field, dynamic value) {
@@ -199,14 +195,14 @@ class PoCollectionFormNotifier extends StateNotifier<PoCollectionFormState> {
     } else if (field == ModelPoCollectionFields.comments) {
       updateComments(value as String);
     } else if (field == ModelPoCollectionFields.poId) {
-      _currentPoId = value as String;
+      _currentCampaignId = value as String;
     }
   }
 
   /// Generic delete method for ModuleRouteGenerator
   Future<bool> delete(String id) async {
     try {
-      final service = ref.read(poCollectionServiceProvider);
+      final service = ref.read(campaignCollectionServiceProvider);
       await service.deleteEntityById(id);
       return true;
     } catch (e) {
@@ -215,7 +211,7 @@ class PoCollectionFormNotifier extends StateNotifier<PoCollectionFormState> {
   }
 
   void resetWith(ModelPoCollection entity) {
-    state = PoCollectionFormState(
+    state = CampaignCollectionFormState(
       collectedAmount: entity.collectedAmount,
       isCash: entity.isCash,
       isOnline: entity.isOnline,
@@ -228,10 +224,10 @@ class PoCollectionFormNotifier extends StateNotifier<PoCollectionFormState> {
   }
 }
 
-final poCollectionFormProvider =
+final campaignCollectionFormProvider =
     StateNotifierProvider.autoDispose<
-      PoCollectionFormNotifier,
-      PoCollectionFormState
+      CampaignCollectionFormNotifier,
+      CampaignCollectionFormState
     >((ref) {
-      return PoCollectionFormNotifier(ref);
+      return CampaignCollectionFormNotifier(ref);
     });

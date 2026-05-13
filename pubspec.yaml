@@ -79,11 +79,11 @@ flutter:
   assets:
     - lib/features/postLogin/notes/note_config.json
     - lib/features/postLogin/roles/role_config.json
-    - lib/features/postLogin/routes/route_config.json
+    - lib/features/postLogin/agencies/agency_config.json
     - lib/features/postLogin/rbac_modules/rbac_module_config.json
     - lib/features/postLogin/users/user_config.json
     - lib/features/postLogin/products/product_config.json
-    - lib/features/postLogin/route_brand_links/route_brand_link_config.json
+    - lib/features/postLogin/agency_brand_links/agency_brand_link_config.json
     - lib/features/postLogin/rbac_permissions/rbac_permission_config.json
     - lib/features/postLogin/campaigns/campaign_config.json
     - lib/features/postLogin/collaborations/collaboration_config.json

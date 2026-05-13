@@ -112,8 +112,9 @@ class CollaborationListController
     bool moveToTop = false,
   }) async {
     try {
-      if (item.collaborationId == null)
+      if (item.collaborationId == null) {
         throw Exception("Item ID missing for update");
+      }
       await _service.update(item.collaborationId!, item);
       final currentData = state.value;
       if (currentData != null) {

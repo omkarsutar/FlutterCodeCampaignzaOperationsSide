@@ -8,7 +8,7 @@ import '../providers/cart_providers.dart';
 import '../../../../core/providers/localization_provider.dart';
 import '../../products/product_barrel.dart';
 import '../../brands/brand_barrel.dart';
-import '../../routes/route_barrel.dart';
+import '../../agencies/agency_barrel.dart';
 import '../../campaigns/ui/widgets/po_brand_route_info.dart';
 import '../../campaigns/ui/widgets/po_actions.dart';
 import '../../campaigns/campaign_barrel.dart';
@@ -185,7 +185,7 @@ class _CartPageState extends ConsumerState<CartPage>
                     brandByIdProvider(cartState.brandId!),
                   );
                   final routeAsync = ref.watch(
-                    routeByIdProvider(cartState.routeId!),
+                    agencyByIdProvider(cartState.agencyId!),
                   );
                   final adapter = ref.watch(campaignAdapterProvider);
 
@@ -193,16 +193,16 @@ class _CartPageState extends ConsumerState<CartPage>
                   final tempPo = ModelCampaign(
                     poId: cartState.campaignId,
                     poBrandId: cartState.brandId,
-                    poRouteId: cartState.routeId,
+                    poAgencyId: cartState.agencyId,
                     status: cartState.status,
                   );
 
-                  return PoBrandRouteInfo(
+                  return CampaignBrandAgencyInfo(
                     brandName: brandAsync.value?.brandName ?? 'Loading...',
-                    routeName: routeAsync.value?.routeName ?? 'Loading...',
-                    poId: null, // Hide PO ID on Cart Page
+                    agencyName: routeAsync.value?.agencyName ?? 'Loading...',
+                    campaignId: null, // Hide PO ID on Cart Page
                     status: cartState.status,
-                    trailing: PoActions(
+                    trailing: CampaignActions(
                       entity: tempPo,
                       adapter: adapter,
                       status: cartState.status ?? 'pending',

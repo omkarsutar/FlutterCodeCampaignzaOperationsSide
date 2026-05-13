@@ -57,7 +57,7 @@ final brandFormProvider =
 /// Form state for brand creation/editing
 class BrandFormState {
   final String brandName;
-  final String? brandsPrimaryRoute;
+  final String? brandsPrimaryAgency;
   final String? brandNote;
   final String? hiddenNote;
   final String? brandMobile1;
@@ -76,7 +76,7 @@ class BrandFormState {
 
   BrandFormState({
     this.brandName = '',
-    this.brandsPrimaryRoute,
+    this.brandsPrimaryAgency,
     this.brandNote,
     this.hiddenNote,
     this.brandMobile1,
@@ -96,7 +96,7 @@ class BrandFormState {
 
   BrandFormState copyWith({
     String? brandName,
-    String? brandsPrimaryRoute,
+    String? brandsPrimaryAgency,
     String? brandNote,
     String? hiddenNote,
     String? brandMobile1,
@@ -115,7 +115,7 @@ class BrandFormState {
   }) {
     return BrandFormState(
       brandName: brandName ?? this.brandName,
-      brandsPrimaryRoute: brandsPrimaryRoute ?? this.brandsPrimaryRoute,
+      brandsPrimaryAgency: brandsPrimaryAgency ?? this.brandsPrimaryAgency,
       brandNote: brandNote ?? this.brandNote,
       hiddenNote: hiddenNote ?? this.hiddenNote,
       brandMobile1: brandMobile1 ?? this.brandMobile1,
@@ -155,9 +155,9 @@ class BrandFormNotifier extends StateNotifier<BrandFormState> {
       case ModelBrandFields.brandName:
         state = state.copyWith(brandName: value as String, error: null);
         break;
-      case ModelBrandFields.brandsPrimaryRoute:
+      case ModelBrandFields.brandsPrimaryAgency:
         state = state.copyWith(
-          brandsPrimaryRoute: value as String?,
+          brandsPrimaryAgency: value as String?,
           error: null,
         );
         break;
@@ -225,7 +225,7 @@ class BrandFormNotifier extends StateNotifier<BrandFormState> {
       final entity = ModelBrand(
         brandId: entityId,
         brandName: state.brandName.trim(),
-        brandsPrimaryRoute: state.brandsPrimaryRoute,
+        brandsPrimaryAgency: state.brandsPrimaryAgency,
         brandNote: state.brandNote,
         hiddenNote: state.hiddenNote,
         brandMobile1: state.brandMobile1,
@@ -286,7 +286,7 @@ class BrandFormNotifier extends StateNotifier<BrandFormState> {
     if (!_mounted) return;
     state = BrandFormState(
       brandName: entity.brandName,
-      brandsPrimaryRoute: entity.brandsPrimaryRoute,
+      brandsPrimaryAgency: entity.brandsPrimaryAgency,
       brandNote: entity.brandNote,
       hiddenNote: entity.hiddenNote,
       brandMobile1: entity.brandMobile1,

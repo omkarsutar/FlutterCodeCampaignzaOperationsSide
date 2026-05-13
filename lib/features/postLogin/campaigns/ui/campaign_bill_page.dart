@@ -175,20 +175,20 @@ class CampaignBillPage extends ConsumerWidget {
                             final showHeader =
                                 showHeaderAtIndex[index] ?? false;
 
-                            final routeName =
+                            final agencyName =
                                 adapter
                                     .getLabelValue(
                                       order,
-                                      ModelCampaignFields.poRouteId,
+                                      ModelCampaignFields.poAgencyId,
                                     )
                                     ?.toString() ??
-                                'Unknown Route';
+                                'Unknown Agency';
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 if (showHeader)
-                                  _buildRouteHeader(theme, routeName),
+                                  _buildAgencyHeader(theme, agencyName),
                                 BillOrderSelectionCard(
                                   order: order,
                                   adapter: adapter,
@@ -323,7 +323,7 @@ class CampaignBillPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildRouteHeader(ThemeData theme, String routeName) {
+  Widget _buildAgencyHeader(ThemeData theme, String agencyName) {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0, bottom: 8.0, left: 4.0),
       child: Row(
@@ -335,7 +335,7 @@ class CampaignBillPage extends ConsumerWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            routeName,
+            agencyName,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.primary,

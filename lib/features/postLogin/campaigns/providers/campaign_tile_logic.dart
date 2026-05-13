@@ -50,7 +50,7 @@ class CampaignTileLogic {
       // Create updated entity with new status
       final updatedEntity = ModelCampaign(
         poId: entity.poId,
-        poRouteId: entity.poRouteId,
+        poAgencyId: entity.poAgencyId,
         poBrandId: entity.poBrandId,
         poTotalAmount: entity.poTotalAmount,
         poLineItemCount: entity.poLineItemCount,

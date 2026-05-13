@@ -6,8 +6,8 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/c
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_brand_links/route_brand_link_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agency_brand_links/agency_brand_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_brand_links/retailer_brand_link_barrel.dart';
@@ -33,9 +33,9 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       ...authRoutes,
       ...NotesRoutesJson.routes,
-      ...RoutesRoutesJson.routes,
+      ...AgenciesRoutesJson.routes,
       ...BrandsRoutesJson.routes,
-      ...RouteBrandLinksRoutesJson.routes,
+      ...AgencyBrandLinksRoutesJson.routes,
       ...RolesRoutesJson.routes,
       ...UsersRoutesJson.routes,
       ...CampaignsRoutesJson.routes,
@@ -69,7 +69,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Profile is "ready" if RBAC is initialized AND (is Guest OR has preferred route)
       final isProfileReady =
           rbacService.isInitialized &&
-          (isGuest || profile?.preferredRouteId != null);
+          (isGuest || profile?.preferredAgencyId != null);
 
       final isPublicRoute =
           state.uri.path.startsWith('/products') ||
@@ -107,12 +107,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           return AppRoute.loading; // Wait for RBAC at minimum
         }
 
-        // If RBAC is ready but preferredRouteId is null, and NOT guest, still show loading
+        // If RBAC is ready but preferredAgencyId is null, and NOT guest, still show loading
         // (This preserves existing behavior for other roles while fixing it for guests)
         if (rbacService.isInitialized &&
             !isGuest &&
-            profile?.preferredRouteId == null) {
-          debugPrint('AppRouter: Profile missing preferredRouteId -> Loading');
+            profile?.preferredAgencyId == null) {
+          debugPrint('AppRouter: Profile missing preferredAgencyId -> Loading');
           return AppRoute.loading;
         }
 

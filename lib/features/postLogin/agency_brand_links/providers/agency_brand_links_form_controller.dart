@@ -4,17 +4,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../core/config/field_config.dart';
 import '../../../../../core/services/entity_service.dart';
-import '../model/route_brand_link_model.dart';
-import 'route_brand_link_controller.dart';
+import '../model/agency_brand_link_model.dart';
+import 'agency_brand_link_controller.dart';
 
-class RouteBrandLinksFormState {
+class AgencyBrandLinksFormState {
   final bool isLoading;
   final String? error;
   final bool isSuccess;
   final Map<String, List<Map<String, dynamic>>> dropdownOptions;
   final Map<String, dynamic>? initialData;
 
-  const RouteBrandLinksFormState({
+  const AgencyBrandLinksFormState({
     this.isLoading = false,
     this.error,
     this.isSuccess = false,
@@ -22,14 +22,14 @@ class RouteBrandLinksFormState {
     this.initialData,
   });
 
-  RouteBrandLinksFormState copyWith({
+  AgencyBrandLinksFormState copyWith({
     bool? isLoading,
     String? error,
     bool? isSuccess,
     Map<String, List<Map<String, dynamic>>>? dropdownOptions,
     Map<String, dynamic>? initialData,
   }) {
-    return RouteBrandLinksFormState(
+    return AgencyBrandLinksFormState(
       isLoading: isLoading ?? this.isLoading,
       error: error, // Nullable update
       isSuccess: isSuccess ?? this.isSuccess,
@@ -39,22 +39,22 @@ class RouteBrandLinksFormState {
   }
 }
 
-class RouteBrandLinksFormController
-    extends AutoDisposeFamilyNotifier<RouteBrandLinksFormState, String> {
+class AgencyBrandLinksFormController
+    extends AutoDisposeFamilyNotifier<AgencyBrandLinksFormState, String> {
   @override
-  RouteBrandLinksFormState build(String arg) {
-    return const RouteBrandLinksFormState();
+  AgencyBrandLinksFormState build(String arg) {
+    return const AgencyBrandLinksFormState();
   }
 
   // Route Brand Links specific field validation
-  bool validateRouteBrandLinkField(String fieldName, dynamic value) {
-    return RouteBrandLinkController.validateRouteBrandLinkField(
+  bool validateAgencyBrandLinkField(String fieldName, dynamic value) {
+    return AgencyBrandLinkController.validateAgencyBrandLinkField(
       fieldName,
       value,
     );
   }
 
-  // Enhanced dropdown loading with route_brand_links specific logic
+  // Enhanced dropdown loading with agency_brand_links specific logic
   Future<void> loadDropdownOptions(List<FieldConfig> fieldConfigs) async {
     final newOptions = Map<String, List<Map<String, dynamic>>>.from(
       state.dropdownOptions,
@@ -80,7 +80,7 @@ class RouteBrandLinksFormController
     state = state.copyWith(dropdownOptions: newOptions);
   }
 
-  // Enhanced entity loading with route_brand_links specific field mapping
+  // Enhanced entity loading with agency_brand_links specific field mapping
   Future<void> loadEntity<T>({
     required String entityId,
     required AutoDisposeFutureProviderFamily<T?, String> entityByIdProvider,
@@ -128,7 +128,7 @@ class RouteBrandLinksFormController
     }
   }
 
-  // Enhanced save with route_brand_links specific validation
+  // Enhanced save with agency_brand_links specific validation
   Future<void> saveEntity({
     required Future<bool> Function(WidgetRef, Map<String, dynamic>, String?)
     onSave,
@@ -140,7 +140,7 @@ class RouteBrandLinksFormController
 
     try {
       // Route Brand Links specific validation before save
-      if (!_validateRouteBrandLinkData(fieldValues)) {
+      if (!_validateAgencyBrandLinkData(fieldValues)) {
         state = state.copyWith(
           isLoading: false,
           error: 'Invalid route brand link data',
@@ -163,16 +163,16 @@ class RouteBrandLinksFormController
   }
 
   // Route Brand Links specific data validation
-  bool _validateRouteBrandLinkData(Map<String, dynamic> fieldValues) {
+  bool _validateAgencyBrandLinkData(Map<String, dynamic> fieldValues) {
     // Check required fields
-    final routeId =
+    final agencyId =
         fieldValues['routeid'] ??
-        fieldValues[ModelRouteBrandLinkFields.routeId];
+        fieldValues[ModelAgencyBrandLinkFields.agencyId];
     final brandId =
         fieldValues['brandid'] ??
-        fieldValues[ModelRouteBrandLinkFields.brandId];
+        fieldValues[ModelAgencyBrandLinkFields.brandId];
 
-    if (routeId == null || routeId.toString().trim().isEmpty) {
+    if (agencyId == null || agencyId.toString().trim().isEmpty) {
       return false;
     }
 
@@ -183,10 +183,10 @@ class RouteBrandLinksFormController
     // Validate visit order if present
     final visitOrder =
         fieldValues['visitorder'] ??
-        fieldValues[ModelRouteBrandLinkFields.visitOrder];
+        fieldValues[ModelAgencyBrandLinkFields.visitOrder];
     if (visitOrder != null &&
-        !RouteBrandLinkController.validateRouteBrandLinkField(
-          ModelRouteBrandLinkFields.visitOrder,
+        !AgencyBrandLinkController.validateAgencyBrandLinkField(
+          ModelAgencyBrandLinkFields.visitOrder,
           visitOrder,
         )) {
       return false;
@@ -196,14 +196,14 @@ class RouteBrandLinksFormController
   }
 
   // Route Brand Links specific helper methods
-  String generateRouteBrandLinkName({
-    required String routeName,
+  String generateAgencyBrandLinkName({
+    required String agencyName,
     required String brandName,
   }) {
-    return '$routeName - $brandName';
+    return '$agencyName - $brandName';
   }
 
-  bool isRouteBrandLinkActive(Map<String, dynamic> fieldValues) {
+  bool isAgencyBrandLinkActive(Map<String, dynamic> fieldValues) {
     // Check if there's an active status field
     final isActive = fieldValues['is_active'];
     if (isActive is bool) {
@@ -219,7 +219,7 @@ class RouteBrandLinksFormController
   }
 }
 
-final routeBrandLinksFormControllerProvider = NotifierProvider.autoDispose
-    .family<RouteBrandLinksFormController, RouteBrandLinksFormState, String>(
-      () => RouteBrandLinksFormController(),
+final agencyBrandLinksFormControllerProvider = NotifierProvider.autoDispose
+    .family<AgencyBrandLinksFormController, AgencyBrandLinksFormState, String>(
+      () => AgencyBrandLinksFormController(),
     );

@@ -191,7 +191,7 @@ class CampaignListController
           if (brandName?.contains(query) ?? false) return true;
 
           final routeName = adapter
-              .getLabelValue(po, ModelCampaignFields.poRouteId)
+              .getLabelValue(po, ModelCampaignFields.poAgencyId)
               ?.toString()
               .toLowerCase();
           if (routeName?.contains(query) ?? false) return true;

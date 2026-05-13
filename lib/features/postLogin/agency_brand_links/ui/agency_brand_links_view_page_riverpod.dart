@@ -8,11 +8,11 @@ import '../../../../../core/services/entity_service.dart';
 import '../../../../../core/utils/date_utils.dart';
 import '../../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../../core/providers/core_providers.dart';
-import '../route_brand_link_barrel.dart';
+import '../agency_brand_link_barrel.dart';
 
 /// Route Brand Links specific View Page
-/// Customized for route_brand_links module
-class RouteBrandLinksViewPageRiverpod<T> extends ConsumerWidget {
+/// Customized for agency_brand_links module
+class AgencyBrandLinksViewPageRiverpod<T> extends ConsumerWidget {
   final String entityId;
   final EntityMeta entityMeta;
   final List<FieldConfig> fieldConfigs;
@@ -28,7 +28,7 @@ class RouteBrandLinksViewPageRiverpod<T> extends ConsumerWidget {
   // Delete function from form provider - receives WidgetRef and entity ID
   final Future<bool> Function(WidgetRef ref, String id) deleteFunction;
 
-  const RouteBrandLinksViewPageRiverpod({
+  const AgencyBrandLinksViewPageRiverpod({
     super.key,
     required this.entityId,
     required this.entityMeta,
@@ -45,7 +45,7 @@ class RouteBrandLinksViewPageRiverpod<T> extends ConsumerWidget {
   Future<void> _onDeletePressed(
     BuildContext context,
     WidgetRef ref,
-    RouteBrandLinksViewController controller,
+    AgencyBrandLinksViewController controller,
   ) async {
     await controller.handleDeleteEntity(
       context: context,
@@ -62,7 +62,7 @@ class RouteBrandLinksViewPageRiverpod<T> extends ConsumerWidget {
     ThemeData theme,
     FieldConfig field,
     dynamic value,
-    RouteBrandLinksViewController controller,
+    AgencyBrandLinksViewController controller,
   ) {
     if (value == null || value.toString().isEmpty) {
       return const SizedBox.shrink();
@@ -70,7 +70,7 @@ class RouteBrandLinksViewPageRiverpod<T> extends ConsumerWidget {
 
     final isPhone = controller.isPhoneField(field.name);
     final isLocation = controller.isLocationField(field.name, value.toString());
-    final isRoute = controller.isRouteField(field.name);
+    final isRoute = controller.isAgencyField(field.name);
     final isBrand = controller.isBrandField(field.name);
 
     // Build the display value with prefix/suffix
@@ -219,17 +219,17 @@ class RouteBrandLinksViewPageRiverpod<T> extends ConsumerWidget {
     final entityAdapter = ref.watch(adapterProvider);
 
     // Controller
-    final controllerKey = 'route_brand_links_view';
+    final controllerKey = 'agency_brand_links_view';
     final viewState = ref.watch(
-      routeBrandLinksViewControllerProvider(controllerKey),
+      agencyBrandLinksViewControllerProvider(controllerKey),
     );
     final controller = ref.read(
-      routeBrandLinksViewControllerProvider(controllerKey).notifier,
+      agencyBrandLinksViewControllerProvider(controllerKey).notifier,
     );
 
     // Side Effects Listener
-    ref.listen<RouteBrandLinksViewState>(
-      routeBrandLinksViewControllerProvider(controllerKey),
+    ref.listen<AgencyBrandLinksViewState>(
+      agencyBrandLinksViewControllerProvider(controllerKey),
       (previous, next) {
         controller.handleSideEffects(next, context, entityMeta.entityName);
       },

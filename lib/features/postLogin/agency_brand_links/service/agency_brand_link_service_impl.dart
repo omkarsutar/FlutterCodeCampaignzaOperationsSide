@@ -1,23 +1,23 @@
-import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
+import 'dart:async';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 
 import '../../../../core/config/field_config.dart';
 import '../../../../core/services/core_services_barrel.dart';
 import '../../../../core/config/module_config.dart';
-import '../model/route_brand_link_model.dart';
+import '../model/agency_brand_link_model.dart';
 
-abstract class RouteFilteredEntityService<T> {
-  Stream<List<T>> streamEntitiesByRoute(String routeId);
+abstract class AgencyFilteredEntityService<T> {
+  Stream<List<T>> streamEntitiesByAgency(String agencyId);
 }
 
-class RouteBrandLinkServiceImpl
-    extends ForeignKeyAwareService<ModelRouteBrandLink>
-    implements RouteFilteredEntityService<ModelRouteBrandLink> {
-  final EntityMapper<ModelRouteBrandLink> _mapper;
+class AgencyBrandLinkServiceImpl
+    extends ForeignKeyAwareService<ModelAgencyBrandLink>
+    implements AgencyFilteredEntityService<ModelAgencyBrandLink> {
+  final EntityMapper<ModelAgencyBrandLink> _mapper;
 
-  RouteBrandLinkServiceImpl(
+  AgencyBrandLinkServiceImpl(
     this._mapper,
     SupabaseClient client,
     LoggerService logger, {
@@ -26,45 +26,41 @@ class RouteBrandLinkServiceImpl
     if (initialSorting != null) {
       sortField = initialSorting.field;
       sortAscending = initialSorting.sortAscending;
-    } else {
-      /* sortField = ModelRouteBrandLinkFields.visitOrder;
-      sortAscending = true; */
     }
   }
 
   @override
-  EntityMapper<ModelRouteBrandLink> get mapper => _mapper;
+  EntityMapper<ModelAgencyBrandLink> get mapper => _mapper;
 
   @override
-  String get tableName => ModelRouteBrandLinkFields.table;
+  String get tableName => ModelAgencyBrandLinkFields.table;
 
   @override
-  String get idColumn => ModelRouteBrandLinkFields.linkId;
+  String get idColumn => ModelAgencyBrandLinkFields.linkId;
 
   @override
-  String get createdAt => ModelRouteBrandLinkFields.createdAt;
+  String get createdAt => ModelAgencyBrandLinkFields.createdAt;
 
   @override
   Map<String, ForeignKeyConfig> get foreignKeys => {
-    ModelRouteBrandLinkFields.routeId: ForeignKeyConfig(
-      table: ModelRouteFields.table,
-      idColumn: ModelRouteFields.routeId,
-      labelColumn: ModelRouteFields.routeName,
+    ModelAgencyBrandLinkFields.agencyId: ForeignKeyConfig(
+      table: ModelAgencyFields.table,
+      idColumn: ModelAgencyFields.agencyId,
+      labelColumn: ModelAgencyFields.agencyName,
     ),
-    ModelRouteBrandLinkFields.brandId: ForeignKeyConfig(
+    ModelAgencyBrandLinkFields.brandId: ForeignKeyConfig(
       table: ModelBrandFields.table,
       idColumn: ModelBrandFields.brandId,
       labelColumn: ModelBrandFields.brandName,
-      // Add this to use the optimized dropdown method
       fetchDropdownItems: (service) =>
           (service as BrandServiceImpl).getBrandsForDropdown(),
     ),
   };
 
   @override
-  Future<List<ModelRouteBrandLink>> fetchAll() async {
+  Future<List<ModelAgencyBrandLink>> fetchAll() async {
     final List<dynamic> data = await client
-        .from(ModelRouteBrandLinkFields.tableViewWithForeignKeyLabels)
+        .from(ModelAgencyBrandLinkFields.tableViewWithForeignKeyLabels)
         .select()
         .order(sortField ?? createdAt, ascending: sortAscending);
 
@@ -72,11 +68,10 @@ class RouteBrandLinkServiceImpl
   }
 
   @override
-  Future<ModelRouteBrandLink?> fetchById(String id) async {
+  Future<ModelAgencyBrandLink?> fetchById(String id) async {
     try {
-      // Use the view that includes foreign key labels
       final raw = await client
-          .from(ModelRouteBrandLinkFields.tableViewWithForeignKeyLabels)
+          .from(ModelAgencyBrandLinkFields.tableViewWithForeignKeyLabels)
           .select()
           .eq(idColumn, id)
           .maybeSingle();
@@ -85,7 +80,6 @@ class RouteBrandLinkServiceImpl
         return null;
       }
 
-      // The view already contains the labels, so we don't need resolveForeignLabelsForSingle
       return mapper.fromMap(raw);
     } catch (e) {
       rethrow;
@@ -93,14 +87,14 @@ class RouteBrandLinkServiceImpl
   }
 
   @override
-  Stream<List<ModelRouteBrandLink>> streamEntities() {
-    final controller = StreamController<List<ModelRouteBrandLink>>();
+  Stream<List<ModelAgencyBrandLink>> streamEntities() {
+    final controller = StreamController<List<ModelAgencyBrandLink>>();
     RealtimeChannel? channel;
 
     Future<void> fetch() async {
       try {
         final List<dynamic> data = await client
-            .from(ModelRouteBrandLinkFields.tableViewWithForeignKeyLabels)
+            .from(ModelAgencyBrandLinkFields.tableViewWithForeignKeyLabels)
             .select()
             .order(sortField ?? createdAt, ascending: sortAscending);
 
@@ -130,19 +124,18 @@ class RouteBrandLinkServiceImpl
     return controller.stream;
   }
 
-  // --- Custom helper: stream links filtered by route ---
   @override
-  Stream<List<ModelRouteBrandLink>> streamEntitiesByRoute(String routeId) {
-    final controller = StreamController<List<ModelRouteBrandLink>>();
+  Stream<List<ModelAgencyBrandLink>> streamEntitiesByAgency(String agencyId) {
+    final controller = StreamController<List<ModelAgencyBrandLink>>();
     RealtimeChannel? channel;
     Timer? debounceTimer;
 
     Future<void> fetch() async {
       try {
         final List<dynamic> data = await client
-            .from(ModelRouteBrandLinkFields.tableViewWithForeignKeyLabels)
+            .from(ModelAgencyBrandLinkFields.tableViewWithForeignKeyLabels)
             .select()
-            .eq(ModelRouteBrandLinkFields.routeId, routeId)
+            .eq(ModelAgencyBrandLinkFields.agencyId, agencyId)
             .order(sortField ?? createdAt, ascending: sortAscending);
 
         if (!controller.isClosed) {
@@ -169,8 +162,8 @@ class RouteBrandLinkServiceImpl
           table: tableName,
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
-            column: ModelRouteBrandLinkFields.routeId,
-            value: routeId,
+            column: ModelAgencyBrandLinkFields.agencyId,
+            value: agencyId,
           ),
           callback: (_) => debouncedFetch(),
         )
@@ -183,23 +176,12 @@ class RouteBrandLinkServiceImpl
     return controller.stream;
   }
 
-  /* /// Fetches route brand links using the 'view_route_brand_links' View
-  Future<List<ModelRouteBrandLink>> fetchByRouteId(String routeId) async {
-    // It is a View, so we query it like a table
-    final List<dynamic> data = await client
-        .from(ModelRouteBrandLinkFields.tableViewWithForeignKeyLabels)
-        .select()
-        .eq(ModelRouteBrandLinkFields.routeId, routeId)
-        .order(ModelRouteBrandLinkFields.visitOrder, ascending: true);
+  // Renamed from streamEntitiesByRoute for consistency with AgencyFilteredEntityService
+  Stream<List<ModelAgencyBrandLink>> streamEntitiesByRoute(String agencyId) => streamEntitiesByAgency(agencyId);
 
-    return data.map((e) => mapper.fromMap(e)).toList();
-  } */
-
-  /// Reorders route brand links using server-side function
-  /// Returns the updated list of links for the route
-  Future<void> reorderRouteBrandLink(String linkId, int newPosition) async {
+  Future<void> reorderAgencyBrandLink(String linkId, int newPosition) async {
     await client.rpc(
-      'reorder_route_brand_links',
+      'reorder_agency_brand_links',
       params: {'p_link_id': linkId, 'p_new_position': newPosition},
     );
   }

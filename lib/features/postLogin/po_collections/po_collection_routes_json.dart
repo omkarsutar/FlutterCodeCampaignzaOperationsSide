@@ -27,13 +27,13 @@ class PoCollectionsRoutesJson {
     final entityServiceProvider = Provider<EntityService<ModelPoCollection>>((
       ref,
     ) {
-      return ref.watch(poCollectionServiceProvider);
+      return ref.watch(campaignCollectionServiceProvider);
     });
 
     final entityAdapterProvider = Provider<EntityAdapter<ModelPoCollection>>((
       ref,
     ) {
-      return ref.watch(poCollectionAdapterProvider);
+      return ref.watch(campaignCollectionAdapterProvider);
     });
 
     // Register module with route generator
@@ -41,10 +41,10 @@ class PoCollectionsRoutesJson {
       config: _config,
       serviceProvider: entityServiceProvider,
       adapterProvider: entityAdapterProvider,
-      streamProvider: poCollectionsStreamProvider,
-      entityByIdProvider: poCollectionByIdProvider,
-      formProvider: poCollectionFormProvider,
-      customListBuilder: (context, state) => const PoCollectionListPage(),
+      streamProvider: campaignCollectionsStreamProvider,
+      entityByIdProvider: campaignCollectionByIdProvider,
+      formProvider: campaignCollectionFormProvider,
+      customListBuilder: (context, state) => const CampaignCollectionListPage(),
       customViewBuilder: (context, poId) => CampaignCollectionPage(poId: poId),
     );
 

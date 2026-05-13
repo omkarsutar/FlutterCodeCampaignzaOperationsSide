@@ -6,10 +6,10 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/prov
 /// Provider to fetch brands classified by campaign item status
 /// Returns a map with keys: 'noPOs', 'emptyPOs', 'filledPOs'
 final brandsByPOStatusProvider = StreamProvider.autoDispose
-    .family<Map<String, List<ModelBrand>>, String?>((ref, routeId) {
-      final effectiveRouteId = (routeId != null && routeId.isNotEmpty)
-          ? routeId
-          : ref.watch(userProfileStateProvider).profile?.preferredRouteId;
+    .family<Map<String, List<ModelBrand>>, String?>((ref, agencyId) {
+      final effectiveRouteId = (agencyId != null && agencyId.isNotEmpty)
+          ? agencyId
+          : ref.watch(userProfileStateProvider).profile?.preferredAgencyId;
 
       final service = ref.read(brandServiceProvider);
 
@@ -27,13 +27,13 @@ final brandsByPOStatusProvider = StreamProvider.autoDispose
     });
 
 final regularBrandsProvider = FutureProvider.autoDispose
-    .family<List<ModelBrand>, String?>((ref, routeId) async {
-      final effectiveRouteId = (routeId != null && routeId.isNotEmpty)
-          ? routeId
-          : ref.watch(userProfileStateProvider).profile?.preferredRouteId;
+    .family<List<ModelBrand>, String?>((ref, agencyId) async {
+      final effectiveRouteId = (agencyId != null && agencyId.isNotEmpty)
+          ? agencyId
+          : ref.watch(userProfileStateProvider).profile?.preferredAgencyId;
 
       if (effectiveRouteId == null || effectiveRouteId.isEmpty) return [];
 
       final service = ref.read(brandServiceProvider);
-      return await service.fetchAllBrandsForRoute(effectiveRouteId);
+      return await service.fetchAllBrandsForAgency(effectiveRouteId);
     });

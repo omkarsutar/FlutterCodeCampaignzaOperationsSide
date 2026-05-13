@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../providers/campaign_tile_logic.dart';
 
-class PoBrandRouteInfo extends StatelessWidget {
+class CampaignBrandAgencyInfo extends StatelessWidget {
   final String brandName;
-  final String routeName;
-  final String? poId;
+  final String agencyName;
+  final String? campaignId;
   final String? status;
   final Widget? trailing;
 
-  const PoBrandRouteInfo({
+  const CampaignBrandAgencyInfo({
     super.key,
     required this.brandName,
-    required this.routeName,
-    this.poId,
+    required this.agencyName,
+    this.campaignId,
     this.status,
     this.trailing,
   });
@@ -45,9 +45,9 @@ class PoBrandRouteInfo extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                poId != null
-                    ? 'Route: $routeName | PO: #$poId'
-                    : 'Route: $routeName',
+                campaignId != null
+                    ? 'Agency: $agencyName | Campaign: #$campaignId'
+                    : 'Agency: $agencyName',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),

@@ -24,9 +24,9 @@ class UserListTile extends StatelessWidget {
     final role =
         adapter.getLabelValue(entity, ModelUserFields.roleId)?.toString() ??
         'Role not set';
-    final preferredRoute =
+    final preferredAgency =
         adapter
-            .getLabelValue(entity, ModelUserFields.preferredRouteId)
+            .getLabelValue(entity, ModelUserFields.preferredAgencyId)
             ?.toString() ??
         'Route not set';
 
@@ -107,9 +107,9 @@ class UserListTile extends StatelessWidget {
               ),
               const SizedBox(height: 8),
 
-              // Row 3: Preferred Route
+              // Row 3: Preferred Agency
               Text(
-                'Preferred Route: $preferredRoute',
+                'Preferred Agency: $preferredAgency',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),

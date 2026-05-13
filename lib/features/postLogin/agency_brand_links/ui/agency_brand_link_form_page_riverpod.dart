@@ -9,11 +9,11 @@ import '../../../../../core/utils/core_utils_barrel.dart';
 import '../../../../../core/validators/form_validators.dart';
 import '../../../../../shared/widgets/shared_widget_barrel.dart';
 import '../../../../../core/providers/core_providers.dart';
-import '../route_brand_link_barrel.dart';
+import '../agency_brand_link_barrel.dart';
 
-/// Route Brand Links specific Form Page
-/// Customized for route_brand_links module following Single Responsibility Principle
-class RouteBrandLinkFormPageRiverpod<T> extends ConsumerStatefulWidget {
+/// Agency Brand Links specific Form Page
+/// Customized for agency_brand_links module following Single Responsibility Principle
+class AgencyBrandLinkFormPageRiverpod<T> extends ConsumerStatefulWidget {
   final String? entityId;
   final EntityMeta entityMeta;
   final List<FieldConfig> fieldConfigs;
@@ -34,7 +34,7 @@ class RouteBrandLinkFormPageRiverpod<T> extends ConsumerStatefulWidget {
   final Map<String, dynamic> Function(T entity)? initialValues;
   final Map<String, dynamic>? defaultValues;
 
-  const RouteBrandLinkFormPageRiverpod({
+  const AgencyBrandLinkFormPageRiverpod({
     super.key,
     this.entityId,
     required this.entityMeta,
@@ -49,12 +49,12 @@ class RouteBrandLinkFormPageRiverpod<T> extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<RouteBrandLinkFormPageRiverpod<T>> createState() =>
-      _RouteBrandLinkFormPageRiverpodState<T>();
+  ConsumerState<AgencyBrandLinkFormPageRiverpod<T>> createState() =>
+      _AgencyBrandLinkFormPageRiverpodState<T>();
 }
 
-class _RouteBrandLinkFormPageRiverpodState<T>
-    extends ConsumerState<RouteBrandLinkFormPageRiverpod<T>> {
+class _AgencyBrandLinkFormPageRiverpodState<T>
+    extends ConsumerState<AgencyBrandLinkFormPageRiverpod<T>> {
   final _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, bool> _switchValues = {};
@@ -73,7 +73,7 @@ class _RouteBrandLinkFormPageRiverpodState<T>
     // Defer controller calls until after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final controller = ref.read(
-        routeBrandLinksFormControllerProvider(
+        agencyBrandLinksFormControllerProvider(
           widget.entityMeta.entityName,
         ).notifier,
       );
@@ -145,7 +145,7 @@ class _RouteBrandLinkFormPageRiverpodState<T>
     setState(() => _isDataLoaded = true);
   }
 
-  Future<void> _onSavePressed(RouteBrandLinksFormController controller) async {
+  Future<void> _onSavePressed(AgencyBrandLinksFormController controller) async {
     if (!_formKey.currentState!.validate()) return;
 
     // Collect field values
@@ -328,15 +328,6 @@ class _RouteBrandLinkFormPageRiverpodState<T>
       return DropdownMenuItem<String>(value: value, child: Text(label));
     }).toList();
 
-    // If we have options but no current value, set the first one as default
-    if (currentValue == null && items.isNotEmpty) {
-      // We can't setState during build easily, but user hasn't interacted yet.
-      // We'll just show it selected if we force value = item.first.value,
-      // but to persist it we need to update _dropdownValues.
-      // Better to leave it null or let user pick.
-      // Or, use postFrame callback if strictly needed.
-    }
-
     // Ensure the currentValue exists in items
     String? safeCurrentValue = currentValue;
     if (safeCurrentValue != null && items.isNotEmpty) {
@@ -408,15 +399,15 @@ class _RouteBrandLinkFormPageRiverpodState<T>
     // Controller
     final controllerKey = widget.entityMeta.entityName;
     final formState = ref.watch(
-      routeBrandLinksFormControllerProvider(controllerKey),
+      agencyBrandLinksFormControllerProvider(controllerKey),
     );
     final controller = ref.read(
-      routeBrandLinksFormControllerProvider(controllerKey).notifier,
+      agencyBrandLinksFormControllerProvider(controllerKey).notifier,
     );
 
     // Initial Data Listener
-    ref.listen<RouteBrandLinksFormState>(
-      routeBrandLinksFormControllerProvider(controllerKey),
+    ref.listen<AgencyBrandLinksFormState>(
+      agencyBrandLinksFormControllerProvider(controllerKey),
       (prev, next) {
         if (next.initialData != null && !_isDataLoaded) {
           _populateForm(next.initialData!);
@@ -499,9 +490,9 @@ class _RouteBrandLinkFormPageRiverpodState<T>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Route Brand Links specific header
+                          // Agency Brand Links specific header
                           if (widget.entityMeta.entityName.contains(
-                            'Route Brand Link',
+                            'Agency Brand Link',
                           ))
                             Container(
                               margin: const EdgeInsets.only(bottom: 16),
@@ -522,7 +513,7 @@ class _RouteBrandLinkFormPageRiverpodState<T>
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Route Brand Link Configuration',
+                                    'Agency Brand Link Configuration',
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium

@@ -13,7 +13,7 @@ class CartState {
   final bool isNewItemAdded;
 
   final String? brandId;
-  final String? routeId;
+  final String? agencyId;
   final String? campaignId;
   final String? status;
   final int? itemCountInPo;
@@ -26,7 +26,7 @@ class CartState {
     this.isPromptAcknowledged = false,
     this.isNewItemAdded = false,
     this.brandId,
-    this.routeId,
+    this.agencyId,
     this.campaignId,
     this.status,
     this.itemCountInPo,
@@ -51,7 +51,7 @@ class CartState {
     bool? isPromptAcknowledged,
     bool? isNewItemAdded,
     String? Function()? brandId,
-    String? Function()? routeId,
+    String? Function()? agencyId,
     String? Function()? campaignId,
     String? Function()? status,
     int? Function()? itemCountInPo,
@@ -66,7 +66,7 @@ class CartState {
       isPromptAcknowledged: isPromptAcknowledged ?? this.isPromptAcknowledged,
       isNewItemAdded: isNewItemAdded ?? this.isNewItemAdded,
       brandId: brandId != null ? brandId() : this.brandId,
-      routeId: routeId != null ? routeId() : this.routeId,
+      agencyId: agencyId != null ? agencyId() : this.agencyId,
       campaignId: campaignId != null ? campaignId() : this.campaignId,
       status: status != null ? status() : this.status,
       itemCountInPo: itemCountInPo != null
@@ -96,7 +96,7 @@ class CartNotifier extends Notifier<CartState> {
           items: items,
           isLoading: false,
           brandId: () => result['brandId'],
-          routeId: () => result['routeId'],
+          agencyId: () => result['agencyId'],
           campaignId: () => result['campaignId'],
           status: () => result['status'],
           itemCountInPo: () => result['itemCountInPo'],
@@ -119,7 +119,7 @@ class CartNotifier extends Notifier<CartState> {
         await storage.savePendingOrder(
           state.items,
           brandId: state.brandId,
-          routeId: state.routeId,
+          agencyId: state.agencyId,
           campaignId: state.campaignId,
           status: state.status,
           itemCountInPo: state.itemCountInPo,
@@ -144,7 +144,7 @@ class CartNotifier extends Notifier<CartState> {
 
   void loadOrderIntoCart({
     required String brandId,
-    required String routeId,
+    required String agencyId,
     required String campaignId,
     required String status,
     required int itemCountInPo,
@@ -153,7 +153,7 @@ class CartNotifier extends Notifier<CartState> {
     state = state.copyWith(
       items: items,
       brandId: () => brandId,
-      routeId: () => routeId,
+      agencyId: () => agencyId,
       campaignId: () => campaignId,
       status: () => status,
       itemCountInPo: () => itemCountInPo,
@@ -165,14 +165,14 @@ class CartNotifier extends Notifier<CartState> {
 
   void setOrderDetails({
     String? brandId,
-    String? routeId,
+    String? agencyId,
     String? campaignId,
     String? status,
     int? itemCountInPo,
   }) {
     state = state.copyWith(
       brandId: () => brandId,
-      routeId: () => routeId,
+      agencyId: () => agencyId,
       campaignId: () => campaignId,
       status: () => status,
       itemCountInPo: () => itemCountInPo,
@@ -295,7 +295,7 @@ class CartNotifier extends Notifier<CartState> {
       items: [],
       isPromptAcknowledged: false,
       brandId: () => null,
-      routeId: () => null,
+      agencyId: () => null,
       campaignId: () => null,
       status: () => null,
       itemCountInPo: () => null,

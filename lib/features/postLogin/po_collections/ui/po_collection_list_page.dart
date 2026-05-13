@@ -5,20 +5,20 @@ import 'po_collection_list_tile.dart';
 
 import '../../../../shared/widgets/shared_widget_barrel.dart';
 
-class PoCollectionListPage extends ConsumerStatefulWidget {
-  const PoCollectionListPage({super.key});
+class CampaignCollectionListPage extends ConsumerStatefulWidget {
+  const CampaignCollectionListPage({super.key});
 
   @override
-  ConsumerState<PoCollectionListPage> createState() =>
-      _PoCollectionListPageState();
+  ConsumerState<CampaignCollectionListPage> createState() =>
+      _CampaignCollectionListPageState();
 }
 
-class _PoCollectionListPageState extends ConsumerState<PoCollectionListPage> {
+class _CampaignCollectionListPageState extends ConsumerState<CampaignCollectionListPage> {
   String _filter = 'all'; // all, cash, online, cheque, sign
 
   @override
   Widget build(BuildContext context) {
-    final collectionsAsync = ref.watch(poCollectionsStreamProvider);
+    final collectionsAsync = ref.watch(campaignCollectionsStreamProvider);
 
     return Scaffold(
       drawer: const CustomDrawer(),
@@ -78,7 +78,7 @@ class _PoCollectionListPageState extends ConsumerState<PoCollectionListPage> {
           return ListView.builder(
             itemCount: filteredList.length,
             itemBuilder: (context, index) {
-              return PoCollectionListTile(entity: filteredList[index]);
+              return CampaignCollectionListTile(entity: filteredList[index]);
             },
           );
         },

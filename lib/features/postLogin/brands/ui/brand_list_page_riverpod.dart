@@ -21,7 +21,7 @@ class BrandListPageRiverpod extends ConsumerStatefulWidget {
   final String newRouteName;
   final String rbacModule;
   final bool isSelectionMode;
-  final String? routeIdField;
+  final String? agencyIdField;
   final SortingConfig? initialSorting;
 
   // Riverpod providers
@@ -58,7 +58,7 @@ class BrandListPageRiverpod extends ConsumerStatefulWidget {
     required this.rbacModule,
     this.isSelectionMode = false,
     this.customItemBuilder,
-    this.routeIdField,
+    this.agencyIdField,
     this.initialSorting,
   });
 
@@ -121,8 +121,8 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
               entityLabel: widget.entityMeta.entityName,
               queryParameters:
                   listState.selectedRouteId != null &&
-                      widget.routeIdField != null
-                  ? {widget.routeIdField!: listState.selectedRouteId!}
+                      widget.agencyIdField != null
+                  ? {widget.agencyIdField!: listState.selectedRouteId!}
                   : null,
             )
           : null,
@@ -144,9 +144,9 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
               children: [
                 Expanded(
                   child: CollapsibleSearchBar(
-                    dropdown: RouteDropdown(
-                      initialRouteId: listState.selectedRouteId,
-                      onRouteSelected: controller.setRouteId,
+                    dropdown: AgencyDropdown(
+                      initialAgencyId: listState.selectedRouteId,
+                      onAgencySelected: controller.setRouteId,
                       allowAll: true,
                     ),
                     controller: _searchController,

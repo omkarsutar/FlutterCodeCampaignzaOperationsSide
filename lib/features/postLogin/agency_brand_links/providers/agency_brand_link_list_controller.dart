@@ -1,60 +1,60 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/services/entity_service.dart';
-import '../model/route_brand_link_model.dart';
-import 'route_brand_link_providers.dart';
+import '../model/agency_brand_link_model.dart';
+import 'agency_brand_link_providers.dart';
 
-class RouteBrandLinkListState {
+class AgencyBrandLinkListState {
   final String searchQuery;
-  final String? selectedRouteId;
-  final List<ModelRouteBrandLink> localEntities;
+  final String? selectedAgencyId;
+  final List<ModelAgencyBrandLink> localEntities;
   final bool isSearchActive; // If we want to move this here too
 
-  const RouteBrandLinkListState({
+  const AgencyBrandLinkListState({
     this.searchQuery = '',
-    this.selectedRouteId,
+    this.selectedAgencyId,
     this.localEntities = const [],
     this.isSearchActive = false,
   });
 
-  RouteBrandLinkListState copyWith({
+  AgencyBrandLinkListState copyWith({
     String? searchQuery,
-    String? selectedRouteId,
-    List<ModelRouteBrandLink>? localEntities,
+    String? selectedAgencyId,
+    List<ModelAgencyBrandLink>? localEntities,
     bool? isSearchActive,
   }) {
-    return RouteBrandLinkListState(
+    return AgencyBrandLinkListState(
       searchQuery: searchQuery ?? this.searchQuery,
-      selectedRouteId: selectedRouteId ?? this.selectedRouteId,
+      selectedAgencyId: selectedAgencyId ?? this.selectedAgencyId,
       localEntities: localEntities ?? this.localEntities,
       isSearchActive: isSearchActive ?? this.isSearchActive,
     );
   }
 }
 
-class RouteBrandLinkListController
-    extends AutoDisposeNotifier<RouteBrandLinkListState> {
+class AgencyBrandLinkListController
+    extends AutoDisposeNotifier<AgencyBrandLinkListState> {
   @override
-  RouteBrandLinkListState build() {
+  AgencyBrandLinkListState build() {
     // Initialize with user's preferred route
     final profile = ref.watch(userProfileStateProvider).profile;
-    return RouteBrandLinkListState(selectedRouteId: profile?.preferredRouteId);
+    return AgencyBrandLinkListState(selectedAgencyId: profile?.preferredAgencyId);
   }
 
   void setSearchQuery(String query) {
     state = state.copyWith(searchQuery: query.toLowerCase());
   }
 
-  void setRouteId(String? routeId) {
-    if (routeId == null) return;
+  void setAgencyId(String? agencyId) {
+    if (agencyId == null) return;
     state = state.copyWith(
-      selectedRouteId: routeId,
+      selectedAgencyId: agencyId,
       localEntities: [], // Clear on new route
     );
   }
 
   /// Syncs local entities with data from the source/provider
-  void setEntities(List<ModelRouteBrandLink> entities) {
+  void setEntities(List<ModelAgencyBrandLink> entities) {
     // Only update if the list content has actually changed or we are empty?
     // For now, always sync to keep fresh data.
     state = state.copyWith(localEntities: entities);
@@ -62,11 +62,11 @@ class RouteBrandLinkListController
 
   @override
   bool updateShouldNotify(
-    RouteBrandLinkListState previous,
-    RouteBrandLinkListState next,
+    AgencyBrandLinkListState previous,
+    AgencyBrandLinkListState next,
   ) {
     return previous.searchQuery != next.searchQuery ||
-        previous.selectedRouteId != next.selectedRouteId ||
+        previous.selectedAgencyId != next.selectedAgencyId ||
         previous.isSearchActive != next.isSearchActive ||
         previous.localEntities != next.localEntities;
   }
@@ -76,10 +76,10 @@ class RouteBrandLinkListController
     if (newIndex > oldIndex) newIndex -= 1;
 
     final currentList = state.localEntities;
-    final originalList = List<ModelRouteBrandLink>.from(currentList);
+    final originalList = List<ModelAgencyBrandLink>.from(currentList);
 
     // 1. Optimistic Update
-    final items = List<ModelRouteBrandLink>.from(currentList);
+    final items = List<ModelAgencyBrandLink>.from(currentList);
     final item = items.removeAt(oldIndex);
     items.insert(newIndex, item);
 
@@ -93,13 +93,13 @@ class RouteBrandLinkListController
 
     // 2. Call Backend
     final movedEntity = updatedList[newIndex];
-    final adapter = ref.read(routeBrandLinkAdapterProvider);
+    final adapter = ref.read(agencyBrandLinkAdapterProvider);
     final linkId = adapter.getId(movedEntity, idField).toString();
     final newPosition = newIndex + 1;
 
     try {
-      final service = ref.read(routeBrandLinkServiceProvider);
-      await service.reorderRouteBrandLink(linkId, newPosition);
+      final service = ref.read(agencyBrandLinkServiceProvider);
+      await service.reorderAgencyBrandLink(linkId, newPosition);
     } catch (e) {
       // Revert on error
       state = state.copyWith(localEntities: originalList);
@@ -108,10 +108,10 @@ class RouteBrandLinkListController
   }
 
   // Helper filter logic
-  List<ModelRouteBrandLink> getFilteredEntities({
-    bool Function(ModelRouteBrandLink, String)? customMatcher,
+  List<ModelAgencyBrandLink> getFilteredEntities({
+    bool Function(ModelAgencyBrandLink, String)? customMatcher,
     List<String>? searchFields,
-    required EntityAdapter<ModelRouteBrandLink> adapter,
+    required EntityAdapter<ModelAgencyBrandLink> adapter,
   }) {
     if (state.searchQuery.isEmpty) return state.localEntities;
 
@@ -141,8 +141,8 @@ class RouteBrandLinkListController
   }
 }
 
-final routeBrandLinkListControllerProvider =
+final agencyBrandLinkListControllerProvider =
     NotifierProvider.autoDispose<
-      RouteBrandLinkListController,
-      RouteBrandLinkListState
-    >(() => RouteBrandLinkListController());
+      AgencyBrandLinkListController,
+      AgencyBrandLinkListState
+    >(() => AgencyBrandLinkListController());

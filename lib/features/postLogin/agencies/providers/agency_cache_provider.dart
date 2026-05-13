@@ -1,20 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RouteCache {
-  final String? routeId;
-  final String? routeName;
+class AgencyCache {
+  final String? agencyId;
+  final String? agencyName;
 
-  const RouteCache({this.routeId, this.routeName});
+  const AgencyCache({this.agencyId, this.agencyName});
 
-  RouteCache copyWith({String? routeId, String? routeName}) {
-    return RouteCache(
-      routeId: routeId ?? this.routeId,
-      routeName: routeName ?? this.routeName,
+  AgencyCache copyWith({String? agencyId, String? agencyName}) {
+    return AgencyCache(
+      agencyId: agencyId ?? this.agencyId,
+      agencyName: agencyName ?? this.agencyName,
     );
   }
 }
 
-/// StateProvider for route cache
-final routeCacheProvider = StateProvider<RouteCache>((ref) {
-  return const RouteCache();
+/// StateProvider for agency cache
+final agencyCacheProvider = StateProvider<AgencyCache>((ref) {
+  return const AgencyCache();
 });

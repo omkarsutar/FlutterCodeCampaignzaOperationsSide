@@ -116,7 +116,7 @@ class _CampaignListPageRiverpodState
         ),
         child: Column(
           children: [
-            RouteLabelWidget(),
+            AgencyLabelWidget(),
             // Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(

@@ -40,12 +40,12 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
     state = UserProfileState();
   }
 
-  void cacheRouteName(String routeId, String routeName) {
-    state = state.copyWith(cachedRouteId: routeId, cachedRouteName: routeName);
+  void cacheRouteName(String agencyId, String routeName) {
+    state = state.copyWith(cachedRouteId: agencyId, cachedRouteName: routeName);
   }
 
-  String? getCachedRouteName(String routeId) {
-    if (state.cachedRouteId == routeId) {
+  String? getCachedRouteName(String agencyId) {
+    if (state.cachedRouteId == agencyId) {
       return state.cachedRouteName;
     }
     return null;

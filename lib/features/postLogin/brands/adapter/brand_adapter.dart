@@ -9,8 +9,8 @@ class BrandAdapter implements EntityAdapter<ModelBrand> {
         return entity.brandId;
       case ModelBrandFields.brandName:
         return entity.brandName;
-      case ModelBrandFields.brandsPrimaryRoute:
-        return entity.brandsPrimaryRoute;
+      case ModelBrandFields.brandsPrimaryAgency:
+        return entity.brandsPrimaryAgency;
       case ModelBrandFields.brandNote:
         return entity.brandNote;
       case ModelBrandFields.hiddenNote:

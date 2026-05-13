@@ -25,7 +25,7 @@ class RetailerBrandLinkListTile extends StatelessWidget {
 
     final brandName =
         entity.resolvedLabels['brand_id_label']?.toString() ?? entity.brandId;
-    final brandRoute = entity.resolvedLabels['brand_route_label']?.toString();
+    final brandAgency = entity.resolvedLabels['brand_agency_label']?.toString();
 
     final createdAt = entity.createdAt?.toString().split(' ')[0] ?? 'N/A';
 
@@ -119,10 +119,10 @@ class RetailerBrandLinkListTile extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (brandRoute != null) ...[
+                        if (brandAgency != null) ...[
                           const SizedBox(height: 2),
                           Text(
-                            'Route: $brandRoute',
+                            'Agency: $brandAgency',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),

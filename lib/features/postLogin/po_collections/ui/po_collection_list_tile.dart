@@ -3,10 +3,10 @@ import 'package:flutter_supabase_order_app_mobile/core/utils/date_utils.dart';
 import 'package:go_router/go_router.dart';
 import '../model/po_collection_model.dart';
 
-class PoCollectionListTile extends StatelessWidget {
+class CampaignCollectionListTile extends StatelessWidget {
   final ModelPoCollection entity;
 
-  const PoCollectionListTile({super.key, required this.entity});
+  const CampaignCollectionListTile({super.key, required this.entity});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class PoCollectionListTile extends StatelessWidget {
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
-                            entity.routeIdLabel ?? 'No Route',
+                            entity.agencyIdLabel ?? 'No Agency',
                             style: theme.textTheme.bodySmall,
                             overflow: TextOverflow.ellipsis,
                           ),

@@ -147,7 +147,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
         ),
         child: Column(
           children: [
-            RouteLabelWidget(),
+            AgencyLabelWidget(),
             // Search Bar
             if (filterBrandId == null)
               Padding(

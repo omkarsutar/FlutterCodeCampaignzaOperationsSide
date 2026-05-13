@@ -1,21 +1,21 @@
 import '../../../../core/services/entity_service.dart';
-import '../model/route_model.dart';
+import '../model/agency_model.dart';
 
-class RouteAdapter implements EntityAdapter<ModelRoute> {
+class RouteAdapter implements EntityAdapter<ModelAgency> {
   @override
-  dynamic getFieldValue(ModelRoute entity, String fieldName) {
+  dynamic getFieldValue(ModelAgency entity, String fieldName) {
     switch (fieldName) {
-      case ModelRouteFields.routeId:
-        return entity.routeId;
-      case ModelRouteFields.routeName:
-        return entity.routeName;
-      case ModelRouteFields.routeNote:
-        return entity.routeNote;
-      case ModelRouteFields.isActive:
+      case ModelAgencyFields.agencyId:
+        return entity.agencyId;
+      case ModelAgencyFields.agencyName:
+        return entity.agencyName;
+      case ModelAgencyFields.agencyNote:
+        return entity.agencyNote;
+      case ModelAgencyFields.isActive:
         return entity.isActive;
-      case ModelRouteFields.createdAt:
+      case ModelAgencyFields.createdAt:
         return entity.createdAt;
-      case ModelRouteFields.updatedAt:
+      case ModelAgencyFields.updatedAt:
         return entity.updatedAt;
       default:
         return null;
@@ -23,13 +23,13 @@ class RouteAdapter implements EntityAdapter<ModelRoute> {
   }
 
   @override
-  dynamic getLabelValue(ModelRoute entity, String fieldName) {
+  dynamic getLabelValue(ModelAgency entity, String fieldName) {
     switch (fieldName) {
-      case ModelRouteFields.isActive:
+      case ModelAgencyFields.isActive:
         return entity.isActive ? 'Active' : 'Inactive';
-      case ModelRouteFields.createdAt:
+      case ModelAgencyFields.createdAt:
         return _formatDate(entity.createdAt);
-      case ModelRouteFields.updatedAt:
+      case ModelAgencyFields.updatedAt:
         return _formatDate(entity.updatedAt);
       default:
         return null;
@@ -42,10 +42,10 @@ class RouteAdapter implements EntityAdapter<ModelRoute> {
   }
 
   @override
-  dynamic getId(ModelRoute entity, String idField) => entity.routeId;
+  dynamic getId(ModelAgency entity, String idField) => entity.agencyId;
 
   @override
-  dynamic getTimestamp(ModelRoute entity, String timestampField) {
+  dynamic getTimestamp(ModelAgency entity, String timestampField) {
     return entity.createdAt;
   }
 }

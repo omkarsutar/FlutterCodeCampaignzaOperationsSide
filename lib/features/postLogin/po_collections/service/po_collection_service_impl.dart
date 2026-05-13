@@ -5,11 +5,11 @@ import '../../../../core/config/field_config.dart';
 import '../model/po_collection_model.dart';
 import '../../campaigns/campaign_barrel.dart';
 
-class PoCollectionServiceImpl
+class CampaignCollectionServiceImpl
     extends ForeignKeyAwareService<ModelPoCollection> {
   final EntityMapper<ModelPoCollection> _mapper;
 
-  PoCollectionServiceImpl(
+  CampaignCollectionServiceImpl(
     this._mapper,
     SupabaseClient client,
     LoggerService logger,
@@ -86,18 +86,18 @@ class PoCollectionServiceImpl
   };
 
   /// Fetch collection for a specific campaign
-  Future<ModelPoCollection?> fetchByPoId(String poId) async {
+  Future<ModelPoCollection?> fetchByCampaignId(String campaignId) async {
     try {
       final response = await client
           .from(tableName)
           .select()
-          .eq(ModelPoCollectionFields.poId, poId)
+          .eq(ModelPoCollectionFields.poId, campaignId)
           .maybeSingle();
 
       if (response == null) return null;
       return mapper.fromMap(response);
     } catch (e, st) {
-      logger.error('Error fetching collection for PO $poId', st);
+      logger.error('Error fetching collection for campaign $campaignId', st);
       rethrow;
     }
   }

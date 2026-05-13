@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../core/utils/date_utils.dart';
-import '../model/route_brand_link_model.dart';
+import '../model/agency_brand_link_model.dart';
 
-/// Shared base controller for Route Brand Links module
+/// Shared base controller for Agency Brand Links module
 /// Contains common functionality used across list, form, and view controllers
-class RouteBrandLinkController {
+class AgencyBrandLinkController {
   // Common imports and references
-  static const String moduleName = 'route_brand_links';
+  static const String moduleName = 'agency_brand_links';
 
   // Common field detection methods
   static bool isLocationUrlField(String fieldName, String? value) {
@@ -23,9 +23,9 @@ class RouteBrandLinkController {
     return lowerName.contains('phone') || lowerName.contains('mobile');
   }
 
-  static bool isRouteField(String fieldName) {
+  static bool isAgencyField(String fieldName) {
     final lowerName = fieldName.toLowerCase();
-    return lowerName.contains('route') || lowerName.contains('path');
+    return lowerName.contains('agency') || lowerName.contains('route');
   }
 
   static bool isBrandField(String fieldName) {
@@ -58,7 +58,7 @@ class RouteBrandLinkController {
   static String getFieldType(String fieldName, dynamic value) {
     if (isLocationUrlField(fieldName, value)) return 'location';
     if (isPhoneField(fieldName)) return 'phone';
-    if (isRouteField(fieldName)) return 'route';
+    if (isAgencyField(fieldName)) return 'agency';
     if (isBrandField(fieldName)) return 'brand';
     if (isDateLikeField(fieldName, value)) return 'date';
     return 'text';
@@ -72,8 +72,8 @@ class RouteBrandLinkController {
         return Icons.location_on;
       case 'phone':
         return Icons.phone;
-      case 'route':
-        return Icons.route;
+      case 'agency':
+        return Icons.alt_route;
       case 'brand':
         return Icons.store;
       case 'date':
@@ -90,7 +90,7 @@ class RouteBrandLinkController {
         return Colors.red;
       case 'phone':
         return Colors.green;
-      case 'route':
+      case 'agency':
         return Colors.blue;
       case 'brand':
         return Colors.purple;
@@ -102,24 +102,23 @@ class RouteBrandLinkController {
   }
 
   // Common validation methods
-  static bool validateRouteBrandLinkField(String fieldName, dynamic value) {
+  static bool validateAgencyBrandLinkField(String fieldName, dynamic value) {
     switch (fieldName.toLowerCase()) {
-      case ModelRouteBrandLinkFields.routeId:
-        return _validateRouteId(value);
-      case ModelRouteBrandLinkFields.brandId:
+      case ModelAgencyBrandLinkFields.agencyId:
+        return _validateAgencyId(value);
+      case ModelAgencyBrandLinkFields.brandId:
         return _validateBrandId(value);
-      case ModelRouteBrandLinkFields.visitOrder:
+      case ModelAgencyBrandLinkFields.visitOrder:
         return _validateVisitOrder(value);
       default:
         return true; // Pass validation for other fields
     }
   }
 
-  static bool _validateRouteId(dynamic value) {
+  static bool _validateAgencyId(dynamic value) {
     if (value == null || value.toString().trim().isEmpty) {
       return false;
     }
-    // Add route-specific validation logic here
     return true;
   }
 
@@ -127,7 +126,6 @@ class RouteBrandLinkController {
     if (value == null || value.toString().trim().isEmpty) {
       return false;
     }
-    // Add brand-specific validation logic here
     return true;
   }
 
@@ -147,24 +145,23 @@ class RouteBrandLinkController {
   }
 
   // Common data conversion
-  static ModelRouteBrandLink convertToModelRouteBrandLink(
+  static ModelAgencyBrandLink convertToModelAgencyBrandLink(
     Map<String, dynamic> fieldValues,
   ) {
-    return ModelRouteBrandLink(
-      // Convert fields based on your ModelRouteBrandLink structure
-      // Using correct field names from ModelRouteBrandLinkFields
-      routeId:
-          fieldValues['routeid']?.toString() ??
-          fieldValues[ModelRouteBrandLinkFields.routeId]?.toString(),
+    return ModelAgencyBrandLink(
+      agencyId:
+          fieldValues['agency_id']?.toString() ??
+          fieldValues[ModelAgencyBrandLinkFields.agencyId]?.toString() ??
+          fieldValues['route_id']?.toString(), // Fallback
       brandId:
-          fieldValues['brandid']?.toString() ??
-          fieldValues[ModelRouteBrandLinkFields.brandId]?.toString(),
+          fieldValues['brand_id']?.toString() ??
+          fieldValues[ModelAgencyBrandLinkFields.brandId]?.toString(),
       visitOrder:
-          fieldValues['visitorder'] != null ||
-              fieldValues[ModelRouteBrandLinkFields.visitOrder] != null
+          fieldValues['visit_order'] != null ||
+              fieldValues[ModelAgencyBrandLinkFields.visitOrder] != null
           ? int.tryParse(
-              fieldValues['visitorder']?.toString() ??
-                  fieldValues[ModelRouteBrandLinkFields.visitOrder]
+              fieldValues['visit_order']?.toString() ??
+                  fieldValues[ModelAgencyBrandLinkFields.visitOrder]
                       ?.toString() ??
                   '',
             )
@@ -173,14 +170,14 @@ class RouteBrandLinkController {
   }
 
   // Common utility methods
-  static String generateRouteBrandLinkName({
-    required String routeName,
+  static String generateAgencyBrandLinkName({
+    required String agencyName,
     required String brandName,
   }) {
-    return '$routeName - $brandName';
+    return '$agencyName - $brandName';
   }
 
-  static bool isRouteBrandLinkActive(Map<String, dynamic> fieldValues) {
+  static bool isAgencyBrandLinkActive(Map<String, dynamic> fieldValues) {
     // Check if there's an active status field
     final isActive = fieldValues['is_active'];
     if (isActive is bool) {

@@ -25,7 +25,7 @@
             "sortAscending": false
         },
         "searchFields": [
-            "po_route_id_label",
+            "po_agency_id_label",
             "po_brand_id_label",
             "status",
             "created_by_label",
@@ -44,13 +44,13 @@
         },
         {
             "name": "po_route_id",
-            "label": "Route",
+            "label": "Agency",
             "type": "dropdown",
             "required": true,
             "dropdownSource": {
-                "table": "routes",
-                "valueKey": "route_id",
-                "labelKey": "route_name"
+                "table": "agencies",
+                "valueKey": "agency_id",
+                "labelKey": "agency_name"
             }
         },
         {
@@ -72,7 +72,7 @@
             "prefix": "₹ "
         },
         {
-            "name": "po_line_item_count",
+            "name": "collaboration_count",
             "label": "Line Item Count",
             "type": "intField",
             "required": false

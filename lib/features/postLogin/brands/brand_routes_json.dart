@@ -57,7 +57,7 @@ class BrandsRoutesJson {
           timestampField: _config.table.timestampField,
           initialSorting: _config.listPage?.sorting,
           searchFields: _config.listPage?.searchFields,
-          routeIdField: 'brands_primary_route',
+          agencyIdField: 'brands_primary_agency',
           isSelectionMode:
               state.uri.queryParameters['selection'] == 'true' ||
               state.uri.queryParameters['isSelectionMode'] == 'true',

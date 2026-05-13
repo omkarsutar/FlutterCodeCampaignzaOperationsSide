@@ -1,14 +1,14 @@
 import '../../../../core/services/entity_service.dart';
-import '../model/route_model.dart';
+import '../model/agency_model.dart';
 
-class RouteMapper implements EntityMapper<ModelRoute> {
+class AgencyMapper implements EntityMapper<ModelAgency> {
   @override
-  ModelRoute fromMap(Map<String, dynamic> map) {
-    return ModelRoute.fromMap(map);
+  ModelAgency fromMap(Map<String, dynamic> map) {
+    return ModelAgency.fromMap(map);
   }
 
   @override
-  Map<String, dynamic> toMap(ModelRoute entity) {
+  Map<String, dynamic> toMap(ModelAgency entity) {
     return entity.toMap();
   }
 }

@@ -4,17 +4,17 @@ import 'package:go_router/go_router.dart';
 import '../../../core/config/module_config.dart';
 import '../../../core/routing/module_route_generator.dart';
 import '../../../core/services/entity_service.dart';
-import 'model/route_brand_link_model.dart';
-import 'providers/route_brand_link_controller.dart';
-import 'providers/route_brand_link_providers.dart';
-import 'ui/route_brand_link_list_page_riverpod.dart';
-import 'ui/route_brand_link_tile.dart';
-import 'ui/route_brand_links_view_page_riverpod.dart';
-import 'ui/route_brand_link_form_page_riverpod.dart';
+import 'model/agency_brand_link_model.dart';
+import 'providers/agency_brand_link_controller.dart';
+import 'providers/agency_brand_link_providers.dart';
+import 'ui/agency_brand_link_list_page_riverpod.dart';
+import 'ui/agency_brand_link_tile.dart';
+import 'ui/agency_brand_links_view_page_riverpod.dart';
+import 'ui/agency_brand_link_form_page_riverpod.dart';
 
-/// JSON-based route generation for Route Brand Links module
+/// JSON-based route generation for Agency Brand Links module
 /// Fully migrated to Riverpod - no GetIt dependency
-class RouteBrandLinksRoutesJson {
+class AgencyBrandLinksRoutesJson {
   static late ModuleConfig _config;
   static bool _initialized = false;
 
@@ -24,43 +24,40 @@ class RouteBrandLinksRoutesJson {
 
     // Load configuration from JSON file
     _config = await ModuleConfig.loadFromAsset(
-      'lib/features/postLogin/route_brand_links/route_brand_link_config.json',
+      'lib/features/postLogin/agency_brand_links/agency_brand_link_config.json',
     );
 
     // Cache the configuration so providers can access it
-    RouteBrandLinkConfigCache.config = _config;
+    AgencyBrandLinkConfigCache.config = _config;
 
     // Create typed provider aliases
-    final entityServiceProvider = Provider<EntityService<ModelRouteBrandLink>>((
-      ref,
-    ) {
-      return ref.watch(routeBrandLinkServiceProvider);
-    });
+    final entityServiceProvider = Provider<EntityService<ModelAgencyBrandLink>>(
+      (ref) {
+        return ref.watch(agencyBrandLinkServiceProvider);
+      },
+    );
 
-    final entityAdapterProvider = Provider<EntityAdapter<ModelRouteBrandLink>>((
-      ref,
-    ) {
-      return ref.watch(routeBrandLinkAdapterProvider);
-    });
-
-    // Sorting is now configured in the list page's initState() method
-    // This ensures it's set on the correct Riverpod provider service instance
+    final entityAdapterProvider = Provider<EntityAdapter<ModelAgencyBrandLink>>(
+      (ref) {
+        return ref.watch(agencyBrandLinkAdapterProvider);
+      },
+    );
 
     // Register module with route generator
-    ModuleRouteRegistry.registerModule<ModelRouteBrandLink>(
+    ModuleRouteRegistry.registerModule<ModelAgencyBrandLink>(
       config: _config,
       serviceProvider: entityServiceProvider,
       adapterProvider: entityAdapterProvider,
-      streamProvider: routeBrandLinksStreamProvider,
-      entityByIdProvider: routeBrandLinkByIdProvider,
-      formProvider: routeBrandLinkFormProvider,
+      streamProvider: agencyBrandLinksStreamProvider,
+      entityByIdProvider: agencyBrandLinkByIdProvider,
+      formProvider: agencyBrandLinkFormProvider,
       customItemBuilder: (context, entity, adapter, onTap) =>
-          RouteBrandLinkListTile(
+          AgencyBrandLinkListTile(
             entity: entity,
             adapter: adapter,
             onTap: onTap,
           ),
-      customListBuilder: (context, state) => RouteBrandLinkListPageRiverpod(
+      customListBuilder: (context, state) => AgencyBrandLinkListPageRiverpod(
         entityMeta: _config.entityMeta,
         fieldConfigs: _config.fields,
         idField: _config.table.idField,
@@ -73,14 +70,14 @@ class RouteBrandLinksRoutesJson {
         searchFields: _config.listPage?.searchFields,
         // Custom Item Builder
         customItemBuilder: (context, entity, adapter, onTap) =>
-            RouteBrandLinkListTile(
+            AgencyBrandLinkListTile(
               entity: entity,
               adapter: adapter,
               onTap: onTap,
             ),
       ),
       customViewBuilder: (context, entityId) =>
-          RouteBrandLinksViewPageRiverpod<ModelRouteBrandLink>(
+          AgencyBrandLinksViewPageRiverpod<ModelAgencyBrandLink>(
             entityId: entityId,
             entityMeta: _config.entityMeta,
             fieldConfigs: _config.fields,
@@ -88,7 +85,7 @@ class RouteBrandLinksRoutesJson {
             timestampField: _config.table.timestampField,
             editRouteName: _config.routes.editRouteName,
             rbacModule: _config.table.name,
-            entityByIdProvider: routeBrandLinkByIdProvider,
+            entityByIdProvider: agencyBrandLinkByIdProvider,
             adapterProvider: entityAdapterProvider,
             deleteFunction: (ref, id) async {
               final service = ref.read(entityServiceProvider);
@@ -101,28 +98,28 @@ class RouteBrandLinksRoutesJson {
             },
           ),
       customFormBuilder: (context, entityId) =>
-          RouteBrandLinkFormPageRiverpod<ModelRouteBrandLink>(
+          AgencyBrandLinkFormPageRiverpod<ModelAgencyBrandLink>(
             entityId: entityId,
             entityMeta: _config.entityMeta,
             fieldConfigs: _config.fields,
             listRouteName: _config.routes.listRouteName,
             rbacModule: _config.table.name,
-            entityByIdProvider: routeBrandLinkByIdProvider,
+            entityByIdProvider: agencyBrandLinkByIdProvider,
             adapterProvider: entityAdapterProvider,
             onSave: (ref, fieldValues, id) async {
               final service = ref.read(entityServiceProvider);
               try {
                 if (id != null) {
-                  // Convert Map to ModelRouteBrandLink for update
+                  // Convert Map to ModelAgencyBrandLink for update
                   final updateData =
-                      RouteBrandLinkController.convertToModelRouteBrandLink(
+                      AgencyBrandLinkController.convertToModelAgencyBrandLink(
                         fieldValues,
                       );
                   await service.update(id, updateData);
                 } else {
-                  // Convert Map to ModelRouteBrandLink for create
+                  // Convert Map to ModelAgencyBrandLink for create
                   final createData =
-                      RouteBrandLinkController.convertToModelRouteBrandLink(
+                      AgencyBrandLinkController.convertToModelAgencyBrandLink(
                         fieldValues,
                       );
                   await service.create(createData);
@@ -142,7 +139,7 @@ class RouteBrandLinksRoutesJson {
   static List<GoRoute> get routes {
     if (!_initialized) {
       throw StateError(
-        'RouteBrandLinksRoutesJson not initialized. Call initialize() first.',
+        'AgencyBrandLinksRoutesJson not initialized. Call initialize() first.',
       );
     }
     return ModuleRouteRegistry.routes
@@ -157,10 +154,10 @@ class RouteBrandLinksRoutesJson {
   static String get viewRouteName => _config.routes.viewRouteName;
 
   /// Route paths
-  static String get routeBrandLinks => _config.routes.listPath;
-  static String get newRouteBrandLink => _config.routes.newPath;
-  static String editRouteBrandLinkRoute(String id) =>
+  static String get agencyBrandLinks => _config.routes.listPath;
+  static String get newAgencyBrandLink => _config.routes.newPath;
+  static String editAgencyBrandLinkRoute(String id) =>
       _config.routes.editRoute(id);
-  static String viewRouteBrandLinkRoute(String id) =>
+  static String viewAgencyBrandLinkRoute(String id) =>
       _config.routes.viewRoute(id);
 }

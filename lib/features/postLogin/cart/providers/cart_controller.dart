@@ -190,7 +190,7 @@ class CartController {
         userId: userId,
         roleName: roleName,
         brandId: cartState.brandId,
-        routeId: cartState.routeId,
+        agencyId: cartState.agencyId,
         campaignId: cartState.campaignId,
       );
 
@@ -263,7 +263,7 @@ class CartController {
             .read(cartProvider.notifier)
             .loadOrderIntoCart(
               brandId: po.poBrandId ?? '',
-              routeId: po.poRouteId ?? '',
+              agencyId: po.poAgencyId ?? '',
               campaignId: poId,
               status: po.status ?? 'pending',
               itemCountInPo: dbItemCount,

@@ -44,7 +44,7 @@ class CampaignDeliverySelectablePage extends ConsumerWidget {
                 'Unknown Brand';
             final routeName =
                 adapter
-                    .getLabelValue(order, ModelCampaignFields.poRouteId)
+                    .getLabelValue(order, ModelCampaignFields.poAgencyId)
                     ?.toString() ??
                 'Unknown Route';
 

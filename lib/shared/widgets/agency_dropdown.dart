@@ -1,43 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
 import '../../core/providers/auth_providers.dart'; // for userProfileProvider
 
-class RouteDropdown extends ConsumerStatefulWidget {
-  final void Function(String?) onRouteSelected;
-  final String? initialRouteId;
+class AgencyDropdown extends ConsumerStatefulWidget {
+  final void Function(String?) onAgencySelected;
+  final String? initialAgencyId;
   final bool allowAll;
 
-  const RouteDropdown({
+  const AgencyDropdown({
     super.key,
-    required this.onRouteSelected,
-    this.initialRouteId,
+    required this.onAgencySelected,
+    this.initialAgencyId,
     this.allowAll = false,
   });
 
   @override
-  ConsumerState<RouteDropdown> createState() => _RouteDropdownState();
+  ConsumerState<AgencyDropdown> createState() => _AgencyDropdownState();
 }
 
-class _RouteDropdownState extends ConsumerState<RouteDropdown> {
-  String? selectedRouteId;
+class _AgencyDropdownState extends ConsumerState<AgencyDropdown> {
+  String? selectedAgencyId;
 
   @override
   void initState() {
     super.initState();
-    // initialRouteId is passed in OR fallback to profile provider
+    // initialAgencyId is passed in OR fallback to profile provider
     final profile = ref.read(userProfileProvider).value;
-    selectedRouteId = widget.initialRouteId ?? profile?.preferredRouteId;
+    selectedAgencyId = widget.initialAgencyId ?? profile?.preferredAgencyId;
   }
 
   @override
   Widget build(BuildContext context) {
-    final routesAsync = ref.watch(routesStreamProvider);
+    final agenciesAsync = ref.watch(agenciesStreamProvider);
     final theme = Theme.of(context);
 
-    return routesAsync.when(
-      data: (routes) {
-        if (routes.isEmpty) {
+    return agenciesAsync.when(
+      data: (agencies) {
+        if (agencies.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: DropdownButtonFormField<String>(
@@ -46,15 +46,15 @@ class _RouteDropdownState extends ConsumerState<RouteDropdown> {
               decoration: _buildDecoration(theme),
               items: const [],
               onChanged: null,
-              hint: const Text('No routes available'),
+              hint: const Text('No agencies available'),
             ),
           );
         }
 
-        final items = routes.map((route) {
+        final items = agencies.map((agency) {
           return DropdownMenuItem<String>(
-            value: route.routeId,
-            child: Text(route.routeName),
+            value: agency.agencyId,
+            child: Text(agency.agencyName),
           );
         }).toList();
 
@@ -63,14 +63,14 @@ class _RouteDropdownState extends ConsumerState<RouteDropdown> {
             0,
             const DropdownMenuItem<String>(
               value: null,
-              child: Text('All Routes'),
+              child: Text('All Agencies'),
             ),
           );
         }
 
         final validValues = items.map((item) => item.value).toSet();
-        final safeInitialValue = validValues.contains(selectedRouteId)
-            ? selectedRouteId
+        final safeInitialValue = validValues.contains(selectedAgencyId)
+            ? selectedAgencyId
             : null;
 
         return Padding(
@@ -92,9 +92,9 @@ class _RouteDropdownState extends ConsumerState<RouteDropdown> {
             items: items,
             onChanged: (value) {
               setState(() {
-                selectedRouteId = value;
+                selectedAgencyId = value;
               });
-              widget.onRouteSelected(value);
+              widget.onAgencySelected(value);
             },
           ),
         );
@@ -106,7 +106,7 @@ class _RouteDropdownState extends ConsumerState<RouteDropdown> {
       error: (err, stack) => Padding(
         padding: const EdgeInsets.all(12),
         child: Text(
-          'Error loading routes',
+          'Error loading agencies',
           style: TextStyle(color: theme.colorScheme.error),
         ),
       ),
@@ -115,7 +115,7 @@ class _RouteDropdownState extends ConsumerState<RouteDropdown> {
 
   InputDecoration _buildDecoration(ThemeData theme) {
     return InputDecoration(
-      labelText: 'Select Route',
+      labelText: 'Select Agency',
       labelStyle: theme.textTheme.bodyMedium?.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
       ),

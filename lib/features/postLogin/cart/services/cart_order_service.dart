@@ -25,7 +25,7 @@ class CartOrderService {
     required String userId,
     required String? roleName,
     String? brandId,
-    String? routeId,
+    String? agencyId,
     String? campaignId,
   }) async {
     // Check connectivity before placing order
@@ -39,8 +39,8 @@ class CartOrderService {
         (roleName?.toLowerCase() == 'retailer'
             ? '322d2aeb-34b3-47ef-aa5b-e411add1c7ba'
             : '322d2aeb-34b3-47ef-aa5b-e411add1c7ba');
-    String poRouteId =
-        routeId ??
+    String poAgencyId =
+        agencyId ??
         (roleName?.toLowerCase() == 'retailer'
             ? '1ce6a931-4866-4645-a680-102b4b9e923b'
             : '1ce6a931-4866-4645-a680-102b4b9e923b');
@@ -50,13 +50,13 @@ class CartOrderService {
       try {
         final link = await client
             .from('retailer_brand_link')
-            .select('brand_id, brands!inner(brands_primary_route)')
+            .select('brand_id, brands!inner(brands_primary_agency)')
             .eq('user_id', userId)
             .maybeSingle();
 
         if (link != null) {
           poBrandId = link['brand_id'] as String;
-          poRouteId = link['brands']['brands_primary_route'] as String;
+          poAgencyId = link['brands']['brands_primary_agency'] as String;
         }
       } catch (e) {
         debugPrint('[CartOrderService] Error fetching retailer link: $e');
@@ -103,7 +103,7 @@ class CartOrderService {
       poTotalAmount: double.tryParse(viewData.totalAmount.replaceAll(',', '')),
       poLineItemCount: viewData.itemCount,
       poBrandId: poBrandId,
-      poRouteId: poRouteId,
+      poAgencyId: poAgencyId,
       status: 'confirmed',
       userComment: finalUserComment,
       adminComment: finalAdminComment,
@@ -146,7 +146,7 @@ class CartOrderService {
     }
 
     // WhatsApp sharing
-    await shareOrderToWhatsApp(viewData);
+    // await shareOrderToWhatsApp(viewData);
   }
 
   Future<void> shareOrderToWhatsApp(ProcessedCartData viewData) async {

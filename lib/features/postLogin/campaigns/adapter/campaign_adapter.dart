@@ -11,8 +11,8 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
         return entity.poTotalAmount;
       case ModelCampaignFields.poLineItemCount:
         return entity.poLineItemCount;
-      case ModelCampaignFields.poRouteId:
-        return entity.poRouteId;
+      case ModelCampaignFields.poAgencyId:
+        return entity.poAgencyId;
       case ModelCampaignFields.poBrandId:
         return entity.poBrandId;
       case ModelCampaignFields.userComment:
@@ -49,7 +49,7 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
       return entity.resolvedLabels['${fieldName}_label'];
     }
     switch (fieldName) {
-      case ModelCampaignFields.poRouteId:
+      case ModelCampaignFields.poAgencyId:
       case ModelCampaignFields.poBrandId:
       case ModelCampaignFields.createdBy:
       case ModelCampaignFields.updatedBy:

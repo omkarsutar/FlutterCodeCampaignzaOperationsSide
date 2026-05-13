@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/route_brand_links/route_brand_link_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/routes/route_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agency_brand_links/agency_brand_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/core_services_barrel.dart';
 import '../../../../core/config/field_config.dart';
@@ -29,27 +29,27 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
   @override
   Map<String, ForeignKeyConfig> get foreignKeys => {
-    ModelBrandFields.brandsPrimaryRoute: ForeignKeyConfig(
-      table: ModelRouteFields.table,
-      idColumn: ModelRouteFields.routeId,
-      labelColumn: ModelRouteFields.routeName,
+    ModelBrandFields.brandsPrimaryAgency: ForeignKeyConfig(
+      table: ModelAgencyFields.table,
+      idColumn: ModelAgencyFields.agencyId,
+      labelColumn: ModelAgencyFields.agencyName,
     ),
   };
 
   // --- Custom helpers ---
 
-  /// Fetch all brands linked to a user's preferred route
-  Future<List<ModelBrand>> fetchAllBrandsForPreferredRoute(
-    String? preferredRouteId,
+  /// Fetch all brands linked to a user's preferred agency
+  Future<List<ModelBrand>> fetchAllBrandsForPreferredAgency(
+    String? preferredAgencyId,
   ) async {
-    if (preferredRouteId == null || preferredRouteId.isEmpty) {
-      throw Exception('Preferred route not set for user');
+    if (preferredAgencyId == null || preferredAgencyId.isEmpty) {
+      throw Exception('Preferred agency not set for user');
     }
 
     final linkData = await client
-        .from(ModelRouteBrandLinkFields.table)
+        .from(ModelAgencyBrandLinkFields.table)
         .select(idColumn)
-        .eq(ModelRouteBrandLinkFields.routeId, preferredRouteId);
+        .eq(ModelAgencyBrandLinkFields.agencyId, preferredAgencyId);
 
     final brandIds = List<String>.from(linkData.map((e) => e[idColumn]));
     if (brandIds.isEmpty) return [];
@@ -67,13 +67,13 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
   // In your service:
   Stream<Map<String, List<ModelBrand>>> streamBrandsByCollaborationStatus(
-    String preferredRouteId,
+    String preferredAgencyId,
   ) async* {
     // Supabase live streams
     final poStream = client
         .from(ModelCampaignFields.table)
         .stream(primaryKey: [ModelCampaignFields.poId])
-        .eq(ModelCampaignFields.poRouteId, preferredRouteId);
+        .eq(ModelCampaignFields.poAgencyId, preferredAgencyId);
 
     final collaborationStream = client
         .from(ModelCollaborationFields.table)
@@ -84,7 +84,7 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
     await for (final _ in merged) {
       final result = await fetchBrandsByCollaborationStatus(
-        preferredRouteId: preferredRouteId,
+        preferredAgencyId: preferredAgencyId,
       );
       yield result;
     }
@@ -92,24 +92,24 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
   /// Classify brands by campaign item status for today
   Future<Map<String, List<ModelBrand>>> fetchBrandsByCollaborationStatus({
-    required String? preferredRouteId,
+    required String? preferredAgencyId,
   }) async {
-    if (preferredRouteId == null || preferredRouteId.isEmpty) {
-      throw Exception('Preferred route not set for user');
+    if (preferredAgencyId == null || preferredAgencyId.isEmpty) {
+      throw Exception('Preferred agency not set for user');
     }
 
-    // Step 1: Get brand_ids linked to preferred_route_id in route order
+    // Step 1: Get brand_ids linked to preferred_agency_id in agency order
     final linkData = await client
-        .from(ModelRouteBrandLinkFields.table)
-        .select(ModelRouteBrandLinkFields.brandId)
-        .eq(ModelRouteBrandLinkFields.routeId, preferredRouteId)
-        .order(ModelRouteBrandLinkFields.visitOrder, ascending: true);
+        .from(ModelAgencyBrandLinkFields.table)
+        .select(ModelAgencyBrandLinkFields.brandId)
+        .eq(ModelAgencyBrandLinkFields.agencyId, preferredAgencyId)
+        .order(ModelAgencyBrandLinkFields.visitOrder, ascending: true);
 
-    final brandIdsInRouteOrder = List<String>.from(
-      linkData.map((e) => e[ModelRouteBrandLinkFields.brandId]),
+    final brandIdsInAgencyOrder = List<String>.from(
+      linkData.map((e) => e[ModelAgencyBrandLinkFields.brandId]),
     );
 
-    if (brandIdsInRouteOrder.isEmpty) {
+    if (brandIdsInAgencyOrder.isEmpty) {
       return {'noPOs': [], 'emptyPOs': [], 'filledPOs': []};
     }
 
@@ -127,7 +127,7 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
     final poData = await client
         .from(ModelCampaignFields.table)
         .select('${ModelCampaignFields.poId}, ${ModelCampaignFields.poBrandId}')
-        .inFilter(ModelCampaignFields.poBrandId, brandIdsInRouteOrder)
+        .inFilter(ModelCampaignFields.poBrandId, brandIdsInAgencyOrder)
         .gte(ModelCampaignFields.createdAt, startUtc.toIso8601String())
         .lt(ModelCampaignFields.createdAt, endUtc.toIso8601String());
 
@@ -163,11 +163,11 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
     });
 
     final brandsWithPOs = brandsWithFilledPOs.union(brandsWithEmptyPOs);
-    final brandsWithNoPOs = brandIdsInRouteOrder
+    final brandsWithNoPOs = brandIdsInAgencyOrder
         .where((id) => !brandsWithPOs.contains(id))
         .toSet();
 
-    // Step 5: Fetch brand details and sort by route order
+    // Step 5: Fetch brand details and sort by agency order
     Future<List<ModelBrand>> fetchBrands(Set<String> ids) async {
       if (ids.isEmpty) return [];
       final result = await client
@@ -179,9 +179,9 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
         result,
       ).map((map) => ModelBrand.fromMap(map)).toList();
 
-      return sortBrandsByRouteOrder(
+      return sortBrandsByAgencyOrder(
         brands: brands,
-        brandIdsInRouteOrder: brandIdsInRouteOrder,
+        brandIdsInAgencyOrder: brandIdsInAgencyOrder,
       );
     }
 
@@ -192,78 +192,78 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
     };
   }
 
-  Future<List<String>> fetchRouteBrandIds(String routeId) async {
+  Future<List<String>> fetchAgencyBrandIds(String agencyId) async {
     final linkData = await client
-        .from(ModelRouteBrandLinkFields.table)
-        .select(ModelRouteBrandLinkFields.brandId)
-        .eq(ModelRouteBrandLinkFields.routeId, routeId)
-        .order(ModelRouteBrandLinkFields.visitOrder, ascending: true);
+        .from(ModelAgencyBrandLinkFields.table)
+        .select(ModelAgencyBrandLinkFields.brandId)
+        .eq(ModelAgencyBrandLinkFields.agencyId, agencyId)
+        .order(ModelAgencyBrandLinkFields.visitOrder, ascending: true);
 
     return List<String>.from(
-      linkData.map((e) => e[ModelRouteBrandLinkFields.brandId]),
+      linkData.map((e) => e[ModelAgencyBrandLinkFields.brandId]),
     );
   }
 
-  /// Sort brands according to the route order defined in ModelRouteBrandLinkFields
-  List<ModelBrand> sortBrandsByRouteOrder({
+  /// Sort brands according to the agency order defined in ModelAgencyBrandLinkFields
+  List<ModelBrand> sortBrandsByAgencyOrder({
     required List<ModelBrand> brands,
-    required List<String> brandIdsInRouteOrder,
+    required List<String> brandIdsInAgencyOrder,
   }) {
     brands.sort((a, b) {
       final aId = a.brandId ?? ''; // fallback if null
       final bId = b.brandId ?? '';
-      final aIndex = brandIdsInRouteOrder.indexOf(aId);
-      final bIndex = brandIdsInRouteOrder.indexOf(bId);
+      final aIndex = brandIdsInAgencyOrder.indexOf(aId);
+      final bIndex = brandIdsInAgencyOrder.indexOf(bId);
       return aIndex.compareTo(bIndex);
     });
     return brands;
   }
 
-  Future<List<ModelBrand>> fetchAllBrandsForRoute(String routeId) async {
-    // 1) Get route-linked brand IDs in visit order
+  Future<List<ModelBrand>> fetchAllBrandsForAgency(String agencyId) async {
+    // 1) Get agency-linked brand IDs in visit order
     final linkData = await client
-        .from(ModelRouteBrandLinkFields.table)
-        .select(ModelRouteBrandLinkFields.brandId)
-        .eq(ModelRouteBrandLinkFields.routeId, routeId)
-        .order(ModelRouteBrandLinkFields.visitOrder, ascending: true);
+        .from(ModelAgencyBrandLinkFields.table)
+        .select(ModelAgencyBrandLinkFields.brandId)
+        .eq(ModelAgencyBrandLinkFields.agencyId, agencyId)
+        .order(ModelAgencyBrandLinkFields.visitOrder, ascending: true);
 
-    final brandIdsInRouteOrder = List<String>.from(
-      linkData.map((e) => e[ModelRouteBrandLinkFields.brandId]),
+    final brandIdsInAgencyOrder = List<String>.from(
+      linkData.map((e) => e[ModelAgencyBrandLinkFields.brandId]),
     );
 
-    if (brandIdsInRouteOrder.isEmpty) return [];
+    if (brandIdsInAgencyOrder.isEmpty) return [];
 
     // 2) Fetch brands via view
     final result = await client
         .from(ModelBrandFields.tableViewWithForeignKeyLabels)
         .select('*')
-        .inFilter(ModelBrandFields.brandId, brandIdsInRouteOrder);
+        .inFilter(ModelBrandFields.brandId, brandIdsInAgencyOrder);
 
     final brands = List<Map<String, dynamic>>.from(
       result,
     ).map((map) => ModelBrand.fromMap(map)).toList();
 
-    // 3) Sort by route order (stable and consistent)
-    return sortBrandsByRouteOrder(
+    // 3) Sort by agency order (stable and consistent)
+    return sortBrandsByAgencyOrder(
       brands: brands,
-      brandIdsInRouteOrder: brandIdsInRouteOrder,
+      brandIdsInAgencyOrder: brandIdsInAgencyOrder,
     );
   }
 
-  /// Fetch brands for preferred route filtered by whether they have POs today
-  Future<List<Map<String, dynamic>>> fetchBrandsForPreferredRouteByPOStatus({
-    required String? preferredRouteId,
+  /// Fetch brands for preferred agency filtered by whether they have POs today
+  Future<List<Map<String, dynamic>>> fetchBrandsForPreferredAgencyByPOStatus({
+    required String? preferredAgencyId,
     required bool hasPOsToday,
   }) async {
-    if (preferredRouteId == null || preferredRouteId.isEmpty) {
-      throw Exception('Preferred route not set for user');
+    if (preferredAgencyId == null || preferredAgencyId.isEmpty) {
+      throw Exception('Preferred agency not set for user');
     }
 
-    // Step 1: Get brand_ids linked to preferred_route_id
+    // Step 1: Get brand_ids linked to preferred_agency_id
     final linkData = await client
-        .from(ModelRouteBrandLinkFields.table)
+        .from(ModelAgencyBrandLinkFields.table)
         .select(idColumn)
-        .eq(ModelRouteBrandLinkFields.routeId, preferredRouteId);
+        .eq(ModelAgencyBrandLinkFields.agencyId, preferredAgencyId);
 
     final brandIds = List<String>.from(linkData.map((e) => e[idColumn]));
 
@@ -303,12 +303,6 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
   // --- Legacy methods delegate to new ones ---
   Future<List<ModelBrand>> getAllEntities() async => await fetchAll();
-
-  /* Future<ModelBrand> fetchBrandById(String brandId) async {
-    final entity = await fetchById(brandId);
-    if (entity == null) throw Exception('Brand not found');
-    return entity;
-  } */
 
   // --- Override generic methods to use view ---
 
@@ -386,7 +380,6 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
         };
       }).toList();
     } catch (e) {
-      // Handle error appropriately
       rethrow;
     }
   }

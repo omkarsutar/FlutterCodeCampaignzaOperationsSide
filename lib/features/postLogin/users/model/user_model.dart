@@ -7,7 +7,7 @@ class ModelUserFields {
   static const String userId = 'user_id';
   static const String fullName = 'full_name';
   static const String roleId = 'role_id';
-  static const String preferredRouteId = 'preferred_route_id';
+  static const String preferredAgencyId = 'preferred_agency_id';
   static const String createdAt = 'created_at';
   static const String updatedAt = 'updated_at';
 }
@@ -16,7 +16,7 @@ class ModelUser {
   final String userId; // required, PK
   final String? fullName; // nullable
   final String? roleId; // nullable FK
-  final String? preferredRouteId; // nullable FK
+  final String? preferredAgencyId; // nullable FK
   final DateTime? createdAt; // nullable, DB default
   final DateTime? updatedAt; // nullable, DB default
   final Map<String, dynamic> _resolvedLabels;
@@ -25,7 +25,7 @@ class ModelUser {
     required this.userId,
     this.fullName,
     this.roleId,
-    this.preferredRouteId,
+    this.preferredAgencyId,
     this.createdAt,
     this.updatedAt,
     Map<String, dynamic>? resolvedLabels,
@@ -45,7 +45,7 @@ class ModelUser {
       userId: map[ModelUserFields.userId].toString(),
       fullName: map[ModelUserFields.fullName],
       roleId: map[ModelUserFields.roleId],
-      preferredRouteId: map[ModelUserFields.preferredRouteId],
+      preferredAgencyId: map[ModelUserFields.preferredAgencyId],
       createdAt: _parseDate(map[ModelUserFields.createdAt]),
       updatedAt: _parseDate(map[ModelUserFields.updatedAt]),
       resolvedLabels: labelEntries,
@@ -57,8 +57,8 @@ class ModelUser {
       if (userId.isNotEmpty && userId != 'null') ModelUserFields.userId: userId,
       if (fullName != null) ModelUserFields.fullName: fullName,
       if (roleId != null) ModelUserFields.roleId: roleId,
-      if (preferredRouteId != null)
-        ModelUserFields.preferredRouteId: preferredRouteId,
+      if (preferredAgencyId != null)
+        ModelUserFields.preferredAgencyId: preferredAgencyId,
       if (createdAt != null)
         ModelUserFields.createdAt: createdAt!.toIso8601String(),
       if (updatedAt != null)
@@ -71,7 +71,7 @@ class ModelUser {
       'userId': userId,
       'fullName': fullName,
       'roleId': roleId,
-      'preferredRouteId': preferredRouteId,
+      'preferredAgencyId': preferredAgencyId,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       'resolvedLabels': resolvedLabels,
@@ -83,7 +83,7 @@ class ModelUser {
       userId: json['userId'] as String,
       fullName: json['fullName'] as String?,
       roleId: json['roleId'] as String?,
-      preferredRouteId: json['preferredRouteId'] as String?,
+      preferredAgencyId: json['preferredAgencyId'] as String?,
       createdAt: DateTime.tryParse(json['createdAt'] ?? ''),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? ''),
       resolvedLabels: json['resolvedLabels'] ?? {},

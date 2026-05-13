@@ -35,7 +35,7 @@ class BrandListController extends AutoDisposeNotifier<BrandListState> {
     final service = ref.read(brandServiceProvider);
 
     return BrandListState(
-      selectedRouteId: profile?.preferredRouteId,
+      selectedRouteId: profile?.preferredAgencyId,
       currentSorting: service.sortField != null
           ? SortingConfig(
               field: service.sortField!,
@@ -49,8 +49,8 @@ class BrandListController extends AutoDisposeNotifier<BrandListState> {
     state = state.copyWith(searchQuery: query.toLowerCase());
   }
 
-  void setRouteId(String? routeId) {
-    state = state.copyWith(selectedRouteId: routeId);
+  void setRouteId(String? agencyId) {
+    state = state.copyWith(selectedRouteId: agencyId);
   }
 
   void setSorting(SortingConfig? sorting) {

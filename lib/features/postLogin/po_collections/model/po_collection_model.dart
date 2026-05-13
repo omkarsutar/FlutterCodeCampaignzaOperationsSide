@@ -38,7 +38,7 @@ class ModelPoCollection {
   // From View
   final String? poStatusLabel;
   final String? brandIdLabel;
-  final String? routeIdLabel;
+  final String? agencyIdLabel;
   final String? createdByLabel;
   final String? updatedByLabel;
   final DateTime? poUpdatedAt;
@@ -60,7 +60,7 @@ class ModelPoCollection {
     this.updatedBy,
     this.poStatusLabel,
     this.brandIdLabel,
-    this.routeIdLabel,
+    this.agencyIdLabel,
     this.createdByLabel,
     this.updatedByLabel,
     this.poUpdatedAt,
@@ -83,7 +83,7 @@ class ModelPoCollection {
     String? updatedBy,
     String? poStatusLabel,
     String? brandIdLabel,
-    String? routeIdLabel,
+    String? agencyIdLabel,
     String? createdByLabel,
     String? updatedByLabel,
     DateTime? poUpdatedAt,
@@ -105,7 +105,7 @@ class ModelPoCollection {
       updatedBy: updatedBy ?? this.updatedBy,
       poStatusLabel: poStatusLabel ?? this.poStatusLabel,
       brandIdLabel: brandIdLabel ?? this.brandIdLabel,
-      routeIdLabel: routeIdLabel ?? this.routeIdLabel,
+      agencyIdLabel: agencyIdLabel ?? this.agencyIdLabel,
       createdByLabel: createdByLabel ?? this.createdByLabel,
       updatedByLabel: updatedByLabel ?? this.updatedByLabel,
       poUpdatedAt: poUpdatedAt ?? this.poUpdatedAt,
@@ -135,7 +135,7 @@ class ModelPoCollection {
       updatedBy: map[ModelPoCollectionFields.updatedBy],
       poStatusLabel: map['po_status_label'],
       brandIdLabel: map['brand_id_label'],
-      routeIdLabel: map['route_id_label'],
+      agencyIdLabel: map['agency_id_label'],
       createdByLabel: map['created_by_label'],
       updatedByLabel: map['updated_by_label'],
       poUpdatedAt: map['po_updated_at'] != null
