@@ -6,12 +6,13 @@ import '../providers/cart_view_logic.dart';
 import '../providers/cart_controller.dart';
 import '../providers/cart_providers.dart';
 import '../../../../core/providers/localization_provider.dart';
-import '../../products/product_barrel.dart';
+import '../../influencers/influencer_barrel.dart';
 import '../../brands/brand_barrel.dart';
 import '../../agencies/agency_barrel.dart';
 import '../../campaigns/ui/widgets/po_brand_route_info.dart';
 import '../../campaigns/ui/widgets/po_actions.dart';
 import '../../campaigns/campaign_barrel.dart';
+import '../../collaborations/ui/collaboration_add_card.dart';
 import 'cart_item_card.dart';
 
 class CartPage extends ConsumerStatefulWidget {
@@ -70,11 +71,46 @@ class _CartPageState extends ConsumerState<CartPage>
     super.dispose();
   }
 
+  Future<void> _addInfluencerToCart(BuildContext context) async {
+    final result = await context.pushNamed(
+      InfluencerRoutesJson.listRouteName,
+      queryParameters: {'selection': 'true'},
+    );
+
+    if (result is ModelInfluencer) {
+      if (!context.mounted) return;
+      
+      final poId = ref.read(cartProvider).campaignId ?? 'new_campaign';
+      
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: CollaborationAddCard(
+              influencers: const [],
+              poId: poId,
+              initialInfluencer: result,
+              onAddLocal: (newItem) {
+                ref.read(cartProvider.notifier).addItem(newItem);
+                Navigator.pop(context);
+              },
+            ),
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final viewData = ref.watch(cartViewLogicProvider);
-    final products = ref.watch(productsStreamProvider).value ?? [];
+    final influencers = ref.watch(influencersStreamProvider).value ?? [];
     final l10n = ref.watch(l10nProvider);
     final cartState = ref.watch(cartProvider);
 
@@ -124,10 +160,10 @@ class _CartPageState extends ConsumerState<CartPage>
                         ),
                         const SizedBox(height: 24),
                         FilledButton.icon(
-                          onPressed: () => context.goNamed('products'),
+                          onPressed: () => _addInfluencerToCart(context),
                           icon: const Icon(Icons.add_shopping_cart),
                           label: Text(
-                            l10n['go_to_products'] ?? 'Go to Products',
+                            l10n['go_to_influencers'] ?? 'Go to Influencers',
                           ),
                         ),
                       ],
@@ -141,7 +177,7 @@ class _CartPageState extends ConsumerState<CartPage>
                       return CartItemCard(
                         key: ValueKey(processedItem.item.collaborationId),
                         entity: processedItem.item,
-                        products: products,
+                        influencers: influencers,
                         isReadOnly: isReadOnly,
                       );
                     },
@@ -302,7 +338,7 @@ class _CartPageState extends ConsumerState<CartPage>
             Expanded(
               flex: 2,
               child: OutlinedButton.icon(
-                onPressed: () => context.goNamed('products'),
+                onPressed: () => _addInfluencerToCart(context),
                 icon: const Icon(Icons.add, size: 18),
                 label: Text(l10n['add_items'] ?? 'Add Items'),
                 style: OutlinedButton.styleFrom(

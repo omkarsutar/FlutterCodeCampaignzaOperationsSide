@@ -1,0 +1,158 @@
+{
+    "moduleName": "influencer",
+    "entityMeta": {
+        "entityName": "Influencer",
+        "entityNameLower": "influencer",
+        "entityNamePlural": "Influencers",
+        "entityNamePluralLower": "influencers"
+    },
+    "table": {
+        "name": "influencer",
+        "viewName": "view_products",
+        "idField": "influencer_id",
+        "timestampField": "created_at"
+    },
+    "routes": {
+        "basePath": "/influencers",
+        "listRouteName": "influencers",
+        "newRouteName": "newInfluencer",
+        "editRouteName": "editInfluencer",
+        "viewRouteName": "viewInfluencer"
+    },
+    "listPage": {
+        "sorting": {
+            "field": "created_at",
+            "sortAscending": true
+        },
+        "searchFields": [
+            "influencer_name",
+            "influencer_name_hindi",
+            "influencer_category"
+        ]
+    },
+    "fields": [
+        {
+            "name": "influencer_id",
+            "label": "Influencer ID",
+            "type": "text",
+            "required": true,
+            "readOnly": true,
+            "visibleInList": true,
+            "visibleInForm": false
+        },
+        {
+            "name": "influencer_category",
+            "label": "Category",
+            "type": "dropdown",
+            "required": true,
+            "dropdownOptions": [
+                "Instagram",
+                "YouTube",
+                "TikTok",
+                "Facebook",
+                "Twitter",
+                "LinkedIn",
+                "Other"
+            ],
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "influencer_name",
+            "label": "Name",
+            "type": "text",
+            "required": true,
+            "maxLength": 200,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "influencer_name_hindi",
+            "label": "Name (Hindi)",
+            "type": "text",
+            "required": false,
+            "maxLength": 200,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "base_commission_rate",
+            "label": "Base Commission Rate (%)",
+            "type": "doubleField",
+            "required": true,
+            "suffix": " %",
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "is_active",
+            "label": "Is Active",
+            "type": "switchField",
+            "required": true,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "is_available",
+            "label": "Is Available",
+            "type": "switchField",
+            "required": true,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "influencer_image_url",
+            "label": "Profile Image URL",
+            "type": "text",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "created_by",
+            "label": "Created By",
+            "type": "dropdown",
+            "required": true,
+            "readOnly": true,
+            "dropdownSource": {
+                "table": "users",
+                "valueKey": "user_id",
+                "labelKey": "full_name"
+            },
+            "visibleInList": false,
+            "visibleInForm": false
+        },
+        {
+            "name": "updated_by",
+            "label": "Updated By",
+            "type": "dropdown",
+            "required": true,
+            "readOnly": true,
+            "dropdownSource": {
+                "table": "users",
+                "valueKey": "user_id",
+                "labelKey": "full_name"
+            },
+            "visibleInList": false,
+            "visibleInForm": false
+        },
+        {
+            "name": "created_at",
+            "label": "Created At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        },
+        {
+            "name": "updated_at",
+            "label": "Updated At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        }
+    ]
+}

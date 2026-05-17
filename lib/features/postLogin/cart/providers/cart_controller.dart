@@ -12,6 +12,7 @@ import '../../../../core/utils/dialogs.dart';
 import '../../../../core/providers/localization_provider.dart';
 import '../../brands/brand_barrel.dart';
 import '../../../../core/globals.dart';
+import '../../influencers/influencer_routes_json.dart';
 
 final cartOrderServiceProvider = Provider(
   (ref) => CartOrderService(
@@ -245,9 +246,9 @@ class CartController {
           // Incoming PO is in "Create Mode" (empty)
           if (localItemCountInPo == null || localItemCountInPo == 0) {
             // Previous was also "Create Mode" or fresh cart -> KEEP items
-            // But update their poId to the new PO
+            // But update their campaignId to the new PO
             itemsToLoad = cartState.items
-                .map((item) => item.copyWith(poId: poId))
+                .map((item) => item.copyWith(campaignId: poId))
                 .toList();
           } else {
             // Previous was a real "Edit Mode" PO -> CLEAR items
@@ -397,7 +398,7 @@ class CartController {
                   child: FilledButton(
                     onPressed: () {
                       Navigator.of(context).pop();
-                      context.goNamed('products');
+                      context.goNamed(InfluencerRoutesJson.listRouteName);
                     },
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.green[700],

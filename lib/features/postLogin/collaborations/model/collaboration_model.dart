@@ -5,29 +5,39 @@ class ModelCollaborationFields {
   static const String tableViewWithForeignKeyLabels = 'view_collaborations';
 
   static const String collaborationId = 'collaboration_id';
-  static const String poId = 'po_id';
-  static const String productId = 'product_id';
+  static const String campaignId = 'campaign_id';
+  static const String influencerId = 'influencer_id';
+  static const String agreedCommissionAmount = 'agreed_commission_amount';
+  static const String commissionType = 'commission_type';
+  static const String commissionRate = 'commission_rate';
+  static const String fixedAmount = 'fixed_amount';
+  static const String barterDescription = 'barter_description';
+  static const String isAcceptedByInfluencer = 'is_accepted_by_influencer';
+  static const String createdBy = 'created_by';
+  static const String updatedBy = 'updated_by';
+  static const String createdAt = 'created_at';
+  static const String updatedAt = 'updated_at';
+
+  // Compatibility fields
+  static const String poId = campaignId;
+  static const String productId = influencerId;
   static const String itemName = 'item_name';
   static const String itemQty = 'item_qty';
   static const String itemSellRate = 'item_sell_rate';
   static const String itemPrice = 'item_price';
   static const String itemUnitMrp = 'item_unit_mrp';
   static const String profitToBrand = 'profit_to_brand';
-  static const String createdBy = 'created_by';
-  static const String updatedBy = 'updated_by';
-  static const String createdAt = 'created_at';
-  static const String updatedAt = 'updated_at';
 
   static const Map<String, String> labels = {
     collaborationId: 'Collaboration',
-    poId: 'PO',
-    productId: 'Product',
-    itemName: 'Item Name',
-    itemQty: 'Quantity',
-    itemSellRate: 'Sell Rate',
-    itemPrice: 'Price',
-    itemUnitMrp: 'Unit MRP',
-    profitToBrand: 'Profit to Brand',
+    campaignId: 'Campaign',
+    influencerId: 'Influencer',
+    agreedCommissionAmount: 'Agreed Commission',
+    commissionType: 'Commission Type',
+    commissionRate: 'Commission Rate (%)',
+    fixedAmount: 'Fixed Amount',
+    barterDescription: 'Barter Details',
+    isAcceptedByInfluencer: 'Accepted',
     createdBy: 'Created By',
     updatedBy: 'Updated By',
     createdAt: 'Created At',
@@ -37,43 +47,88 @@ class ModelCollaborationFields {
   static String getLabel(String field) => labels[field] ?? field;
 }
 
+enum CommissionType {
+  percentage,
+  fixedAmount,
+  barter;
+
+  static CommissionType fromString(String? value) {
+    switch (value) {
+      case 'percentage':
+        return CommissionType.percentage;
+      case 'fixed_amount':
+        return CommissionType.fixedAmount;
+      case 'barter':
+        return CommissionType.barter;
+      default:
+        return CommissionType.percentage;
+    }
+  }
+
+  String toDbValue() {
+    switch (this) {
+      case CommissionType.percentage:
+        return 'percentage';
+      case CommissionType.fixedAmount:
+        return 'fixed_amount';
+      case CommissionType.barter:
+        return 'barter';
+    }
+  }
+
+  String get displayName {
+    switch (this) {
+      case CommissionType.percentage:
+        return 'Percentage';
+      case CommissionType.fixedAmount:
+        return 'Fixed Amount';
+      case CommissionType.barter:
+        return 'Barter';
+    }
+  }
+}
+
 class ModelCollaboration {
   final String? collaborationId;
-  final String? poId;
-  final String? productId;
-  final String? itemName;
-  final double? itemQty; // changed from int? to double?
-  final double? itemSellRate;
-  final double? itemPrice;
-  final double? itemUnitMrp;
-  final double? profitToBrand;
+  final String? campaignId;
+  final String? influencerId;
+  final double? agreedCommissionAmount;
+  final CommissionType? commissionType;
+  final double? commissionRate;
+  final double? fixedAmount;
+  final String? barterDescription;
+  final bool isAcceptedByInfluencer;
   final String? createdBy;
   final String? updatedBy;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final Map<String, dynamic> _resolvedLabels;
 
+  // Compatibility properties
+  String? get poId => campaignId;
+  String? get productId => influencerId;
+  String? get itemName => resolvedLabels['influencer_id_label'] ?? 'Collaboration Item';
+  double? get itemQty => 1.0;
+  double? get itemSellRate => agreedCommissionAmount ?? 0.0;
+  double? get itemPrice => agreedCommissionAmount ?? 0.0;
+  double? get itemUnitMrp => agreedCommissionAmount ?? 0.0;
+  double? get profitToBrand => 0.0;
+
   ModelCollaboration({
     this.collaborationId,
-    this.poId,
-    this.productId,
-    this.itemName,
-    required this.itemQty, // enforce non-null
-    this.itemSellRate,
-    this.itemPrice,
-    this.itemUnitMrp,
-    this.profitToBrand,
+    String? campaignId,
+    String? influencerId,
+    double? agreedCommissionAmount,
+    this.commissionType,
+    this.commissionRate,
+    this.fixedAmount,
+    this.barterDescription,
+    this.isAcceptedByInfluencer = false,
     this.createdBy,
     this.updatedBy,
     this.createdAt,
     this.updatedAt,
-    Map<String, dynamic>? resolvedLabels,
-  }) : _resolvedLabels = resolvedLabels ?? const {};
-
-  Map<String, dynamic> get resolvedLabels => _resolvedLabels;
-
-  ModelCollaboration copyWith({
-    String? collaborationId,
+    // Compatibility constructor args
     String? poId,
     String? productId,
     String? itemName,
@@ -82,6 +137,24 @@ class ModelCollaboration {
     double? itemPrice,
     double? itemUnitMrp,
     double? profitToBrand,
+    Map<String, dynamic>? resolvedLabels,
+  }) : campaignId = campaignId ?? poId,
+       influencerId = influencerId ?? productId,
+       agreedCommissionAmount = agreedCommissionAmount ?? itemPrice ?? itemSellRate,
+       _resolvedLabels = resolvedLabels ?? const {};
+
+  Map<String, dynamic> get resolvedLabels => _resolvedLabels;
+
+  ModelCollaboration copyWith({
+    String? collaborationId,
+    String? campaignId,
+    String? influencerId,
+    double? agreedCommissionAmount,
+    CommissionType? commissionType,
+    double? commissionRate,
+    double? fixedAmount,
+    String? barterDescription,
+    bool? isAcceptedByInfluencer,
     String? createdBy,
     String? updatedBy,
     DateTime? createdAt,
@@ -90,19 +163,21 @@ class ModelCollaboration {
   }) {
     return ModelCollaboration(
       collaborationId: collaborationId ?? this.collaborationId,
-      poId: poId ?? this.poId,
-      productId: productId ?? this.productId,
-      itemName: itemName ?? this.itemName,
-      itemQty: itemQty ?? this.itemQty,
-      itemSellRate: itemSellRate ?? this.itemSellRate,
-      itemPrice: itemPrice ?? this.itemPrice,
-      itemUnitMrp: itemUnitMrp ?? this.itemUnitMrp,
-      profitToBrand: profitToBrand ?? this.profitToBrand,
+      campaignId: campaignId ?? this.campaignId,
+      influencerId: influencerId ?? this.influencerId,
+      agreedCommissionAmount:
+          agreedCommissionAmount ?? this.agreedCommissionAmount,
+      commissionType: commissionType ?? this.commissionType,
+      commissionRate: commissionRate ?? this.commissionRate,
+      fixedAmount: fixedAmount ?? this.fixedAmount,
+      barterDescription: barterDescription ?? this.barterDescription,
+      isAcceptedByInfluencer:
+          isAcceptedByInfluencer ?? this.isAcceptedByInfluencer,
       createdBy: createdBy ?? this.createdBy,
       updatedBy: updatedBy ?? this.updatedBy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      resolvedLabels: resolvedLabels ?? this.resolvedLabels,
+      resolvedLabels: resolvedLabels ?? _resolvedLabels,
     );
   }
 
@@ -115,43 +190,31 @@ class ModelCollaboration {
     }
 
     return ModelCollaboration(
-      collaborationId: map[ModelCollaborationFields.collaborationId]
-          ?.toString(),
-      poId: map[ModelCollaborationFields.poId]?.toString(),
-      productId: map[ModelCollaborationFields.productId]?.toString(),
-      itemName: map[ModelCollaborationFields.itemName]?.toString(),
-      itemQty: map[ModelCollaborationFields.itemQty] != null
-          ? double.tryParse(map[ModelCollaborationFields.itemQty].toString())
-          : null, // parse as double
-      itemSellRate: map[ModelCollaborationFields.itemSellRate] != null
-          ? double.tryParse(
-              map[ModelCollaborationFields.itemSellRate].toString(),
-            )
+      collaborationId: map[ModelCollaborationFields.collaborationId]?.toString(),
+      campaignId: map[ModelCollaborationFields.campaignId]?.toString(),
+      influencerId: map[ModelCollaborationFields.influencerId]?.toString(),
+      agreedCommissionAmount: map[ModelCollaborationFields.agreedCommissionAmount] != null
+          ? double.tryParse(map[ModelCollaborationFields.agreedCommissionAmount].toString())
           : null,
-      itemPrice: map[ModelCollaborationFields.itemPrice] != null
-          ? double.tryParse(map[ModelCollaborationFields.itemPrice].toString())
+      commissionType: CommissionType.fromString(
+          map[ModelCollaborationFields.commissionType]?.toString()),
+      commissionRate: map[ModelCollaborationFields.commissionRate] != null
+          ? double.tryParse(map[ModelCollaborationFields.commissionRate].toString())
           : null,
-      itemUnitMrp: map[ModelCollaborationFields.itemUnitMrp] != null
-          ? double.tryParse(
-              map[ModelCollaborationFields.itemUnitMrp].toString(),
-            )
+      fixedAmount: map[ModelCollaborationFields.fixedAmount] != null
+          ? double.tryParse(map[ModelCollaborationFields.fixedAmount].toString())
           : null,
-      profitToBrand: map[ModelCollaborationFields.profitToBrand] != null
-          ? double.tryParse(
-              map[ModelCollaborationFields.profitToBrand].toString(),
-            )
-          : null,
+      barterDescription:
+          map[ModelCollaborationFields.barterDescription]?.toString(),
+      isAcceptedByInfluencer:
+          map[ModelCollaborationFields.isAcceptedByInfluencer] == true,
       createdBy: map[ModelCollaborationFields.createdBy]?.toString(),
       updatedBy: map[ModelCollaborationFields.updatedBy]?.toString(),
       createdAt: map[ModelCollaborationFields.createdAt] != null
-          ? DateTime.tryParse(
-              map[ModelCollaborationFields.createdAt].toString(),
-            )
+          ? DateTime.tryParse(map[ModelCollaborationFields.createdAt].toString())
           : null,
       updatedAt: map[ModelCollaborationFields.updatedAt] != null
-          ? DateTime.tryParse(
-              map[ModelCollaborationFields.updatedAt].toString(),
-            )
+          ? DateTime.tryParse(map[ModelCollaborationFields.updatedAt].toString())
           : null,
       resolvedLabels: labelEntries,
     );
@@ -163,24 +226,28 @@ class ModelCollaboration {
     if (collaborationId != null) {
       map[ModelCollaborationFields.collaborationId] = collaborationId;
     }
-    if (poId != null) {
-      map[ModelCollaborationFields.poId] = poId;
+    if (campaignId != null) {
+      map[ModelCollaborationFields.campaignId] = campaignId;
     }
-    if (productId != null) {
-      map[ModelCollaborationFields.productId] = productId;
+    if (influencerId != null) {
+      map[ModelCollaborationFields.influencerId] = influencerId;
     }
-    // if (itemName != null) map[ModelCollaborationFields.itemName] = itemName;
-    if (itemQty != null) {
-      map[ModelCollaborationFields.itemQty] = itemQty; // double
+    if (agreedCommissionAmount != null) {
+      map[ModelCollaborationFields.agreedCommissionAmount] = agreedCommissionAmount;
     }
-    if (itemSellRate != null) {
-      map[ModelCollaborationFields.itemSellRate] = itemSellRate;
+    if (commissionType != null) {
+      map[ModelCollaborationFields.commissionType] = commissionType!.toDbValue();
     }
-    if (itemPrice != null) map[ModelCollaborationFields.itemPrice] = itemPrice;
-    // if (itemUnitMrp != null) map[ModelCollaborationFields.itemUnitMrp] = itemUnitMrp;
-    if (profitToBrand != null) {
-      map[ModelCollaborationFields.profitToBrand] = profitToBrand;
+    if (commissionRate != null) {
+      map[ModelCollaborationFields.commissionRate] = commissionRate;
     }
+    if (fixedAmount != null) {
+      map[ModelCollaborationFields.fixedAmount] = fixedAmount;
+    }
+    if (barterDescription != null) {
+      map[ModelCollaborationFields.barterDescription] = barterDescription;
+    }
+    map[ModelCollaborationFields.isAcceptedByInfluencer] = isAcceptedByInfluencer;
     if (createdBy != null) map[ModelCollaborationFields.createdBy] = createdBy;
     if (updatedBy != null) map[ModelCollaborationFields.updatedBy] = updatedBy;
     if (createdAt != null) {
@@ -196,36 +263,41 @@ class ModelCollaboration {
   Map<String, dynamic> toJson() {
     return {
       'collaborationId': collaborationId,
-      'poId': poId,
-      'itemName': itemName,
-      'itemQty': itemQty,
-      'itemSellRate': itemSellRate,
-      'itemPrice': itemPrice,
-      'itemUnitMrp': itemUnitMrp,
-      'profitToBrand': profitToBrand,
+      'campaignId': campaignId,
+      'influencerId': influencerId,
+      'agreedCommissionAmount': agreedCommissionAmount,
+      'commissionType': commissionType?.toDbValue(),
+      'commissionRate': commissionRate,
+      'fixedAmount': fixedAmount,
+      'barterDescription': barterDescription,
+      'isAcceptedByInfluencer': isAcceptedByInfluencer,
       'createdBy': createdBy,
       'updatedBy': updatedBy,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
-      'productId': productId,
     };
   }
 
   factory ModelCollaboration.fromJson(Map<String, dynamic> json) {
     return ModelCollaboration(
       collaborationId: json['collaborationId'] as String?,
-      poId: json['poId'] as String?,
-      itemName: json['itemName'] as String?,
-      itemQty: (json['itemQty'] as num).toDouble(),
-      itemSellRate: (json['itemSellRate'] as num).toDouble(),
-      itemPrice: (json['itemPrice'] as num).toDouble(),
-      itemUnitMrp: (json['itemUnitMrp'] as num?)?.toDouble(),
-      profitToBrand: (json['profitToBrand'] as num?)?.toDouble(),
+      campaignId: json['campaignId'] as String?,
+      influencerId: json['influencerId'] as String?,
+      agreedCommissionAmount:
+          (json['agreedCommissionAmount'] as num?)?.toDouble(),
+      commissionType: CommissionType.fromString(json['commissionType'] as String?),
+      commissionRate: (json['commissionRate'] as num?)?.toDouble(),
+      fixedAmount: (json['fixedAmount'] as num?)?.toDouble(),
+      barterDescription: json['barterDescription'] as String?,
+      isAcceptedByInfluencer: json['isAcceptedByInfluencer'] as bool? ?? false,
       createdBy: json['createdBy'] as String?,
       updatedBy: json['updatedBy'] as String?,
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
-      productId: json['productId'] as String?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'] as String)
+          : null,
     );
   }
 }

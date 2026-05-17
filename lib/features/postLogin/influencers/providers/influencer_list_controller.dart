@@ -3,33 +3,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/services/entity_service.dart';
-import '../model/product_model.dart';
+import '../model/influencer_model.dart';
 
-class ProductListState {
+class InfluencerListState {
   final String searchQuery;
   final String? selectedType;
 
-  const ProductListState({this.searchQuery = '', this.selectedType});
+  const InfluencerListState({this.searchQuery = '', this.selectedType});
 
-  ProductListState copyWith({
+  InfluencerListState copyWith({
     String? searchQuery,
     String? Function()? selectedType,
   }) {
-    return ProductListState(
+    return InfluencerListState(
       searchQuery: searchQuery ?? this.searchQuery,
       selectedType: selectedType != null ? selectedType() : this.selectedType,
     );
   }
 }
 
-class ProductListController extends AutoDisposeNotifier<ProductListState> {
+class InfluencerListController extends AutoDisposeNotifier<InfluencerListState> {
   Timer? _searchDebounce;
 
   @override
-  ProductListState build() {
+  InfluencerListState build() {
     ref.onDispose(() => _searchDebounce?.cancel());
     // Explicitly return a state with null selectedType
-    return const ProductListState(searchQuery: '', selectedType: null);
+    return const InfluencerListState(searchQuery: '', selectedType: null);
   }
 
   void setSearchQuery(String query) {
@@ -52,37 +52,37 @@ class ProductListController extends AutoDisposeNotifier<ProductListState> {
     state = state.copyWith(selectedType: () => type);
   }
 
-  /// Orchestrates navigation or selection when a product is tapped
-  void handleProductTap({
+  /// Orchestrates navigation or selection when an influencer is tapped
+  void handleInfluencerTap({
     required BuildContext context,
-    required ModelProduct product,
+    required ModelInfluencer influencer,
     required bool isSelectionMode,
     required String viewRouteName,
     required String idField,
-    required EntityAdapter<ModelProduct> adapter,
+    required EntityAdapter<ModelInfluencer> adapter,
   }) {
     try {
       if (isSelectionMode) {
         if (context.canPop()) {
-          context.pop(product);
+          context.pop(influencer);
         } else {
           debugPrint(
-            'ProductListController: Selection mode but nothing to pop',
+            'InfluencerListController: Selection mode but nothing to pop',
           );
           // If we can't pop, fall back to pushing the view page as if it weren't selection mode
           context.pushNamed(
             viewRouteName,
-            pathParameters: {'id': adapter.getId(product, idField).toString()},
+            pathParameters: {'id': adapter.getId(influencer, idField).toString()},
           );
         }
       } else {
         context.pushNamed(
           viewRouteName,
-          pathParameters: {'id': adapter.getId(product, idField).toString()},
+          pathParameters: {'id': adapter.getId(influencer, idField).toString()},
         );
       }
     } catch (e) {
-      debugPrint('ProductListController: Navigation error: $e');
+      debugPrint('InfluencerListController: Navigation error: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -94,7 +94,7 @@ class ProductListController extends AutoDisposeNotifier<ProductListState> {
     }
   }
 
-  /// Generic helper to filter products based on current state
+  /// Generic helper to filter influencers based on current state
   List<T> filterEntities<T>({
     required List<T> entities,
     required EntityAdapter<T> adapter,
@@ -136,7 +136,7 @@ class ProductListController extends AutoDisposeNotifier<ProductListState> {
   }
 }
 
-final productListControllerProvider =
-    NotifierProvider.autoDispose<ProductListController, ProductListState>(
-      () => ProductListController(),
+final influencerListControllerProvider =
+    NotifierProvider.autoDispose<InfluencerListController, InfluencerListState>(
+      () => InfluencerListController(),
     );

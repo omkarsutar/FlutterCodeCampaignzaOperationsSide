@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/notes/note_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/influencers/influencer_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
@@ -95,7 +95,7 @@ void main() async {
   await AgenciesRoutesJson.initialize();
   await RbacModulesRoutesJson.initialize();
   await UsersRoutesJson.initialize();
-  await ProductsRoutesJson.initialize();
+  await InfluencerRoutesJson.initialize();
   await AgencyBrandLinksRoutesJson.initialize();
   await RbacPermissionsRoutesJson.initialize();
   await CampaignsRoutesJson.initialize();

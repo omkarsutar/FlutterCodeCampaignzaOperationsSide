@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/notes/note_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/influencers/influencer_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
@@ -113,12 +113,12 @@ class CustomDrawer extends ConsumerWidget {
             icon: Icons.receipt_long,
           ),
 
-          // Products
+          // Influencers
           ReadEntityTile(
-            moduleName: ModelProductFields.table, // "products"
-            routeName: ProductsRoutesJson.listRouteName,
-            title: 'Products',
-            icon: Icons.shopping_bag,
+            moduleName: ModelInfluencerFields.table, // "influencer"
+            routeName: InfluencerRoutesJson.listRouteName,
+            title: 'Influencers',
+            icon: Icons.people,
             allowAnonymous: true,
           ),
 

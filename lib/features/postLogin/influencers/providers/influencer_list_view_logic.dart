@@ -1,17 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/entity_service.dart';
-import '../model/product_model.dart';
-import 'product_list_controller.dart';
-import 'product_providers.dart';
+import '../model/influencer_model.dart';
+import 'influencer_list_controller.dart';
+import 'influencer_providers.dart';
 
-class ProcessedProductListData<T> {
+class ProcessedInfluencerListData<T> {
   final List<T> filteredBySearch;
   final List<T> filteredEntities;
   final Map<String, int> counts;
   final Map<String, List<T>> groupedEntities;
   final List<String> sortedTypes;
 
-  ProcessedProductListData({
+  ProcessedInfluencerListData({
     required this.filteredBySearch,
     required this.filteredEntities,
     required this.counts,
@@ -20,10 +20,10 @@ class ProcessedProductListData<T> {
   });
 }
 
-/// Provider to handle all data processing for the product list page
-final productListViewLogicProvider = Provider.autoDispose
+/// Provider to handle all data processing for the influencer list page
+final influencerListViewLogicProvider = Provider.autoDispose
     .family<
-      ProcessedProductListData<Object?>,
+      ProcessedInfluencerListData<Object?>,
       ({
         List<Object?> entities,
         EntityAdapter<Object?> adapter,
@@ -33,9 +33,9 @@ final productListViewLogicProvider = Provider.autoDispose
     >((ref, params) {
       final entities = params.entities;
       final adapter = params.adapter;
-      final filterTypes = ref.watch(productFilterTypesProvider);
-      final listState = ref.watch(productListControllerProvider);
-      final controller = ref.read(productListControllerProvider.notifier);
+      final filterTypes = ref.watch(influencerCategoriesProvider);
+      final listState = ref.watch(influencerListControllerProvider);
+      final controller = ref.read(influencerListControllerProvider.notifier);
 
       // 1. Filter entities based on search
       final filteredBySearch = controller.filterEntities(
@@ -50,7 +50,7 @@ final productListViewLogicProvider = Provider.autoDispose
       for (var entity in filteredBySearch) {
         final type =
             adapter
-                .getFieldValue(entity, ModelProductFields.productType)
+                .getFieldValue(entity, ModelInfluencerFields.influencerCategory)
                 ?.toString() ??
             'Other';
         counts[type] = (counts[type] ?? 0) + 1;
@@ -60,22 +60,22 @@ final productListViewLogicProvider = Provider.autoDispose
       final filteredEntities = filteredBySearch.where((entity) {
         if (listState.selectedType == null) return true;
         final type = adapter
-            .getFieldValue(entity, ModelProductFields.productType)
+            .getFieldValue(entity, ModelInfluencerFields.influencerCategory)
             ?.toString();
         return type == listState.selectedType;
       }).toList();
 
-      // 4. Sort alphabetically by product name
+      // 4. Sort alphabetically by influencer name
       filteredEntities.sort((a, b) {
         final nameA =
             adapter
-                .getFieldValue(a, ModelProductFields.productName)
+                .getFieldValue(a, ModelInfluencerFields.influencerName)
                 ?.toString()
                 .toLowerCase() ??
             '';
         final nameB =
             adapter
-                .getFieldValue(b, ModelProductFields.productName)
+                .getFieldValue(b, ModelInfluencerFields.influencerName)
                 ?.toString()
                 .toLowerCase() ??
             '';
@@ -87,7 +87,7 @@ final productListViewLogicProvider = Provider.autoDispose
       for (var entity in filteredEntities) {
         final type =
             adapter
-                .getFieldValue(entity, ModelProductFields.productType)
+                .getFieldValue(entity, ModelInfluencerFields.influencerCategory)
                 ?.toString() ??
             'Other';
         groupedEntities.putIfAbsent(type, () => []).add(entity);
@@ -105,7 +105,7 @@ final productListViewLogicProvider = Provider.autoDispose
           return a.compareTo(b);
         });
 
-      return ProcessedProductListData(
+      return ProcessedInfluencerListData(
         filteredBySearch: filteredBySearch,
         filteredEntities: filteredEntities,
         counts: counts,

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../collaborations/model/collaboration_model.dart';
-import '../../products/product_barrel.dart';
+import '../../influencers/influencer_barrel.dart';
 import '../services/cart_storage_service.dart';
 
 class CartState {
@@ -33,9 +33,8 @@ class CartState {
   });
 
   double get totalAmount =>
-      items.fold(0, (sum, item) => sum + (item.itemPrice ?? 0));
-  double get totalProfit =>
-      items.fold(0, (sum, item) => sum + (item.profitToBrand ?? 0));
+      items.fold(0, (sum, item) => sum + (item.agreedCommissionAmount ?? 0));
+  double get totalProfit => 0.0;
 
   bool get isReadOnly {
     if (status == null) return false;
@@ -185,20 +184,20 @@ class CartNotifier extends Notifier<CartState> {
   }
 
   void addItem(ModelCollaboration item) {
-    // Check if product already exists in cart, if so update quantity
-    final index = state.items.indexWhere((i) => i.productId == item.productId);
+    // Check if influencer already exists in cart, if so update/replace it
+    final index = state.items.indexWhere((i) => i.influencerId == item.influencerId);
     if (index != -1) {
-      final existingItem = state.items[index];
-      final updatedQty = (existingItem.itemQty ?? 0) + (item.itemQty ?? 0);
-      updateItem(
-        existingItem.copyWith(
-          itemQty: updatedQty,
-          itemPrice: (item.itemSellRate ?? 0) * updatedQty,
-          profitToBrand:
-              ((item.itemUnitMrp ?? 0) - (item.itemSellRate ?? 0)) * updatedQty,
-        ),
-        moveToTop: true,
+      final otherItems = state.items
+          .where((i) => i.influencerId != item.influencerId)
+          .toList();
+      state = state.copyWith(
+        items: [item, ...otherItems],
+        lastModifiedItemId: () => item.collaborationId,
+        isPromptAcknowledged: true,
+        isNewItemAdded: true,
       );
+      _startClearTimer();
+      _saveToStorage();
     } else {
       // Assign a unique local ID if missing
       final itemWithId = item.collaborationId == null
@@ -259,26 +258,7 @@ class CartNotifier extends Notifier<CartState> {
   }
 
   void updateQuantity(String collaborationId, double change) {
-    final index = state.items.indexWhere(
-      (i) => i.collaborationId == collaborationId,
-    );
-    if (index == -1) return;
-
-    final item = state.items[index];
-    final newQty = (item.itemQty ?? 0) + change;
-
-    if (newQty <= 0) {
-      removeItem(collaborationId);
-    } else {
-      updateItem(
-        item.copyWith(
-          itemQty: newQty,
-          itemPrice: (item.itemSellRate ?? 0) * newQty,
-          profitToBrand:
-              ((item.itemUnitMrp ?? 0) - (item.itemSellRate ?? 0)) * newQty,
-        ),
-      );
-    }
+    // Dummy stub for backward compatibility
   }
 
   void removeItem(String collaborationId) {
@@ -312,6 +292,6 @@ final cartProvider = NotifierProvider<CartNotifier, CartState>(() {
 
 final isEditingCartItemProvider = StateProvider<bool>((ref) => false);
 
-final selectedProductForAdditionProvider = StateProvider<ModelProduct?>(
+final selectedInfluencerForAdditionProvider = StateProvider<ModelInfluencer?>(
   (ref) => null,
 );

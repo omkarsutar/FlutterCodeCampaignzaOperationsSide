@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/notes/note_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/influencers/influencer_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
@@ -40,7 +40,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...UsersRoutesJson.routes,
       ...CampaignsRoutesJson.routes,
       ...CollaborationsRoutesJson.routes,
-      ...ProductsRoutesJson.routes,
+      ...InfluencerRoutesJson.routes,
       ...RbacModulesRoutesJson.routes,
       ...RbacPermissionsRoutesJson.routes,
       ...PoCollectionsRoutesJson.routes,
@@ -72,7 +72,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           (isGuest || profile?.preferredAgencyId != null);
 
       final isPublicRoute =
-          state.uri.path.startsWith('/products') ||
+          state.uri.path.startsWith('/influencers') ||
           state.uri.path.startsWith('/cart');
 
       // --- Pending Order Redirect (High Priority) ---
@@ -90,12 +90,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // Redirect to products page if not logged in and trying to access protected routes
       if (!isLoggedIn && !isAuthPage && !isAtRoot && !isPublicRoute) {
-        return state.namedLocation(ProductsRoutesJson.listRouteName);
+        return state.namedLocation(InfluencerRoutesJson.listRouteName);
       }
 
       // Redirect to products page if at root and not logged in
       if (!isLoggedIn && isAtRoot) {
-        return state.namedLocation(ProductsRoutesJson.listRouteName);
+        return state.namedLocation(InfluencerRoutesJson.listRouteName);
       }
       if (isLoggedIn && (isAuthPage || isAtRoot)) {
         debugPrint(
@@ -121,7 +121,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         // Redirect guest to Products
         if (roleName == 'guest') {
           debugPrint('AppRouter: Guest user -> Redirecting to Products');
-          return state.namedLocation(ProductsRoutesJson.listRouteName);
+          return state.namedLocation(InfluencerRoutesJson.listRouteName);
         }
 
         // Redirect salesperson to Todays Brands

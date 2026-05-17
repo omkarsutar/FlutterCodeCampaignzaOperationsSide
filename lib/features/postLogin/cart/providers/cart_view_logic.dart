@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../collaborations/model/collaboration_model.dart';
 import '../providers/cart_providers.dart';
-import '../../products/product_barrel.dart';
+import '../../influencers/influencer_barrel.dart';
 
 class ProcessedCartItem {
   final ModelCollaboration item;
@@ -37,40 +37,37 @@ class ProcessedCartData {
 
 final cartViewLogicProvider = Provider.autoDispose<ProcessedCartData>((ref) {
   final cartState = ref.watch(cartProvider);
-  final products = ref.watch(productsStreamProvider).value ?? [];
-
-  String formatQty(num val) {
-    String text = val.toStringAsFixed(1);
-    if (text.endsWith('.0')) text = text.substring(0, text.length - 2);
-    return text;
-  }
+  final influencers = ref.watch(influencersStreamProvider).value ?? [];
 
   final processedItems = cartState.items.map((item) {
-    // Resolve product name
-    String productName = item.itemName ?? 'Unknown';
-    if (productName == 'Unknown') {
+    // Resolve influencer name
+    String influencerName = item.resolvedLabels['influencer_id_label'] ?? 'Unknown';
+    if (influencerName == 'Unknown') {
       try {
-        productName = products
-            .firstWhere((p) => p.productId == item.productId)
-            .productName;
+        influencerName = influencers
+            .firstWhere((p) => p.influencerId == item.influencerId)
+            .influencerName;
       } catch (_) {
-        productName = 'Unknown';
+        influencerName = 'Unknown';
       }
     }
 
+    final double rate = item.commissionRate ?? item.fixedAmount ?? 0.0;
+    final double amount = item.agreedCommissionAmount ?? 0.0;
+
     return ProcessedCartItem(
       item: item,
-      productName: productName,
-      formattedQty: formatQty(item.itemQty ?? 0),
-      formattedRate: (item.itemSellRate ?? 0).toStringAsFixed(2),
-      formattedAmount: (item.itemPrice ?? 0).toStringAsFixed(2),
+      productName: influencerName,
+      formattedQty: '1',
+      formattedRate: rate.toStringAsFixed(2),
+      formattedAmount: amount.toStringAsFixed(2),
     );
   }).toList();
 
   return ProcessedCartData(
     items: processedItems,
     totalAmount: cartState.totalAmount.round().toString(),
-    totalProfit: cartState.totalProfit.toStringAsFixed(2),
+    totalProfit: '0.00',
     itemCount: cartState.items.length,
     isEmpty: cartState.items.isEmpty,
   );

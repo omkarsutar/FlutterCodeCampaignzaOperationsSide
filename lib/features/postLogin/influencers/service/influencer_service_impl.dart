@@ -4,46 +4,46 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/entity_service.dart';
 import '../../../../core/services/supabase_entity_service.dart';
 import '../../../../core/services/logger_service.dart';
-import '../model/product_model.dart';
+import '../model/influencer_model.dart';
 
-class ProductServiceImpl extends SupabaseEntityService<ModelProduct> {
-  final EntityMapper<ModelProduct> _mapper;
+class InfluencerServiceImpl extends SupabaseEntityService<ModelInfluencer> {
+  final EntityMapper<ModelInfluencer> _mapper;
 
-  ProductServiceImpl(this._mapper, SupabaseClient client, LoggerService logger)
+  InfluencerServiceImpl(this._mapper, SupabaseClient client, LoggerService logger)
     : super(client, logger);
 
   @override
-  EntityMapper<ModelProduct> get mapper => _mapper;
+  EntityMapper<ModelInfluencer> get mapper => _mapper;
 
   @override
-  String get entityTypeName => 'ModelProduct';
+  String get entityTypeName => 'ModelInfluencer';
 
   @override
-  String get tableName => ModelProductFields.table;
+  String get tableName => ModelInfluencerFields.table;
 
   @override
-  String get idColumn => ModelProductFields.productId;
+  String get idColumn => ModelInfluencerFields.influencerId;
   @override
-  String get createdAt => ModelProductFields.createdAt;
+  String get createdAt => ModelInfluencerFields.createdAt;
 
   // --- Convenience methods ---
 
   /// Get raw maps instead of typed entities
   Future<List<Map<String, dynamic>>> getAllEntities() async {
-    final products = await fetchAll(); // uses LoggingEntityService wrapper
-    return products.map((p) => mapper.toMap(p)).toList();
+    final influencers = await fetchAll(); // uses LoggingEntityService wrapper
+    return influencers.map((i) => mapper.toMap(i)).toList();
   }
 
   /// Override streamEntitiesImpl to use the view for better performance
   @override
-  Stream<List<ModelProduct>> streamEntitiesImpl() {
-    final controller = StreamController<List<ModelProduct>>();
+  Stream<List<ModelInfluencer>> streamEntitiesImpl() {
+    final controller = StreamController<List<ModelInfluencer>>();
     RealtimeChannel? channel;
 
     Future<void> fetch() async {
       try {
         final List<dynamic> data = await client
-            .from(ModelProductFields.tableViewWithForeignKeyLabels)
+            .from(ModelInfluencerFields.tableViewWithForeignKeyLabels)
             .select()
             .order(sortField ?? createdAt, ascending: sortAscending);
 
@@ -75,9 +75,9 @@ class ProductServiceImpl extends SupabaseEntityService<ModelProduct> {
 
   /// Override fetchAll to use the view for better performance
   @override
-  Future<List<ModelProduct>> fetchAll() async {
+  Future<List<ModelInfluencer>> fetchAll() async {
     final response = await client
-        .from(ModelProductFields.tableViewWithForeignKeyLabels)
+        .from(ModelInfluencerFields.tableViewWithForeignKeyLabels)
         .select()
         .order(sortField ?? createdAt, ascending: sortAscending);
     return (response as List).map((e) => mapper.fromMap(e)).toList();
@@ -86,13 +86,13 @@ class ProductServiceImpl extends SupabaseEntityService<ModelProduct> {
   // --- Override only the custom createImpl ---
 
   @override
-  Future<ModelProduct> createImpl(ModelProduct entity) async {
+  Future<ModelInfluencer> createImpl(ModelInfluencer entity) async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) throw Exception('No signed-in user found');
 
     final enriched = mapper.toMap(entity);
-    enriched[ModelProductFields.createdBy] = user.id;
-    enriched[ModelProductFields.updatedBy] = user.id;
+    enriched[ModelInfluencerFields.createdBy] = user.id;
+    enriched[ModelInfluencerFields.updatedBy] = user.id;
 
     final inserted = await client
         .from(tableName)

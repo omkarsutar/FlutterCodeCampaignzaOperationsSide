@@ -80,17 +80,17 @@ class _CollaborationListPageRiverpodState
                 // Campaign card at the top (Header)
                 SliverToBoxAdapter(
                   child: poAsync.when(
-                    loading: () => const LinearProgressIndicator(),
-                    error: (err, _) => Text('Error loading order: $err'),
-                    data: (po) {
-                      if (po == null) return const Text('Order not found');
-                      return CampaignListTile(
-                        entity: po,
-                        adapter: ref.read(campaignAdapterProvider),
-                        onTap: null,
-                        collaborationTile: true,
-                      );
-                    },
+                     loading: () => const LinearProgressIndicator(),
+                     error: (err, _) => Text('Error loading order: $err'),
+                     data: (po) {
+                       if (po == null) return const Text('Order not found');
+                       return CampaignListTile(
+                         entity: po,
+                         adapter: ref.read(campaignAdapterProvider),
+                         onTap: null,
+                         collaborationTile: true,
+                       );
+                     },
                   ),
                 ),
 
@@ -138,7 +138,7 @@ class _CollaborationListPageRiverpodState
                           return CollaborationCard(
                             key: ValueKey(item.collaborationId),
                             entity: item,
-                            products: state.products,
+                            influencers: state.influencers,
                             poId: widget.poId,
                           );
                         }, childCount: state.items.length),
@@ -153,7 +153,7 @@ class _CollaborationListPageRiverpodState
           // Bottom Add Card
           if (asyncState.value?.isNewItemAdded != true)
             CollaborationAddCard(
-              products: asyncState.value?.products ?? [],
+              influencers: asyncState.value?.influencers ?? [],
               poId: widget.poId,
             ),
         ],

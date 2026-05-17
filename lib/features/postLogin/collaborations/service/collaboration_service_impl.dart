@@ -36,10 +36,10 @@ class CollaborationServiceImpl
 
   @override
   Map<String, ForeignKeyConfig> get foreignKeys => {
-    ModelCollaborationFields.poId: ForeignKeyConfig(
+    ModelCollaborationFields.campaignId: ForeignKeyConfig(
       table: ModelCampaignFields.table,
-      idColumn: ModelCampaignFields.poId,
-      labelColumn: ModelCampaignFields.poId,
+      idColumn: ModelCampaignFields.campaignId,
+      labelColumn: ModelCampaignFields.campaignId,
     ),
     ModelCollaborationFields.createdBy: ForeignKeyConfig(
       table: ModelUserFields.table,
@@ -125,13 +125,13 @@ class CollaborationServiceImpl
   /// Fetch raw items for a given campaign (without mapping)
   Future<List<Map<String, dynamic>>> fetchItemsForPo(String poId) async {
     if (poId.isEmpty) {
-      throw Exception('PO ID not provided');
+      throw Exception('Campaign ID not provided');
     }
 
     final items = await client
         .from(tableName)
         .select('*')
-        .eq(ModelCollaborationFields.poId, poId);
+        .eq(ModelCollaborationFields.campaignId, poId);
 
     return List<Map<String, dynamic>>.from(items);
   }
@@ -146,7 +146,7 @@ class CollaborationServiceImpl
         final List<dynamic> data = await client
             .from(ModelCollaborationFields.tableViewWithForeignKeyLabels)
             .select()
-            .eq(ModelCollaborationFields.poId, poId)
+            .eq(ModelCollaborationFields.campaignId, poId)
             .order(sortField ?? createdAt, ascending: sortAscending);
 
         if (!controller.isClosed) {
@@ -166,7 +166,7 @@ class CollaborationServiceImpl
           table: tableName,
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
-            column: ModelCollaborationFields.poId,
+            column: ModelCollaborationFields.campaignId,
             value: poId,
           ),
           callback: (_) => fetch(),
@@ -185,21 +185,13 @@ class CollaborationServiceImpl
     final List<dynamic> result = await client
         .from(ModelCollaborationFields.tableViewWithForeignKeyLabels)
         .select()
-        .eq(ModelCollaborationFields.poId, poId)
+        .eq(ModelCollaborationFields.campaignId, poId)
         .order(sortField ?? createdAt, ascending: sortAscending);
 
     return result.map((e) => mapper.fromMap(e)).toList();
   }
 
-  /// Calculate profit for a Collaboration
-  double? calculateProfit(Map<String, dynamic> data) {
-    final sellRate = data[ModelCollaborationFields.itemSellRate];
-    final price = data[ModelCollaborationFields.itemPrice];
-    if (sellRate == null || price == null) return null;
-    return (sellRate as num).toDouble() - (price as num).toDouble();
-  }
-
-  /// Insert a Collaboration linked to a specific PO
+  /// Insert a Collaboration linked to a specific Campaign
   Future<ModelCollaboration> insertEntityForPo(
     ModelCollaboration entity,
     String selectedPoId,
@@ -208,10 +200,9 @@ class CollaborationServiceImpl
     if (user == null) throw Exception('No signed-in user found');
 
     final data = mapper.toMap(entity);
-    data[ModelCollaborationFields.poId] = selectedPoId;
+    data[ModelCollaborationFields.campaignId] = selectedPoId;
     data[ModelCollaborationFields.createdBy] = user.id;
     data[ModelCollaborationFields.updatedBy] = user.id;
-    data[ModelCollaborationFields.profitToBrand] = calculateProfit(data);
 
     final inserted = await client
         .from(tableName)
@@ -224,10 +215,10 @@ class CollaborationServiceImpl
 
   /// Delete all items for a specific campaign
   Future<void> deleteAllByPo(String poId) async {
-    if (poId.isEmpty) throw Exception('PO ID not provided');
+    if (poId.isEmpty) throw Exception('Campaign ID not provided');
     await client
         .from(tableName)
         .delete()
-        .eq(ModelCollaborationFields.poId, poId);
+        .eq(ModelCollaborationFields.campaignId, poId);
   }
 }

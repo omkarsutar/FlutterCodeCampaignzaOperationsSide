@@ -5,24 +5,18 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
   @override
   dynamic getFieldValue(ModelCampaign entity, String fieldName) {
     switch (fieldName) {
-      case ModelCampaignFields.poId:
-        return entity.poId;
-      case ModelCampaignFields.poTotalAmount:
-        return entity.poTotalAmount;
-      case ModelCampaignFields.poLineItemCount:
-        return entity.poLineItemCount;
-      case ModelCampaignFields.poAgencyId:
-        return entity.poAgencyId;
-      case ModelCampaignFields.poBrandId:
-        return entity.poBrandId;
+      case ModelCampaignFields.campaignId:
+        return entity.campaignId;
+      case ModelCampaignFields.collaborationCount:
+        return entity.collaborationCount;
+      case ModelCampaignFields.campaignAgencyId:
+        return entity.campaignAgencyId;
+      case ModelCampaignFields.campaignBrandId:
+        return entity.campaignBrandId;
       case ModelCampaignFields.userComment:
         return entity.userComment;
-      case ModelCampaignFields.profitToBrand:
-        return entity.profitToBrand;
-      case ModelCampaignFields.poLat:
-        return entity.poLat;
-      case ModelCampaignFields.poLong:
-        return entity.poLong;
+      case ModelCampaignFields.adminComment:
+        return entity.adminComment;
       case ModelCampaignFields.status:
         return entity.status;
       case ModelCampaignFields.createdBy:
@@ -38,31 +32,28 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
     }
   }
 
-  /* @override
-  dynamic getLabelValue(ModelCampaign entity, String fieldName) {
-    return null; // or custom label logic
-  } */
-
   @override
   dynamic getLabelValue(ModelCampaign entity, String fieldName) {
     if (entity.resolvedLabels.containsKey('${fieldName}_label')) {
       return entity.resolvedLabels['${fieldName}_label'];
     }
     switch (fieldName) {
-      case ModelCampaignFields.poAgencyId:
-      case ModelCampaignFields.poBrandId:
+      case ModelCampaignFields.campaignAgencyId:
+      case ModelCampaignFields.campaignBrandId:
       case ModelCampaignFields.createdBy:
       case ModelCampaignFields.updatedBy:
         return entity.resolvedLabels['${fieldName}_label'];
       case ModelCampaignFields.status:
         return entity.status ?? 'Pending';
+      case ModelCampaignFields.collaborationCount:
+        return entity.collaborationCount?.toString() ?? '0';
       default:
         return null;
     }
   }
 
   @override
-  dynamic getId(ModelCampaign entity, String idField) => entity.poId;
+  dynamic getId(ModelCampaign entity, String idField) => entity.campaignId;
 
   @override
   dynamic getTimestamp(ModelCampaign entity, String timestampField) {

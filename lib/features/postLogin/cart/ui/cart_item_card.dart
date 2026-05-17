@@ -2,20 +2,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../collaborations/model/collaboration_model.dart';
-import '../../products/product_barrel.dart';
+import '../../influencers/influencer_barrel.dart';
 import '../providers/cart_providers.dart';
-import '../../../../core/providers/localization_provider.dart';
-import '../../../../core/widgets/quantity_selector.dart';
 
 class CartItemCard extends ConsumerStatefulWidget {
   final ModelCollaboration entity;
-  final List<ModelProduct> products;
+  final List<ModelInfluencer> influencers;
   final bool isReadOnly;
 
   const CartItemCard({
     super.key,
     required this.entity,
-    required this.products,
+    required this.influencers,
     this.isReadOnly = false,
   });
 
@@ -24,27 +22,12 @@ class CartItemCard extends ConsumerStatefulWidget {
 }
 
 class _CartItemCardState extends ConsumerState<CartItemCard> {
-  late double _currentQty;
-  late FocusNode _focusNode;
   bool _isHighlighted = false;
   Timer? _highlightTimer;
 
   @override
   void initState() {
     super.initState();
-    _currentQty = widget.entity.itemQty ?? 0.0;
-    _focusNode = FocusNode();
-    _focusNode.addListener(() {
-      ref.read(isEditingCartItemProvider.notifier).state = _focusNode.hasFocus;
-    });
-  }
-
-  @override
-  void didUpdateWidget(covariant CartItemCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.entity.itemQty != widget.entity.itemQty) {
-      _currentQty = widget.entity.itemQty ?? 0.0;
-    }
   }
 
   void _triggerHighlight() {
@@ -60,39 +43,21 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
 
   @override
   void dispose() {
-    _focusNode.dispose();
     _highlightTimer?.cancel();
     super.dispose();
   }
 
-  ModelProduct? get _product {
+  ModelInfluencer? get _influencer {
     try {
-      return widget.products.firstWhere(
-        (p) => p.productId == widget.entity.productId,
+      return widget.influencers.firstWhere(
+        (p) => p.influencerId == widget.entity.influencerId,
       );
     } catch (_) {
       return null;
     }
   }
 
-  double get _sellRate => widget.entity.itemSellRate ?? 0.0;
-  double get _price => _currentQty * _sellRate;
-
   String _formatCurrency(num value) => '₹${value.toStringAsFixed(2)}';
-
-  double _roundQty(double val) => (val * 10).roundToDouble() / 10;
-
-  void _updateQuantity(double newQty) {
-    final rounded = _roundQty(newQty);
-    if (rounded != (widget.entity.itemQty ?? 0)) {
-      ref
-          .read(cartProvider.notifier)
-          .updateQuantity(
-            widget.entity.collaborationId!,
-            rounded - (widget.entity.itemQty ?? 0),
-          );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,11 +70,15 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
       Future.microtask(() => _triggerHighlight());
     }
 
-    final product = _product;
-    String? productImage = product?.productImage;
-    if (productImage != null && productImage.isNotEmpty) {
-      productImage = Uri.encodeFull(Uri.decodeFull(productImage));
+    final influencer = _influencer;
+    String? influencerImage = influencer?.influencerImageUrl;
+    if (influencerImage != null && influencerImage.isNotEmpty) {
+      influencerImage = Uri.encodeFull(Uri.decodeFull(influencerImage));
     }
+
+    final String displayName = influencer?.influencerName ?? widget.entity.resolvedLabels['influencer_id_label'] ?? 'Unnamed Influencer';
+    final String category = influencer?.influencerCategory ?? widget.entity.resolvedLabels['influencer_category_label'] ?? 'General';
+    final double agreedAmount = widget.entity.agreedCommissionAmount ?? 0.0;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
@@ -140,7 +109,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Product Image
+              // Influencer Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
@@ -149,24 +118,26 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                   color: theme.colorScheme.surfaceContainerHighest.withValues(
                     alpha: 0.3,
                   ),
-                  child: (productImage != null && productImage.isNotEmpty)
+                  child: (influencerImage != null && influencerImage.isNotEmpty)
                       ? Image.network(
-                          productImage,
+                          influencerImage,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
                               const Icon(
-                                Icons.image_not_supported_outlined,
+                                Icons.person_outline,
                                 color: Colors.grey,
+                                size: 36,
                               ),
                         )
                       : const Icon(
-                          Icons.shopping_bag_outlined,
+                          Icons.person_outline,
                           color: Colors.grey,
+                          size: 36,
                         ),
                 ),
               ),
               const SizedBox(width: 12),
-              // Product Details
+              // Influencer Details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,35 +146,14 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Builder(
-                            builder: (context) {
-                              final currentLanguage = ref.watch(
-                                languageProvider,
-                              );
-                              final useHindi =
-                                  currentLanguage == AppLanguage.hindi ||
-                                  currentLanguage == AppLanguage.marathi;
-
-                              String displayName =
-                                  widget.entity.itemName ?? 'Unnamed Item';
-
-                              if (useHindi && product != null) {
-                                final hindiName = product.productNameHindi;
-                                if (hindiName != null && hindiName.isNotEmpty) {
-                                  displayName = hindiName;
-                                }
-                              }
-
-                              return Text(
-                                displayName,
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.2,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              );
-                            },
+                          child: Text(
+                            displayName,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              height: 1.2,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -224,7 +174,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Rate: ${_formatCurrency(_sellRate)}',
+                      category,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -238,14 +188,14 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Total',
+                              'Agreed Commission',
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                                 fontSize: 10,
                               ),
                             ),
                             Text(
-                              _formatCurrency(_price),
+                              _formatCurrency(agreedAmount),
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: theme.colorScheme.primary,
@@ -253,16 +203,20 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                             ),
                           ],
                         ),
-                        // Qty Selector
-                        SizedBox(
-                          width: 140,
-                          child: QuantitySelector(
-                            quantity: _currentQty,
-                            onQuantityChanged: _updateQuantity,
-                            isDecimal: _product?.qtyInDecimal ?? false,
-                            focusNode: _focusNode,
-                            height: 36,
-                            readOnly: widget.isReadOnly,
+                        // Commission Type Label
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primaryContainer.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            widget.entity.commissionType?.displayName ?? 'Barter',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                            ),
                           ),
                         ),
                       ],

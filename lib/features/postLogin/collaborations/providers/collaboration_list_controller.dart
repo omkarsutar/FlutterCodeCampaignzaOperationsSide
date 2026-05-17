@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../products/product_barrel.dart';
+import '../../influencers/influencer_barrel.dart';
 import '../model/collaboration_model.dart';
 import 'collaboration_providers.dart';
 import '../service/collaboration_service_impl.dart';
@@ -10,7 +10,7 @@ class CollaborationListState {
   final bool isLoading;
   final String? error;
   final List<ModelCollaboration> items;
-  final List<ModelProduct> products;
+  final List<ModelInfluencer> influencers;
   final String? lastModifiedItemId;
   final bool isNewItemAdded;
 
@@ -18,7 +18,7 @@ class CollaborationListState {
     this.isLoading = true,
     this.error,
     this.items = const [],
-    this.products = const [],
+    this.influencers = const [],
     this.lastModifiedItemId,
     this.isNewItemAdded = false,
   });
@@ -27,7 +27,7 @@ class CollaborationListState {
     bool? isLoading,
     String? error,
     List<ModelCollaboration>? items,
-    List<ModelProduct>? products,
+    List<ModelInfluencer>? influencers,
     String? Function()? lastModifiedItemId,
     bool? isNewItemAdded,
   }) {
@@ -35,7 +35,7 @@ class CollaborationListState {
       isLoading: isLoading ?? this.isLoading,
       error: error,
       items: items ?? this.items,
-      products: products ?? this.products,
+      influencers: influencers ?? this.influencers,
       lastModifiedItemId: lastModifiedItemId != null
           ? lastModifiedItemId()
           : this.lastModifiedItemId,
@@ -54,8 +54,8 @@ class CollaborationListController
   @override
   Future<CollaborationListState> build(String poId) async {
     try {
-      // Use cached products stream
-      final products = await ref.watch(productsStreamProvider.future);
+      // Use cached influencers stream
+      final influencers = await ref.watch(influencersStreamProvider.future);
 
       // Fetch Collaborations (service now handles sorting)
       final items = await _service.fetchEntitiesByPo(poId);
@@ -63,7 +63,7 @@ class CollaborationListController
       return CollaborationListState(
         isLoading: false,
         items: items,
-        products: products,
+        influencers: influencers,
       );
     } catch (e) {
       return CollaborationListState(isLoading: false, error: e.toString());

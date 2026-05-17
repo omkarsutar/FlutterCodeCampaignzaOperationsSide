@@ -80,8 +80,8 @@ class CampaignCollectionServiceImpl
   Map<String, ForeignKeyConfig> get foreignKeys => {
     ModelPoCollectionFields.poId: const ForeignKeyConfig(
       table: ModelCampaignFields.table,
-      idColumn: ModelCampaignFields.poId,
-      labelColumn: ModelCampaignFields.poId, // Fallback
+      idColumn: ModelCampaignFields.campaignId,
+      labelColumn: ModelCampaignFields.campaignId, // Fallback
     ),
   };
 

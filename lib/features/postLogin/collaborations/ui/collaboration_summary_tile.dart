@@ -7,22 +7,23 @@ class CollaborationSummaryTile extends StatelessWidget {
 
   const CollaborationSummaryTile({super.key, required this.item});
 
-  String get _qtyText {
-    if (item.itemQty == null) return '-';
-    final qty = double.tryParse(item.itemQty.toString()) ?? 0.0;
-    final rounded = qty.round();
-    if (qty == rounded) {
-      return rounded.toString();
-    } else {
-      return qty.toStringAsFixed(1);
+  String get _influencerName =>
+      item.resolvedLabels['influencer_id_label']?.toString() ?? 'Unnamed Influencer';
+
+  String get _commissionDetails {
+    if (item.commissionType == null) return '-';
+    switch (item.commissionType!) {
+      case CommissionType.percentage:
+        return item.commissionRate != null ? '${item.commissionRate}%' : '-';
+      case CommissionType.fixedAmount:
+        return item.fixedAmount != null ? '₹${item.fixedAmount!.toStringAsFixed(2)}' : '-';
+      case CommissionType.barter:
+        return 'Barter';
     }
   }
 
-  String get _rateText =>
-      item.itemSellRate != null ? item.itemSellRate!.toStringAsFixed(2) : '-';
-
-  String get _amountText =>
-      item.itemPrice != null ? item.itemPrice!.toStringAsFixed(2) : '-';
+  String get _agreedCommission =>
+      item.agreedCommissionAmount != null ? '₹${item.agreedCommissionAmount!.toStringAsFixed(2)}' : '-';
 
   @override
   Widget build(BuildContext context) {
@@ -35,30 +36,35 @@ class CollaborationSummaryTile extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              item.itemName ?? 'Unnamed item',
+              _influencerName,
               style: theme.textTheme.bodySmall,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
+            flex: 2,
             child: Text(
-              _qtyText,
+              item.commissionType?.displayName ?? '-',
               style: theme.textTheme.bodySmall,
               textAlign: TextAlign.right,
             ),
           ),
           Expanded(
+            flex: 2,
             child: Text(
-              _rateText,
+              _commissionDetails,
               style: theme.textTheme.bodySmall,
               textAlign: TextAlign.right,
             ),
           ),
           Expanded(
+            flex: 2,
             child: Text(
-              _amountText,
-              style: theme.textTheme.bodySmall,
+              _agreedCommission,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.right,
             ),
           ),

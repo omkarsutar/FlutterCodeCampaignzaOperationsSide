@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../../core/services/connectivity_service.dart';
 import '../../campaigns/campaign_barrel.dart';
-import '../../collaborations/model/collaboration_model.dart';
 import '../../collaborations/service/collaboration_service_impl.dart';
 import '../providers/cart_view_logic.dart';
 
@@ -129,24 +128,13 @@ class CartOrderService {
     }
 
     for (final processedItem in viewData.items) {
-      final item = ModelCollaboration(
-        collaborationId: null,
-        poId: finalPoId,
-        productId: processedItem.item.productId,
-        itemName: processedItem.item.itemName,
-        itemQty: processedItem.item.itemQty,
-        itemSellRate: processedItem.item.itemSellRate,
-        itemPrice: processedItem.item.itemPrice,
-        itemUnitMrp: processedItem.item.itemUnitMrp,
-        profitToBrand: processedItem.item.profitToBrand,
+      final item = processedItem.item.copyWith(
+        campaignId: finalPoId,
         createdBy: userId,
         updatedBy: userId,
       );
       await collaborationService.create(item);
     }
-
-    // WhatsApp sharing
-    // await shareOrderToWhatsApp(viewData);
   }
 
   Future<void> shareOrderToWhatsApp(ProcessedCartData viewData) async {

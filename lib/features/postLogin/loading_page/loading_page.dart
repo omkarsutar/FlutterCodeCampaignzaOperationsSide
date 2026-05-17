@@ -4,7 +4,7 @@ import 'package:flutter_supabase_order_app_mobile/core/providers/user_profile_st
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/products/product_routes_json.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/influencers/influencer_barrel.dart';
 import 'package:go_router/go_router.dart';
 
 class LoadingPage extends ConsumerWidget {
@@ -29,7 +29,7 @@ class LoadingPage extends ConsumerWidget {
         final roleName = rbacService.roleName?.toLowerCase();
 
         if (roleName == 'guest') {
-          context.goNamed(ProductsRoutesJson.listRouteName);
+          context.goNamed(InfluencerRoutesJson.listRouteName);
         } else if (roleName == 'salesperson') {
           context.goNamed(
             BrandsRoutesJson.listRouteName,
