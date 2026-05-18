@@ -88,12 +88,36 @@ class CustomDrawer extends ConsumerWidget {
 
           // Removed Todays Brands per user request
 
+          // Agencies
+          ReadEntityTile(
+            moduleName: ModelAgencyFields.table, // "agencies"
+            routeName: AgenciesRoutesJson.listRouteName,
+            title: 'Agencies',
+            icon: Icons.alt_route,
+          ),
+
+          // Brands
+          ReadEntityTile(
+            moduleName: ModelBrandFields.table, // "brands"
+            routeName: BrandsRoutesJson.listRouteName,
+            title: 'Brands',
+            icon: Icons.store,
+          ),
+
           // Campaigns
           ReadEntityTile(
             moduleName: ModelCampaignFields.table, // "campaigns"
             routeName: CampaignsRoutesJson.listRouteName,
             title: 'Campaigns',
             icon: Icons.receipt_long,
+          ),
+
+          // Collaborations
+          ReadEntityTile(
+            moduleName: ModelCollaborationFields.table, // "collaborations"
+            routeName: CollaborationsRoutesJson.listRouteName,
+            title: 'Collaborations',
+            icon: Icons.list_alt,
           ),
 
           // Influencers
@@ -125,22 +149,6 @@ class CustomDrawer extends ConsumerWidget {
               title: const Text('Profile'),
               onTap: () => context.goNamed(AppRoute.profileName),
             ),
-
-          // Brands
-          ReadEntityTile(
-            moduleName: ModelBrandFields.table, // "brands"
-            routeName: BrandsRoutesJson.listRouteName,
-            title: 'All Brands',
-            icon: Icons.store,
-          ),
-
-          // Collaborations
-          ReadEntityTile(
-            moduleName: ModelCollaborationFields.table, // "collaborations"
-            routeName: CollaborationsRoutesJson.listRouteName,
-            title: 'Collaborations',
-            icon: Icons.list_alt,
-          ),
 
           // Users
           ReadEntityTile(
@@ -174,15 +182,7 @@ class CustomDrawer extends ConsumerWidget {
             icon: Icons.lock_open,
           ),
 
-          // Routes
-          ReadEntityTile(
-            moduleName: ModelAgencyFields.table, // "routes"
-            routeName: AgenciesRoutesJson.listRouteName,
-            title: 'Agencies',
-            icon: Icons.alt_route,
-          ),
-
-          // Route Brand Links
+          // Agency Brand Links
           ReadEntityTile(
             moduleName:
                 ModelAgencyBrandLinkFields.table, // "agency_brand_links"

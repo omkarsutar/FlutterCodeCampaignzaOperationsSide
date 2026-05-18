@@ -58,7 +58,9 @@ class CollaborationListController
       final influencers = await ref.watch(influencersStreamProvider.future);
 
       // Fetch Collaborations (service now handles sorting)
-      final items = await _service.fetchEntitiesByPo(poId);
+      final items = poId.isEmpty
+          ? await _service.fetchAll()
+          : await _service.fetchEntitiesByPo(poId);
 
       return CollaborationListState(
         isLoading: false,

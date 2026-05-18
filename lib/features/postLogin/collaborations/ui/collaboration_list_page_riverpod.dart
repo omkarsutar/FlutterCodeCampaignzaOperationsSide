@@ -6,7 +6,7 @@ import 'package:flutter_supabase_order_app_mobile/shared/widgets/shared_widget_b
 import '../providers/collaboration_providers.dart';
 import '../providers/collaboration_list_controller.dart';
 import 'collaboration_add_card.dart';
-import 'collaboration_card.dart';
+import '../../cart/ui/cart_item_card.dart';
 
 class CollaborationListPageRiverpod extends ConsumerStatefulWidget {
   final String poId;
@@ -62,13 +62,17 @@ class _CollaborationListPageRiverpodState
       collaborationListControllerProvider(widget.poId),
     );
 
-    // Watch the campaign itself by ID
-    final poAsync = ref.watch(campaignStreamByIdProvider(widget.poId));
+    // Watch the campaign itself by ID (only if poId is not empty)
+    final poAsync = widget.poId.isNotEmpty
+        ? ref.watch(campaignStreamByIdProvider(widget.poId))
+        : null;
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: '${widget.entityLabel}s for PO',
-        showBack: true,
+        title: widget.poId.isEmpty
+            ? 'All Collaborations'
+            : '${widget.entityLabel}s for PO',
+        showBack: widget.poId.isNotEmpty,
       ),
       drawer: const CustomDrawer(),
       body: Column(
@@ -77,24 +81,25 @@ class _CollaborationListPageRiverpodState
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
-                // Campaign card at the top (Header)
-                SliverToBoxAdapter(
-                  child: poAsync.when(
-                     loading: () => const LinearProgressIndicator(),
-                     error: (err, _) => Text('Error loading order: $err'),
-                     data: (po) {
-                       if (po == null) return const Text('Order not found');
-                       return CampaignListTile(
-                         entity: po,
-                         adapter: ref.read(campaignAdapterProvider),
-                         onTap: null,
-                         collaborationTile: true,
-                       );
-                     },
+                if (widget.poId.isNotEmpty && poAsync != null) ...[
+                  // Campaign card at the top (Header)
+                  SliverToBoxAdapter(
+                    child: poAsync.when(
+                       loading: () => const LinearProgressIndicator(),
+                       error: (err, _) => Text('Error loading order: $err'),
+                       data: (po) {
+                         if (po == null) return const Text('Order not found');
+                         return CampaignListTile(
+                           entity: po,
+                           adapter: ref.read(campaignAdapterProvider),
+                           onTap: null,
+                           collaborationTile: true,
+                         );
+                       },
+                    ),
                   ),
-                ),
-
-                const SliverToBoxAdapter(child: Divider()),
+                  const SliverToBoxAdapter(child: Divider()),
+                ],
 
                 // Items list
                 asyncState.when(
@@ -124,9 +129,11 @@ class _CollaborationListPageRiverpodState
                   ),
                   data: (state) {
                     if (state.items.isEmpty) {
-                      return const SliverFillRemaining(
+                      return SliverFillRemaining(
                         child: Center(
-                          child: Text('No items found. Add one below.'),
+                          child: Text(widget.poId.isEmpty
+                              ? 'No collaborations found.'
+                              : 'No items found. Add one below.'),
                         ),
                       );
                     }
@@ -135,10 +142,12 @@ class _CollaborationListPageRiverpodState
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate((context, index) {
                           final item = state.items[index];
-                          return CollaborationCard(
+                          return CartItemCard(
                             key: ValueKey(item.collaborationId),
                             entity: item,
                             influencers: state.influencers,
+                            isReadOnly: false,
+                            lastModifiedId: state.lastModifiedItemId,
                             poId: widget.poId,
                           );
                         }, childCount: state.items.length),
@@ -151,7 +160,7 @@ class _CollaborationListPageRiverpodState
           ),
 
           // Bottom Add Card
-          if (asyncState.value?.isNewItemAdded != true)
+          if (widget.poId.isNotEmpty && asyncState.value?.isNewItemAdded != true)
             CollaborationAddCard(
               influencers: asyncState.value?.influencers ?? [],
               poId: widget.poId,

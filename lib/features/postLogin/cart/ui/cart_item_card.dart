@@ -4,19 +4,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../collaborations/model/collaboration_model.dart';
 import '../../collaborations/providers/collaboration_providers.dart';
+import '../../collaborations/providers/collaboration_list_controller.dart';
 import '../../influencers/influencer_barrel.dart';
 import '../providers/cart_providers.dart';
+import '../providers/cart_controller.dart';
 
 class CartItemCard extends ConsumerStatefulWidget {
   final ModelCollaboration entity;
   final List<ModelInfluencer> influencers;
   final bool isReadOnly;
+  final String? lastModifiedId;
+  final String? poId;
 
   const CartItemCard({
     super.key,
     required this.entity,
     required this.influencers,
     this.isReadOnly = false,
+    this.lastModifiedId,
+    this.poId,
   });
 
   @override
@@ -64,7 +70,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final lastModifiedId = ref.watch(
+    final lastModifiedId = widget.lastModifiedId ?? ref.watch(
       cartProvider.select((s) => s.lastModifiedItemId),
     );
 
@@ -105,8 +111,16 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
           width: _isHighlighted ? 2 : 1,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          context.pushNamed(
+            'viewCollaboration',
+            pathParameters: {'id': widget.entity.collaborationId!},
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,11 +175,18 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                         const SizedBox(width: 4),
                         if (!widget.isReadOnly) ...[
                           GestureDetector(
-                            onTap: () {
-                              context.pushNamed(
+                            onTap: () async {
+                              await context.pushNamed(
                                 'editCollaboration',
                                 pathParameters: {'id': widget.entity.collaborationId!},
                               );
+                              if (context.mounted) {
+                                if (widget.poId != null) {
+                                  ref.invalidate(collaborationListControllerProvider(widget.poId!));
+                                } else {
+                                  ref.read(cartControllerProvider).initPendingOrder(context);
+                                }
+                              }
                             },
                             child: Icon(
                               Icons.edit_outlined,
@@ -206,9 +227,15 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
 
                               if (confirm == true && context.mounted) {
                                 try {
-                                  await ref
-                                      .read(collaborationServiceProvider)
-                                      .delete(widget.entity.collaborationId!);
+                                  if (widget.poId != null) {
+                                    await ref
+                                        .read(collaborationListControllerProvider(widget.poId!).notifier)
+                                        .deleteItem(widget.entity.collaborationId!, widget.poId!);
+                                  } else {
+                                    await ref
+                                        .read(collaborationServiceProvider)
+                                        .delete(widget.entity.collaborationId!);
+                                  }
                                 } catch (e) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -288,6 +315,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
