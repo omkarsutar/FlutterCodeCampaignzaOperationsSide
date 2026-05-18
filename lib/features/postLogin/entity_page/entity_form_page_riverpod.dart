@@ -24,6 +24,7 @@ class EntityFormPageRiverpod<T> extends ConsumerStatefulWidget {
   // Riverpod providers
   final AutoDisposeFutureProviderFamily<T?, String> entityByIdProvider;
   final Provider<EntityAdapter<T>> adapterProvider;
+  final AutoDisposeStateNotifierProvider<dynamic, dynamic>? formProvider;
 
   // Callbacks for entity-specific operations
   final Future<bool> Function(
@@ -47,6 +48,7 @@ class EntityFormPageRiverpod<T> extends ConsumerStatefulWidget {
     required this.onSave,
     this.initialValues,
     this.defaultValues,
+    this.formProvider,
   });
 
   @override
@@ -97,9 +99,6 @@ class _EntityFormPageRiverpodState<T>
 
   void _initializeControllers() {
     for (var field in widget.fieldConfigs) {
-      // Only initialize controllers for fields visible in form
-      if (!field.visibleInForm) continue;
-
       final defaultValue = widget.defaultValues?[field.name];
 
       if (field.type == FieldType.switchField) {
@@ -111,11 +110,9 @@ class _EntityFormPageRiverpodState<T>
             field.dropdownOptions!.isNotEmpty) {
           _dropdownValues[field.name] = field.dropdownOptions!.first;
         }
-        // Dropdown doesn't use TextEditingController in this implementation
       } else if (field.type == FieldType.selector) {
         if (defaultValue != null) {
           _dropdownValues[field.name] = defaultValue.toString();
-          // We might not have the label yet if it's just a default ID
           _selectorLabels[field.name] = defaultValue.toString();
         }
       } else {
@@ -124,8 +121,15 @@ class _EntityFormPageRiverpodState<T>
         );
       }
     }
-    // Set first text field focus node
-    if (_controllers.isNotEmpty) {
+    // Set first text field focus node if there are visible text fields
+    final hasVisibleTextControllers = widget.fieldConfigs.any(
+      (f) =>
+          f.visibleInForm &&
+          f.type != FieldType.switchField &&
+          f.type != FieldType.dropdown &&
+          f.type != FieldType.selector,
+    );
+    if (hasVisibleTextControllers) {
       _firstFocusNode = FocusNode();
     }
   }
@@ -166,9 +170,27 @@ class _EntityFormPageRiverpodState<T>
   Future<void> _onSavePressed(GenericFormController controller) async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Determine currently visible fields (taking into account any conditional filtering)
+    var activeFields = widget.fieldConfigs.where((field) => field.visibleInForm).toList();
+    if (widget.entityMeta.entityNameLower == 'collaboration') {
+      final commissionType = _dropdownValues['commission_type'] ?? 'percentage';
+      activeFields = activeFields.where((field) {
+        if (field.name == 'commission_rate') return commissionType == 'percentage';
+        if (field.name == 'fixed_amount') return commissionType == 'fixed_amount';
+        if (field.name == 'barter_description') return commissionType == 'barter';
+        return true;
+      }).toList();
+    }
+    final activeFieldNames = activeFields.map((f) => f.name).toSet();
+
     // Collect field values
     final fieldValues = <String, dynamic>{};
     for (var field in widget.fieldConfigs) {
+      if (field.visibleInForm && !activeFieldNames.contains(field.name)) {
+        fieldValues[field.name] = null;
+        continue;
+      }
+
       if (field.type == FieldType.switchField) {
         fieldValues[field.name] = _switchValues[field.name] ?? false;
       } else if (field.type == FieldType.dropdown ||
@@ -191,9 +213,26 @@ class _EntityFormPageRiverpodState<T>
   List<Widget> _buildFormFields(
     Map<String, List<Map<String, dynamic>>> dropdownOptions,
   ) {
-    final visibleFields = widget.fieldConfigs
+    var visibleFields = widget.fieldConfigs
         .where((field) => field.visibleInForm)
         .toList();
+
+    // Custom conditional visibility logic for Collaborations
+    if (widget.entityMeta.entityNameLower == 'collaboration') {
+      final commissionType = _dropdownValues['commission_type'] ?? 'percentage';
+      visibleFields = visibleFields.where((field) {
+        if (field.name == 'commission_rate') {
+          return commissionType == 'percentage';
+        }
+        if (field.name == 'fixed_amount') {
+          return commissionType == 'fixed_amount';
+        }
+        if (field.name == 'barter_description') {
+          return commissionType == 'barter';
+        }
+        return true;
+      }).toList();
+    }
 
     if (visibleFields.isEmpty) {
       return [const SizedBox.shrink()];
@@ -489,6 +528,11 @@ class _EntityFormPageRiverpodState<T>
 
   @override
   Widget build(BuildContext context) {
+    // Watch/Keep alive the form notifier provider if passed
+    if (widget.formProvider != null) {
+      ref.watch(widget.formProvider!);
+    }
+
     final isEditMode = widget.entityId != null;
 
     // Controller
@@ -511,7 +555,11 @@ class _EntityFormPageRiverpodState<T>
         SnackbarUtils.showSuccess(
           '${widget.entityMeta.entityName} saved successfully!',
         );
-        context.goNamed(widget.listRouteName);
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.goNamed(widget.listRouteName);
+        }
       } else if (next.error != null && !next.isLoading) {
         ErrorHandler.handle(
           Exception(next.error),

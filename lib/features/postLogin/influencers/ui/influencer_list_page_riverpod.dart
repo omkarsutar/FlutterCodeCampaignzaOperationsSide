@@ -8,6 +8,7 @@ import '../../../../core/models/entity_meta.dart';
 import '../../../../core/services/entity_service.dart';
 import '../../../../core/providers/localization_provider.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
+import '../../../../shared/widgets/custom_drawer.dart';
 import '../model/influencer_model.dart';
 import '../providers/influencer_providers.dart';
 import 'influencer_list_tile.dart';
@@ -53,6 +54,7 @@ class InfluencerListPageRiverpod extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
+      drawer: isSelectionMode ? null : const CustomDrawer(),
       appBar: CustomAppBar(
         title: isSelectionMode
             ? 'Select ${entityMeta.entityNamePlural}'
@@ -121,7 +123,7 @@ class InfluencerListPageRiverpod extends ConsumerWidget {
                     } else {
                       context.pushNamed(
                         viewRouteName,
-                        pathParameters: {idField: entity.influencerId!},
+                        pathParameters: {'id': entity.influencerId!},
                       );
                     }
                   },

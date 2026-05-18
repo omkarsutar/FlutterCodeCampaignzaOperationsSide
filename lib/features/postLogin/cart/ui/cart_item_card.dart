@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../collaborations/model/collaboration_model.dart';
+import '../../collaborations/providers/collaboration_providers.dart';
 import '../../influencers/influencer_barrel.dart';
 import '../providers/cart_providers.dart';
 
@@ -157,11 +159,68 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        if (!widget.isReadOnly)
+                        if (!widget.isReadOnly) ...[
                           GestureDetector(
-                            onTap: () => ref
-                                .read(cartProvider.notifier)
-                                .removeItem(widget.entity.collaborationId!),
+                            onTap: () {
+                              context.pushNamed(
+                                'editCollaboration',
+                                pathParameters: {'id': widget.entity.collaborationId!},
+                              );
+                            },
+                            child: Icon(
+                              Icons.edit_outlined,
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.7,
+                              ),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          GestureDetector(
+                            onTap: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Delete Collaboration?'),
+                                  content: const Text(
+                                    'Are you sure you want to delete this collaboration from this campaign?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context, false),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () => Navigator.pop(context, true),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                      ),
+                                      child: const Text(
+                                        'Delete',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true && context.mounted) {
+                                try {
+                                  await ref
+                                      .read(collaborationServiceProvider)
+                                      .delete(widget.entity.collaborationId!);
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Failed to delete: $e'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+                            },
                             child: Icon(
                               Icons.delete_outline_rounded,
                               color: theme.colorScheme.error.withValues(
@@ -170,6 +229,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                               size: 20,
                             ),
                           ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 4),

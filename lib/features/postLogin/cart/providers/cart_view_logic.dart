@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../collaborations/model/collaboration_model.dart';
+import '../../collaborations/providers/collaboration_providers.dart';
 import '../providers/cart_providers.dart';
 import '../../influencers/influencer_barrel.dart';
 
@@ -37,9 +38,19 @@ class ProcessedCartData {
 
 final cartViewLogicProvider = Provider.autoDispose<ProcessedCartData>((ref) {
   final cartState = ref.watch(cartProvider);
+  final campaignId = cartState.campaignId;
+
+  // Watch the live Supabase stream if we have a campaignId
+  final List<ModelCollaboration> rawItems;
+  if (campaignId != null && campaignId.isNotEmpty) {
+    rawItems = ref.watch(collaborationsByPoIdProvider(campaignId)).value ?? [];
+  } else {
+    rawItems = cartState.items;
+  }
+
   final influencers = ref.watch(influencersStreamProvider).value ?? [];
 
-  final processedItems = cartState.items.map((item) {
+  final processedItems = rawItems.map((item) {
     // Resolve influencer name
     String influencerName = item.resolvedLabels['influencer_id_label'] ?? 'Unknown';
     if (influencerName == 'Unknown') {
@@ -64,11 +75,13 @@ final cartViewLogicProvider = Provider.autoDispose<ProcessedCartData>((ref) {
     );
   }).toList();
 
+  final double totalAmount = rawItems.fold(0.0, (sum, item) => sum + (item.agreedCommissionAmount ?? 0.0));
+
   return ProcessedCartData(
     items: processedItems,
-    totalAmount: cartState.totalAmount.round().toString(),
+    totalAmount: totalAmount.round().toString(),
     totalProfit: '0.00',
-    itemCount: cartState.items.length,
-    isEmpty: cartState.items.isEmpty,
+    itemCount: rawItems.length,
+    isEmpty: rawItems.isEmpty,
   );
 });

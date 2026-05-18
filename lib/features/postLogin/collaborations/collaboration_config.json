@@ -2,7 +2,7 @@
     "moduleName": "collaborations",
     "entityMeta": {
         "entityName": "Collaboration",
-        "entityNameLower": "collaborations",
+        "entityNameLower": "collaboration",
         "entityNamePlural": "Collaborations",
         "entityNamePluralLower": "collaborations"
     },
@@ -25,15 +25,14 @@
             "sortAscending": false
         },
         "searchFields": [
-            "item_name",
-            "product_id_label",
-            "po_id"
+            "influencer_id_label",
+            "commission_type"
         ]
     },
     "fields": [
         {
             "name": "collaboration_id",
-            "label": "Item ID",
+            "label": "Collaboration ID",
             "type": "text",
             "required": true,
             "readOnly": true,
@@ -41,119 +40,112 @@
             "visibleInForm": false
         },
         {
-            "name": "po_id",
-            "label": "Campaign",
-            "type": "dropdown",
+            "name": "campaign_id",
+            "label": "Campaign ID",
+            "type": "text",
             "required": true,
-            "visibleInList": true,
-            "dropdownSource": {
-                "table": "campaign",
-                "valueKey": "po_id",
-                "labelKey": "po_id"
-            },
+            "readOnly": true,
+            "visibleInList": false,
             "visibleInForm": false
         },
         {
-            "name": "product_id",
-            "label": "Product",
-            "type": "dropdown",
+            "name": "influencer_id",
+            "label": "Influencer",
+            "type": "selector",
             "required": true,
             "visibleInList": true,
             "visibleInForm": true,
             "dropdownSource": {
-                "table": "product",
-                "valueKey": "product_id",
-                "labelKey": "product_name"
+                "routeName": "influencers",
+                "table": "influencer",
+                "valueKey": "influencer_id",
+                "labelKey": "influencer_name"
             }
         },
         {
-            "name": "item_name",
-            "label": "Item Name",
-            "type": "text",
+            "name": "commission_type",
+            "label": "Commission Type",
+            "type": "dropdown",
+            "required": true,
+            "dropdownOptions": [
+                "percentage",
+                "fixed_amount",
+                "barter"
+            ]
+        },
+        {
+            "name": "commission_rate",
+            "label": "Commission Rate (%)",
+            "type": "doubleField",
             "required": false,
             "visibleInList": true,
             "visibleInForm": true,
-            "maxLength": 255
+            "suffix": "%"
         },
         {
-            "name": "item_qty",
-            "label": "Quantity",
+            "name": "fixed_amount",
+            "label": "Fixed Amount",
+            "type": "doubleField",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true,
+            "prefix": "₹"
+        },
+        {
+            "name": "barter_description",
+            "label": "Barter Description",
+            "type": "textarea",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true,
+            "maxLength": 1000
+        },
+        {
+            "name": "agreed_commission_amount",
+            "label": "Agreed Commission Amount",
             "type": "doubleField",
             "required": true,
             "visibleInList": true,
             "visibleInForm": true,
-            "suffix": " units"
+            "prefix": "₹"
         },
         {
-            "name": "item_sell_rate",
-            "label": "Sell Rate",
-            "type": "doubleField",
-            "required": true,
-            "visibleInList": true,
-            "visibleInForm": true,
-            "prefix": "₹ "
-        },
-        {
-            "name": "item_price",
-            "label": "Item Price",
-            "type": "doubleField",
-            "required": true,
-            "visibleInList": true,
-            "visibleInForm": true,
-            "prefix": "₹ "
-        },
-        {
-            "name": "item_unit_mrp",
-            "label": "Unit MRP",
-            "type": "doubleField",
+            "name": "is_accepted_by_influencer",
+            "label": "Accepted by Influencer",
+            "type": "switchField",
             "required": false,
-            "visibleInList": false,
-            "visibleInForm": true,
-            "prefix": "₹ "
-        },
-        {
-            "name": "profit_to_brand",
-            "label": "Profit to Brand",
-            "type": "doubleField",
-            "required": false,
-            "visibleInList": false,
-            "visibleInForm": true,
-            "prefix": "₹ "
+            "visibleInList": true,
+            "visibleInForm": true
         },
         {
             "name": "created_by",
             "label": "Created By",
             "type": "dropdown",
             "required": true,
-            "readOnly": true,
-            "visibleInList": false,
-            "visibleInForm": false,
             "dropdownSource": {
                 "table": "users",
                 "valueKey": "user_id",
                 "labelKey": "full_name"
-            }
+            },
+            "visibleInForm": false
         },
         {
             "name": "updated_by",
             "label": "Updated By",
             "type": "dropdown",
             "required": true,
-            "readOnly": true,
-            "visibleInList": false,
-            "visibleInForm": false,
             "dropdownSource": {
                 "table": "users",
                 "valueKey": "user_id",
                 "labelKey": "full_name"
-            }
+            },
+            "visibleInForm": false
         },
         {
             "name": "created_at",
             "label": "Created At",
             "type": "text",
             "required": false,
-            "readOnly": true,
             "visibleInList": false,
             "visibleInForm": false
         },
@@ -162,7 +154,6 @@
             "label": "Updated At",
             "type": "text",
             "required": false,
-            "readOnly": true,
             "visibleInList": false,
             "visibleInForm": false
         }

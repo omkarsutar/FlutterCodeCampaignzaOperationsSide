@@ -178,6 +178,7 @@ class ModuleRouteGenerator<T> {
           adapterProvider: adapterProvider,
           onSave: _createOnSaveCallback(),
           defaultValues: initialValues,
+          formProvider: formProvider,
         );
       },
     );
@@ -227,6 +228,7 @@ class ModuleRouteGenerator<T> {
           adapterProvider: adapterProvider,
           onSave: _createOnSaveCallback(),
           initialValues: null,
+          formProvider: formProvider,
         );
       },
     );

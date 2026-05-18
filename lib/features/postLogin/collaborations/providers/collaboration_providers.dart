@@ -51,44 +51,53 @@ final collaborationFormProvider =
     >((ref) => CollaborationFormNotifier(ref));
 
 /// Form state for Collaboration
+/// Form state for Collaboration
 class CollaborationFormState {
-  final String poId;
-  final String itemId;
-  final int itemQuantity;
-  final double itemPrice;
-  final double itemSellRate;
-  final double? profitToBrand;
+  final String campaignId;
+  final String influencerId;
+  final CommissionType commissionType;
+  final double? commissionRate;
+  final double? fixedAmount;
+  final String? barterDescription;
+  final double agreedCommissionAmount;
+  final bool isAcceptedByInfluencer;
   final bool isLoading;
   final String? error;
 
   CollaborationFormState({
-    this.poId = '',
-    this.itemId = '',
-    this.itemQuantity = 0,
-    this.itemPrice = 0.0,
-    this.itemSellRate = 0.0,
-    this.profitToBrand,
+    this.campaignId = '',
+    this.influencerId = '',
+    this.commissionType = CommissionType.percentage,
+    this.commissionRate,
+    this.fixedAmount,
+    this.barterDescription,
+    this.agreedCommissionAmount = 0.0,
+    this.isAcceptedByInfluencer = false,
     this.isLoading = false,
     this.error,
   });
 
   CollaborationFormState copyWith({
-    String? poId,
-    String? itemId,
-    int? itemQuantity,
-    double? itemPrice,
-    double? itemSellRate,
-    double? profitToBrand,
+    String? campaignId,
+    String? influencerId,
+    CommissionType? commissionType,
+    double? commissionRate,
+    double? fixedAmount,
+    String? barterDescription,
+    double? agreedCommissionAmount,
+    bool? isAcceptedByInfluencer,
     bool? isLoading,
     String? error,
   }) {
     return CollaborationFormState(
-      poId: poId ?? this.poId,
-      itemId: itemId ?? this.itemId,
-      itemQuantity: itemQuantity ?? this.itemQuantity,
-      itemPrice: itemPrice ?? this.itemPrice,
-      itemSellRate: itemSellRate ?? this.itemSellRate,
-      profitToBrand: profitToBrand ?? this.profitToBrand,
+      campaignId: campaignId ?? this.campaignId,
+      influencerId: influencerId ?? this.influencerId,
+      commissionType: commissionType ?? this.commissionType,
+      commissionRate: commissionRate ?? this.commissionRate,
+      fixedAmount: fixedAmount ?? this.fixedAmount,
+      barterDescription: barterDescription ?? this.barterDescription,
+      agreedCommissionAmount: agreedCommissionAmount ?? this.agreedCommissionAmount,
+      isAcceptedByInfluencer: isAcceptedByInfluencer ?? this.isAcceptedByInfluencer,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -108,50 +117,116 @@ class CollaborationFormNotifier extends StateNotifier<CollaborationFormState> {
     super.dispose();
   }
 
-  void updatePoId(String poId) {
+  void updateField(String fieldName, dynamic value) {
     if (!_mounted) return;
-    state = state.copyWith(poId: poId, error: null);
+    switch (fieldName) {
+      case ModelCollaborationFields.campaignId:
+        state = state.copyWith(campaignId: value?.toString() ?? '', error: null);
+        break;
+      case ModelCollaborationFields.influencerId:
+        state = state.copyWith(influencerId: value?.toString() ?? '', error: null);
+        break;
+      case ModelCollaborationFields.commissionType:
+        if (value is CommissionType) {
+          state = state.copyWith(commissionType: value, error: null);
+        } else if (value != null) {
+          state = state.copyWith(
+            commissionType: CommissionType.fromString(value.toString()),
+            error: null,
+          );
+        }
+        break;
+      case ModelCollaborationFields.commissionRate:
+        state = state.copyWith(
+          commissionRate: value != null ? double.tryParse(value.toString()) : null,
+          error: null,
+        );
+        break;
+      case ModelCollaborationFields.fixedAmount:
+        state = state.copyWith(
+          fixedAmount: value != null ? double.tryParse(value.toString()) : null,
+          error: null,
+        );
+        break;
+      case ModelCollaborationFields.barterDescription:
+        state = state.copyWith(barterDescription: value?.toString(), error: null);
+        break;
+      case ModelCollaborationFields.agreedCommissionAmount:
+        state = state.copyWith(
+          agreedCommissionAmount: double.tryParse(value?.toString() ?? '0.0') ?? 0.0,
+          error: null,
+        );
+        break;
+      case ModelCollaborationFields.isAcceptedByInfluencer:
+        state = state.copyWith(
+          isAcceptedByInfluencer: value == true,
+          error: null,
+        );
+        break;
+    }
   }
 
-  void updateItemId(String itemId) {
-    if (!_mounted) return;
-    state = state.copyWith(itemId: itemId, error: null);
+  Future<bool> saveEntity({String? entityId}) async {
+    if (!_mounted) return false;
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final service = ref.read(collaborationServiceProvider);
+      final entity = ModelCollaboration(
+        collaborationId: entityId,
+        campaignId: state.campaignId.trim(),
+        influencerId: state.influencerId.trim(),
+        commissionType: state.commissionType,
+        commissionRate: state.commissionRate,
+        fixedAmount: state.fixedAmount,
+        barterDescription: state.barterDescription?.trim(),
+        agreedCommissionAmount: state.agreedCommissionAmount,
+        isAcceptedByInfluencer: state.isAcceptedByInfluencer,
+      );
+
+      if (entityId == null) {
+        // Create new collaboration
+        await service.create(entity);
+      } else {
+        // Update existing collaboration
+        await service.update(entityId, entity);
+      }
+
+      state = state.copyWith(isLoading: false);
+      return true;
+    } catch (e) {
+      if (!_mounted) return false;
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
   }
 
-  void updateItemQuantity(int quantity) {
-    if (!_mounted) return;
-    state = state.copyWith(itemQuantity: quantity, error: null);
-  }
+  Future<bool> deleteEntity(String id) async {
+    if (!_mounted) return false;
+    state = state.copyWith(isLoading: true, error: null);
 
-  void updateItemPrice(double price) {
-    if (!_mounted) return;
-    state = state.copyWith(itemPrice: price, error: null);
-  }
-
-  void updateItemSellRate(double sellRate) {
-    if (!_mounted) return;
-    state = state.copyWith(itemSellRate: sellRate, error: null);
-  }
-
-  void updateProfitToBrand(double? profit) {
-    if (!_mounted) return;
-    state = state.copyWith(profitToBrand: profit, error: null);
-  }
-
-  void setLoading(bool isLoading) {
-    if (!_mounted) return;
-    state = state.copyWith(isLoading: isLoading);
-  }
-
-  void setError(String? error) {
-    if (!_mounted) return;
-    state = state.copyWith(error: error);
+    try {
+      final service = ref.read(collaborationServiceProvider);
+      await service.delete(id);
+      state = state.copyWith(isLoading: false);
+      return true;
+    } catch (e) {
+      if (!_mounted) return false;
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
   }
 
   void reset() {
     if (!_mounted) return;
     state = CollaborationFormState();
   }
+
+  /// Generic save method for ModuleRouteGenerator
+  Future<bool> save({String? entityId}) => saveEntity(entityId: entityId);
+
+  /// Generic delete method for ModuleRouteGenerator
+  Future<bool> delete(String id) => deleteEntity(id);
 }
 
 /// Collaboration Stream by PO ID (filtered by parent PO)

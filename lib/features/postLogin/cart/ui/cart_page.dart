@@ -12,7 +12,7 @@ import '../../agencies/agency_barrel.dart';
 import '../../campaigns/ui/widgets/po_brand_route_info.dart';
 import '../../campaigns/ui/widgets/po_actions.dart';
 import '../../campaigns/campaign_barrel.dart';
-import '../../collaborations/ui/collaboration_add_card.dart';
+import '../../collaborations/providers/collaboration_providers.dart';
 import 'cart_item_card.dart';
 
 class CartPage extends ConsumerStatefulWidget {
@@ -71,41 +71,6 @@ class _CartPageState extends ConsumerState<CartPage>
     super.dispose();
   }
 
-  Future<void> _addInfluencerToCart(BuildContext context) async {
-    final result = await context.pushNamed(
-      InfluencerRoutesJson.listRouteName,
-      queryParameters: {'selection': 'true'},
-    );
-
-    if (result is ModelInfluencer) {
-      if (!context.mounted) return;
-      
-      final poId = ref.read(cartProvider).campaignId ?? 'new_campaign';
-      
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: CollaborationAddCard(
-              influencers: const [],
-              poId: poId,
-              initialInfluencer: result,
-              onAddLocal: (newItem) {
-                ref.read(cartProvider.notifier).addItem(newItem);
-                Navigator.pop(context);
-              },
-            ),
-          );
-        },
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -160,11 +125,23 @@ class _CartPageState extends ConsumerState<CartPage>
                         ),
                         const SizedBox(height: 24),
                         FilledButton.icon(
-                          onPressed: () => _addInfluencerToCart(context),
-                          icon: const Icon(Icons.add_shopping_cart),
-                          label: Text(
-                            l10n['go_to_influencers'] ?? 'Go to Influencers',
-                          ),
+                          onPressed: () {
+                            final campaignId = ref.read(cartProvider).campaignId;
+                            if (campaignId == null || campaignId.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('No active campaign loaded.'),
+                                ),
+                              );
+                              return;
+                            }
+                            context.pushNamed(
+                              'newCollaboration',
+                              queryParameters: {'campaign_id': campaignId},
+                            );
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Collaboration'),
                         ),
                       ],
                     ),
@@ -317,6 +294,8 @@ class _CartPageState extends ConsumerState<CartPage>
     Map<String, String> l10n,
   ) {
     final theme = Theme.of(context);
+    final campaignId = ref.watch(cartProvider).campaignId;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -334,58 +313,97 @@ class _CartPageState extends ConsumerState<CartPage>
         top: false,
         child: Row(
           children: [
-            // Add Items
-            Expanded(
-              flex: 2,
-              child: OutlinedButton.icon(
-                onPressed: () => _addInfluencerToCart(context),
-                icon: const Icon(Icons.add, size: 18),
-                label: Text(l10n['add_items'] ?? 'Add Items'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+            // Delete All Button
+            OutlinedButton.icon(
+              onPressed: () async {
+                if (campaignId == null || campaignId.isEmpty) return;
+
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Delete All Collaborations?'),
+                    content: const Text(
+                      'Are you sure you want to delete all collaborations for this campaign from Supabase? This action cannot be undone.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        child: const Text(
+                          'Delete All',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            // Empty Cart
-            OutlinedButton(
-              onPressed: () =>
-                  ref.read(cartControllerProvider).clearCart(context),
+                );
+
+                if (confirm == true && context.mounted) {
+                  try {
+                    await ref
+                        .read(collaborationServiceProvider)
+                        .deleteAllByPo(campaignId);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Successfully deleted all collaborations.'),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Failed to delete all: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                }
+              },
+              icon: const Icon(Icons.delete_sweep_outlined, color: Colors.red),
+              label: const Text('Delete All', style: TextStyle(color: Colors.red)),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: BorderSide(color: Colors.red.withValues(alpha: 0.5)),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 16,
-                ),
+                side: const BorderSide(color: Colors.red),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              child: const Icon(Icons.delete_outline_rounded),
             ),
-            const SizedBox(width: 10),
-            // Place Order
+            const SizedBox(width: 12),
+            // Add Collaboration Button
             Expanded(
-              flex: 3,
               child: ElevatedButton.icon(
-                onPressed: () => ref
-                    .read(cartControllerProvider)
-                    .handleOrderAction(context, viewData),
-                icon: const Icon(
-                  Icons.shopping_cart_checkout_rounded,
-                  size: 18,
-                ),
-                label: Text(
-                  l10n['place_order'] ?? 'Place Order',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                onPressed: () {
+                  if (campaignId == null || campaignId.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('No active campaign loaded.'),
+                      ),
+                    );
+                    return;
+                  }
+                  context.pushNamed(
+                    'newCollaboration',
+                    queryParameters: {'campaign_id': campaignId},
+                  );
+                },
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text(
+                  'Add Collaboration',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[700],
-                  foregroundColor: Colors.white,
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
