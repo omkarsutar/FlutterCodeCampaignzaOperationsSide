@@ -241,6 +241,31 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     return mapper.fromMap(response);
   }
 
+  @override
+  Future<ModelCampaign> create(ModelCampaign entity) async {
+    final userId = _ref.read(userProfileStateProvider).profile?.userId;
+    if (userId == null) throw Exception('No signed-in user found');
+
+    final enriched = entity.copyWith(
+      createdBy: userId,
+      updatedBy: userId,
+    );
+
+    return super.create(enriched);
+  }
+
+  @override
+  Future<ModelCampaign> update(String id, ModelCampaign entity) async {
+    final userId = _ref.read(userProfileStateProvider).profile?.userId;
+    if (userId == null) throw Exception('No signed-in user found');
+
+    final enriched = entity.copyWith(
+      updatedBy: userId,
+    );
+
+    return super.update(id, enriched);
+  }
+
   // --- Override insertEntity to enrich with createdBy/updatedBy ---
   @override
   Future<void> insertEntity(ModelCampaign entity) async {

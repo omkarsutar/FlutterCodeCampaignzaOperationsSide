@@ -14,7 +14,6 @@ import 'campaign_list_tile.dart';
 import '../../cart/providers/cart_controller.dart';
 import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/utils/core_utils_barrel.dart';
-import '../../../../core/services/error_handler.dart';
 
 /// Custom Campaign List Page - Riverpod & JSON based
 ///
@@ -125,7 +124,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
       drawer: queryParams.showBackButton ? null : const CustomDrawer(),
       floatingActionButton: (filterBrandId != null && brand != null)
           ? FloatingActionButton.extended(
-              onPressed: () async {
+              onPressed: () {
                 final agencyId = ref
                     .read(userProfileStateProvider)
                     .profile
@@ -136,36 +135,13 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
                   return;
                 }
 
-                final confirmed = await showConfirmationDialog(
-                  context: context,
-                  title: 'New Campaign',
-                  content: 'Are you sure you want to create a new Campaign?',
-                  confirmLabel: 'Create',
+                context.pushNamed(
+                  widget.newRouteName,
+                  queryParameters: {
+                    'campaign_agency_id': agencyId,
+                    'campaign_brand_id': filterBrandId,
+                  },
                 );
-                
-                if (confirmed) {
-                  try {
-                    await ref.read(campaignServiceProvider).createEmptyCampaign(
-                          poAgencyId: agencyId,
-                          poBrandId: filterBrandId,
-                        );
-                    if (context.mounted) {
-                      SnackbarUtils.showSuccess('Campaign Created');
-                      ref
-                          .read(campaignListControllerProvider('campaignList').notifier)
-                          .refreshData();
-                    }
-                  } catch (e, stackTrace) {
-                    if (context.mounted) {
-                      ErrorHandler.handle(
-                        e,
-                        stackTrace,
-                        context: 'Creating campaign',
-                        showToUser: true,
-                      );
-                    }
-                  }
-                }
               },
               icon: const Icon(Icons.add),
               label: const Text('Add Campaign'),

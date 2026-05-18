@@ -9,7 +9,7 @@
     "table": {
         "name": "campaign",
         "viewName": "view_campaigns",
-        "idField": "po_id",
+        "idField": "campaign_id",
         "timestampField": "created_at"
     },
     "routes": {
@@ -34,8 +34,8 @@
     },
     "fields": [
         {
-            "name": "po_id",
-            "label": "PO ID",
+            "name": "campaign_id",
+            "label": "Campaign ID",
             "type": "text",
             "required": true,
             "readOnly": true,
@@ -43,7 +43,7 @@
             "visibleInForm": false
         },
         {
-            "name": "po_route_id",
+            "name": "campaign_agency_id",
             "label": "Agency",
             "type": "dropdown",
             "required": true,
@@ -54,7 +54,7 @@
             }
         },
         {
-            "name": "po_brand_id",
+            "name": "campaign_brand_id",
             "label": "Brand",
             "type": "dropdown",
             "required": true,
@@ -65,15 +65,8 @@
             }
         },
         {
-            "name": "po_total_amount",
-            "label": "Total Amount",
-            "type": "doubleField",
-            "required": false,
-            "prefix": "₹ "
-        },
-        {
             "name": "collaboration_count",
-            "label": "Line Item Count",
+            "label": "Collaboration Count",
             "type": "intField",
             "required": false
         },
@@ -85,23 +78,11 @@
             "maxLength": 500
         },
         {
-            "name": "profit_to_brand",
-            "label": "Profit to Brand",
-            "type": "doubleField",
+            "name": "admin_comment",
+            "label": "Admin Comment",
+            "type": "textarea",
             "required": false,
-            "prefix": "₹ "
-        },
-        {
-            "name": "po_lat",
-            "label": "Latitude",
-            "type": "doubleField",
-            "required": false
-        },
-        {
-            "name": "po_long",
-            "label": "Longitude",
-            "type": "doubleField",
-            "required": false
+            "maxLength": 500
         },
         {
             "name": "status",
