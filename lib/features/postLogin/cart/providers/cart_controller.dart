@@ -137,14 +137,11 @@ class CartController {
       if (context.mounted) {
         scaffoldMessengerKey.currentState?.showSnackBar(
           const SnackBar(
-            content: Text('Redirecting to Today\'s Brands for selection...'),
+            content: Text('Redirecting to Brands for selection...'),
             backgroundColor: Colors.blue,
           ),
         );
-        context.goNamed(
-          BrandsRoutesJson.listRouteName,
-          queryParameters: {'tapCondition': 'listWithoutTodaysPOs'},
-        );
+        context.goNamed(BrandsRoutesJson.listRouteName);
       }
       return;
     }

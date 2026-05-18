@@ -223,7 +223,8 @@ class ModelCollaboration {
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{};
 
-    if (collaborationId != null) {
+    // Only include collaborationId if it's a valid UUID (not a local-only ID)
+    if (collaborationId != null && _isValidUuid(collaborationId!)) {
       map[ModelCollaborationFields.collaborationId] = collaborationId;
     }
     if (campaignId != null) {
@@ -299,6 +300,14 @@ class ModelCollaboration {
           ? DateTime.tryParse(json['updatedAt'] as String)
           : null,
     );
+  }
+
+  /// Validates whether a string is a valid UUID v4 format
+  static bool _isValidUuid(String value) {
+    final uuidRegex = RegExp(
+      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+    );
+    return uuidRegex.hasMatch(value);
   }
 }
 

@@ -124,12 +124,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           return state.namedLocation(InfluencerRoutesJson.listRouteName);
         }
 
-        // Redirect salesperson to Todays Brands
+        // Redirect salesperson to All Brands
         if (roleName == 'salesperson') {
-          return state.namedLocation(
-            BrandsRoutesJson.listRouteName,
-            queryParameters: {'tapCondition': 'listWithoutTodaysPOs'},
-          );
+          return state.namedLocation(BrandsRoutesJson.listRouteName);
         }
 
         return state.namedLocation(CampaignsRoutesJson.listRouteName);

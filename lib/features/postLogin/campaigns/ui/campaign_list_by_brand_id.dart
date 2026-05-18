@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_supabase_order_app_mobile/core/utils/json_utils.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/ui/brand_list_tile.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +12,9 @@ import '../providers/campaign_list_controller.dart';
 import '../providers/campaign_providers.dart';
 import 'campaign_list_tile.dart';
 import '../../cart/providers/cart_controller.dart';
+import '../../../../core/providers/user_profile_state_provider.dart';
+import '../../../../core/utils/core_utils_barrel.dart';
+import '../../../../core/services/error_handler.dart';
 
 /// Custom Campaign List Page - Riverpod & JSON based
 ///
@@ -115,25 +117,60 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
     final queryParams = getBrandQueryParams(context);
 
     return Scaffold(
-      bottomNavigationBar: buildBrandBottomNav(
-        context: context,
-        ref: ref,
-        tapCondition: queryParams.tapCondition,
-        showBottomNav:
-            queryParams.filterBrandId !=
-            null, // only show if navigated from Brands
-      ),
       backgroundColor: theme.colorScheme.surface,
       appBar: CustomAppBar(
         title: widget.entityMeta.entityNamePlural,
         showBack: queryParams.showBackButton,
       ),
       drawer: queryParams.showBackButton ? null : const CustomDrawer(),
-      /* floatingActionButton: CreateEntityButton(
-        moduleName: ModelCampaignFields.table,
-        newRouteName: widget.newRouteName,
-        entityLabel: widget.entityMeta.entityName,
-      ), */
+      floatingActionButton: (filterBrandId != null && brand != null)
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                final agencyId = ref
+                    .read(userProfileStateProvider)
+                    .profile
+                    ?.preferredAgencyId;
+
+                if (agencyId == null) {
+                  SnackbarUtils.showError('Missing agency ID');
+                  return;
+                }
+
+                final confirmed = await showConfirmationDialog(
+                  context: context,
+                  title: 'New Campaign',
+                  content: 'Are you sure you want to create a new Campaign?',
+                  confirmLabel: 'Create',
+                );
+                
+                if (confirmed) {
+                  try {
+                    await ref.read(campaignServiceProvider).createEmptyCampaign(
+                          poAgencyId: agencyId,
+                          poBrandId: filterBrandId,
+                        );
+                    if (context.mounted) {
+                      SnackbarUtils.showSuccess('Campaign Created');
+                      ref
+                          .read(campaignListControllerProvider('campaignList').notifier)
+                          .refreshData();
+                    }
+                  } catch (e, stackTrace) {
+                    if (context.mounted) {
+                      ErrorHandler.handle(
+                        e,
+                        stackTrace,
+                        context: 'Creating campaign',
+                        showToUser: true,
+                      );
+                    }
+                  }
+                }
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Add Campaign'),
+            )
+          : null,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

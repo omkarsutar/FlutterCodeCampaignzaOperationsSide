@@ -86,24 +86,7 @@ class CustomDrawer extends ConsumerWidget {
             ),
           ),
 
-          /* ListTile(
-            leading: const Icon(Icons.tab), // 🗂️ Brand Tabs
-            title: const Text('Brand Tabs'),
-            onTap: () => context.goNamed(BrandsRoutes.brandsWithoutTodaysPOsName),
-          ), */
-          ReadEntityTile(
-            moduleName: ModelBrandFields.table, // "brands"
-            routeName: BrandsRoutesJson.listRouteName,
-            title: 'Todays Brands',
-            icon: Icons.store,
-            queryParameters: {
-              'tapCondition': 'listWithoutTodaysPOs',
-              'route_filter': 'north',
-            },
-            // Hide "Todays Brands" from drawer for deliveryperson and salesperson (they use "Todays Brands" or via POs)
-            // But they still have "Read" permission so the route works.
-            visible: !['deliveryperson'].contains(rbacService.roleName),
-          ),
+          // Removed Todays Brands per user request
 
           // Campaigns
           ReadEntityTile(
@@ -149,12 +132,6 @@ class CustomDrawer extends ConsumerWidget {
             routeName: BrandsRoutesJson.listRouteName,
             title: 'All Brands',
             icon: Icons.store,
-            // Hide "All Brands" from drawer for deliveryperson and salesperson (they use "Todays Brands" or via POs)
-            // But they still have "Read" permission so the route works.
-            visible: ![
-              'deliveryperson',
-              'salesperson',
-            ].contains(rbacService.roleName),
           ),
 
           // Collaborations

@@ -31,10 +31,7 @@ class LoadingPage extends ConsumerWidget {
         if (roleName == 'guest') {
           context.goNamed(InfluencerRoutesJson.listRouteName);
         } else if (roleName == 'salesperson') {
-          context.goNamed(
-            BrandsRoutesJson.listRouteName,
-            queryParameters: {'tapCondition': 'listWithoutTodaysPOs'},
-          );
+          context.goNamed(BrandsRoutesJson.listRouteName);
         } else {
           context.goNamed(CampaignsRoutesJson.listRouteName);
         }

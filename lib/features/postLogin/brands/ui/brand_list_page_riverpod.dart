@@ -101,31 +101,25 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
     final listState = ref.watch(brandListControllerProvider);
     final controller = ref.read(brandListControllerProvider.notifier);
 
-    final queryParams = getBrandQueryParams(context);
-    final tapCondition = queryParams.tapCondition;
-
-    // Watch the processed data from logic provider
-    final viewData = ref.watch(brandListViewLogicProvider(tapCondition));
+    final viewData = ref.watch(brandListViewLogicProvider);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: CustomAppBar(
-        title: getAppBarTitle(tapCondition),
+        title: getAppBarTitle(),
         showBack: false,
       ),
       drawer: const CustomDrawer(),
-      floatingActionButton: queryParams.isTapConditionEmpty
-          ? CreateEntityButton(
-              moduleName: widget.rbacModule,
-              newRouteName: widget.newRouteName,
-              entityLabel: widget.entityMeta.entityName,
-              queryParameters:
-                  listState.selectedRouteId != null &&
-                      widget.agencyIdField != null
-                  ? {widget.agencyIdField!: listState.selectedRouteId!}
-                  : null,
-            )
-          : null,
+      floatingActionButton: CreateEntityButton(
+        moduleName: widget.rbacModule,
+        newRouteName: widget.newRouteName,
+        entityLabel: widget.entityMeta.entityName,
+        queryParameters:
+            listState.selectedRouteId != null &&
+                widget.agencyIdField != null
+            ? {widget.agencyIdField!: listState.selectedRouteId!}
+            : null,
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -179,7 +173,6 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
             Expanded(
               child: _buildListContent(
                 theme: theme,
-                tapCondition: tapCondition,
                 entityAdapter: entityAdapter,
                 entityService: entityService,
                 viewData: viewData,
@@ -188,22 +181,12 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
           ],
         ),
       ),
-      bottomNavigationBar: buildBrandBottomNav(
-        context: context,
-        ref: ref,
-        tapCondition: tapCondition,
-        showBottomNav:
-            tapCondition == 'listWithoutTodaysPOs' ||
-            tapCondition == 'listWithTodaysEmptyPOs' ||
-            tapCondition == 'listWithTodaysFilledPOs',
-      ),
     );
   }
 
   /// Builds the list content based on processed data
   Widget _buildListContent({
     required ThemeData theme,
-    required String? tapCondition,
     required EntityAdapter<ModelBrand> entityAdapter,
     required EntityService<ModelBrand> entityService,
     required ProcessedBrandListData viewData,
@@ -269,7 +252,6 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
             context: context,
             entity: brand,
             adapter: entityAdapter,
-            tapCondition: tapCondition,
           );
 
           return widget.customItemBuilder!(
@@ -302,23 +284,14 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
     required BuildContext context,
     required ModelBrand entity,
     required EntityAdapter<ModelBrand> adapter,
-    required String? tapCondition,
   }) {
     return BrandListPageLogic.getOnTapForBrand(
       context: context,
       entity: entity,
       adapter: adapter,
-      tapCondition: tapCondition,
       isSelectionMode: widget.isSelectionMode,
       viewRouteName: widget.viewRouteName,
       idField: widget.idField,
-      handleCreatePO: (ctx, ent, adp) =>
-          BrandListPageLogic.handleCreateCampaign(
-            context: ctx,
-            ref: ref,
-            entity: ent,
-            adapter: adp,
-          ),
     );
   }
 }

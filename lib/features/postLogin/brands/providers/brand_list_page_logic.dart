@@ -4,27 +4,19 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/services/core_services_barrel.dart';
 import '../../../../core/utils/core_utils_barrel.dart';
-import '../../../../shared/widgets/brand_bottom_nav.dart';
 import '../../campaigns/campaign_barrel.dart';
 import '../model/brand_model.dart';
 
 /// Logic for Brand List Page navigation and actions
 class BrandListPageLogic {
-  /// Determines the tap action based on tapCondition
+  /// Determines the tap action
   static VoidCallback getOnTapForBrand({
     required BuildContext context,
     required ModelBrand entity,
     required EntityAdapter<ModelBrand> adapter,
-    required String? tapCondition,
     required bool isSelectionMode,
     required String viewRouteName,
     required String idField,
-    required Future<void> Function(
-      BuildContext,
-      ModelBrand,
-      EntityAdapter<ModelBrand>,
-    )
-    handleCreatePO,
   }) {
     // Handle selection mode - pop with selected entity
     if (isSelectionMode) {
@@ -33,29 +25,14 @@ class BrandListPageLogic {
 
     final brandId = adapter.getFieldValue(entity, ModelBrandFields.brandId);
 
-    // Create new PO for brands without today's POs
-    if (tapCondition == 'listWithoutTodaysPOs') {
-      return () => handleCreatePO(context, entity, adapter);
-    }
-
-    // Navigate to PO list for brands with today's POs
-    if (tapCondition == 'listWithTodaysEmptyPOs' ||
-        tapCondition == 'listWithTodaysFilledPOs') {
-      return () => context.pushNamed(
-        CampaignsRoutesJson.listRouteName,
-        queryParameters: {
-          'filterBrandId': brandId,
-          'showBackButton': 'true',
-          'tapCondition': tapCondition!,
-        },
-        extra: entity,
-      );
-    }
-
-    // Default: navigate to brand view page
+    // Default: navigate to PO list for this brand
     return () => context.pushNamed(
-      viewRouteName,
-      pathParameters: {'id': adapter.getId(entity, idField).toString()},
+      CampaignsRoutesJson.listRouteName,
+      queryParameters: {
+        'filterBrandId': brandId,
+        'showBackButton': 'true',
+      },
+      extra: entity,
     );
   }
 
@@ -97,15 +74,11 @@ class BrandListPageLogic {
       SnackbarUtils.showSuccess('Campaign Created');
       if (!context.mounted) return;
 
-      // Navigate to PO list with tapCondition
-      final queryParams = getBrandQueryParams(context);
-
+      // Navigate to PO list
       context.pushNamed(
         CampaignsRoutesJson.listRouteName,
         queryParameters: {
           'filterBrandId': brandId,
-          if (queryParams.tapCondition != null)
-            'tapCondition': queryParams.tapCondition,
           'showBackButton': 'true',
         },
         extra: entity,
