@@ -28,66 +28,6 @@ class CartController {
 
   CartController(this.ref) : _orderService = ref.read(cartOrderServiceProvider);
 
-  Future<void> initPendingOrder(BuildContext context) async {
-    // If already acknowledged, don't show
-    if (ref.read(cartProvider).isPromptAcknowledged) return;
-
-    // Wait for the cart to finish loading its initial state if it's currently loading
-    // This is crucial for post-login redirects where the notifier just started
-    if (ref.read(cartProvider).isLoading) {
-      // Poll briefly for loading to finish (max 2 seconds)
-      for (int i = 0; i < 10; i++) {
-        await Future.delayed(const Duration(milliseconds: 200));
-        if (!ref.read(cartProvider).isLoading) break;
-      }
-    }
-
-    final cartState = ref.read(cartProvider);
-    if (cartState.items.isEmpty || cartState.isPromptAcknowledged) return;
-
-    // Show dialog after UI has rebuilt and role is determined
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!context.mounted) return;
-
-      // Wait for role to be resolved (up to 3 seconds)
-      String? roleName;
-      for (int i = 0; i < 15; i++) {
-        roleName = ref.read(roleNameProvider);
-        if (roleName != null) break;
-        await Future.delayed(const Duration(milliseconds: 200));
-        if (!context.mounted) return;
-      }
-
-      final normalizedRole = roleName?.toLowerCase();
-      final isGuestOrRetailer =
-          normalizedRole == 'guest' || normalizedRole == 'retailer';
-
-      if (isGuestOrRetailer) {
-        // Re-check acknowledgement just before showing
-        if (!ref.read(cartProvider).isPromptAcknowledged) {
-          final l10n = ref.read(l10nProvider);
-          final confirm = await _showConfirmDialog(
-            context: context,
-            title: l10n['place_pending_order_title'] ?? 'Place Pending Order?',
-            message:
-                l10n['place_pending_order_msg'] ??
-                'You have items in your cart. Do you want to place this order now?',
-            confirmLabel: l10n['place_order'] ?? 'Place Order',
-            confirmColor: Colors.green,
-          );
-
-          if (confirm == true && context.mounted) {
-            final viewData = ref.read(cartViewLogicProvider);
-            await placeOrder(context, viewData, isPending: true);
-          }
-
-          // Mark as acknowledged regardless of action
-          ref.read(cartProvider.notifier).markPromptAsAcknowledged();
-        }
-      }
-    });
-  }
-
   Future<void> handleOrderAction(
     BuildContext context,
     ProcessedCartData viewData,

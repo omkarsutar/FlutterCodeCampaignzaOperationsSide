@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../collaborations/model/collaboration_model.dart';
 import '../../influencers/influencer_barrel.dart';
-import '../services/cart_storage_service.dart';
 
 class CartState {
   final List<ModelCollaboration> items;
@@ -80,65 +79,15 @@ class CartNotifier extends Notifier<CartState> {
 
   @override
   CartState build() {
-    // Start loading from storage on initialization
-    Future.microtask(() => _loadFromStorage());
-    return CartState(isLoading: true);
+    return CartState();
   }
 
-  Future<void> _loadFromStorage() async {
-    try {
-      final storage = ref.read(cartStorageServiceProvider);
-      final result = await storage.loadPendingOrder();
-      if (result != null) {
-        final items = result['items'] as List<ModelCollaboration>;
-        state = state.copyWith(
-          items: items,
-          isLoading: false,
-          brandId: () => result['brandId'],
-          agencyId: () => result['agencyId'],
-          campaignId: () => result['campaignId'],
-          status: () => result['status'],
-          itemCountInPo: () => result['itemCountInPo'],
-        );
-      } else {
-        state = state.copyWith(isLoading: false);
-      }
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  Future<void> _saveToStorage() async {
-    try {
-      final storage = ref.read(cartStorageServiceProvider);
-      // Clear storage only if the cart is truly empty (no items AND no linked PO)
-      if (state.items.isEmpty && state.campaignId == null) {
-        await storage.clearPendingOrder();
-      } else {
-        await storage.savePendingOrder(
-          state.items,
-          brandId: state.brandId,
-          agencyId: state.agencyId,
-          campaignId: state.campaignId,
-          status: state.status,
-          itemCountInPo: state.itemCountInPo,
-        );
-      }
-    } catch (e) {
-      // In a real app, we might want to log this or show a non-intrusive warning
-      state = state.copyWith(error: 'Failed to sync cart: $e');
-    }
-  }
-
-  void setItems(List<ModelCollaboration> items, {bool triggerSave = true}) {
+  void setItems(List<ModelCollaboration> items) {
     state = state.copyWith(
       items: items,
       isLoading: false,
       isPromptAcknowledged: false, // Reset for newly loaded items
     );
-    if (triggerSave) {
-      _saveToStorage();
-    }
   }
 
   void loadOrderIntoCart({
@@ -159,7 +108,6 @@ class CartNotifier extends Notifier<CartState> {
       isLoading: false,
       isPromptAcknowledged: true,
     );
-    _saveToStorage();
   }
 
   void setOrderDetails({
@@ -176,7 +124,6 @@ class CartNotifier extends Notifier<CartState> {
       status: () => status,
       itemCountInPo: () => itemCountInPo,
     );
-    _saveToStorage();
   }
 
   void markPromptAsAcknowledged() {
@@ -197,7 +144,6 @@ class CartNotifier extends Notifier<CartState> {
         isNewItemAdded: true,
       );
       _startClearTimer();
-      _saveToStorage();
     } else {
       // Assign a unique local ID if missing
       final itemWithId = item.collaborationId == null
@@ -212,7 +158,6 @@ class CartNotifier extends Notifier<CartState> {
         isNewItemAdded: true,
       );
       _startClearTimer();
-      _saveToStorage();
     }
   }
 
@@ -239,7 +184,6 @@ class CartNotifier extends Notifier<CartState> {
         isNewItemAdded: false,
       );
       _startClearTimer();
-      _saveToStorage();
     } else {
       // Standard update in place
       state = state.copyWith(
@@ -253,7 +197,6 @@ class CartNotifier extends Notifier<CartState> {
         isNewItemAdded: false,
       );
       _startClearTimer();
-      _saveToStorage();
     }
   }
 
@@ -267,7 +210,6 @@ class CartNotifier extends Notifier<CartState> {
           .where((item) => item.collaborationId != collaborationId)
           .toList(),
     );
-    _saveToStorage();
   }
 
   void clearCart() {
@@ -280,11 +222,8 @@ class CartNotifier extends Notifier<CartState> {
       status: () => null,
       itemCountInPo: () => null,
     );
-    _saveToStorage();
   }
 }
-
-final cartStorageServiceProvider = Provider((ref) => CartStorageService());
 
 final cartProvider = NotifierProvider<CartNotifier, CartState>(() {
   return CartNotifier();

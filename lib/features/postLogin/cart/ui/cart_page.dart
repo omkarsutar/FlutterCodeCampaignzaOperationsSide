@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/shared_widget_barrel.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/cart_view_logic.dart';
-import '../providers/cart_controller.dart';
 import '../providers/cart_providers.dart';
 import '../../../../core/providers/localization_provider.dart';
 import '../../influencers/influencer_barrel.dart';
@@ -60,9 +59,6 @@ class _CartPageState extends ConsumerState<CartPage>
           ),
         );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(cartControllerProvider).initPendingOrder(context);
-    });
   }
 
   @override

@@ -33,7 +33,7 @@ final l10nProvider = Provider<Map<String, String>>((ref) {
 const _translations = {
   AppLanguage.english: {
     'app_title': 'OrderZApp',
-    'my_cart': 'My Cart',
+    'my_cart': 'Campaign Collaborations',
     'products': 'Products',
     'search_hint': 'Search products...',
     'add_to_cart': 'Add to Cart',
@@ -83,7 +83,7 @@ const _translations = {
   },
   AppLanguage.marathi: {
     'app_title': 'OrderZApp',
-    'my_cart': ' माझे कार्ट',
+    'my_cart': 'मोहीम भागीदारी',
     'products': 'सामानाची यादी',
     'search_hint': 'सामान शोधा...',
     'add_to_cart': 'कार्टमध्ये टाका',
@@ -133,7 +133,7 @@ const _translations = {
   },
   AppLanguage.hindi: {
     'app_title': 'OrderZApp',
-    'my_cart': 'मेरा कार्ट',
+    'my_cart': 'अभियान भागीदारी',
     'products': 'सामान सूची',
     'search_hint': 'सामान खोजें...',
     'add_to_cart': 'कार्ट में डालें',

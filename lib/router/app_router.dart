@@ -16,7 +16,6 @@ import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../core/providers/core_providers.dart';
 import '../core/providers/user_profile_state_provider.dart';
 
@@ -74,19 +73,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isPublicRoute =
           state.uri.path.startsWith('/influencers') ||
           state.uri.path.startsWith('/cart');
-
-      // --- Pending Order Redirect (High Priority) ---
-      if (isLoggedIn && (isAuthPage || isAtRoot)) {
-        final prefs = await SharedPreferences.getInstance();
-        final hasPendingOrder = prefs.containsKey('pending_order');
-        debugPrint(
-          '[AppRouter] Checking for pending order in router: $hasPendingOrder',
-        );
-        if (hasPendingOrder) {
-          debugPrint('AppRouter: Pending order found -> Redirecting to Cart');
-          return state.namedLocation(AppRoute.cartName);
-        }
-      }
 
       // Redirect to products page if not logged in and trying to access protected routes
       if (!isLoggedIn && !isAuthPage && !isAtRoot && !isPublicRoute) {

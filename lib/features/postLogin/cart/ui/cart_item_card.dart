@@ -7,7 +7,6 @@ import '../../collaborations/providers/collaboration_providers.dart';
 import '../../collaborations/providers/collaboration_list_controller.dart';
 import '../../influencers/influencer_barrel.dart';
 import '../providers/cart_providers.dart';
-import '../providers/cart_controller.dart';
 
 class CartItemCard extends ConsumerStatefulWidget {
   final ModelCollaboration entity;
@@ -183,8 +182,6 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                               if (context.mounted) {
                                 if (widget.poId != null) {
                                   ref.invalidate(collaborationListControllerProvider(widget.poId!));
-                                } else {
-                                  ref.read(cartControllerProvider).initPendingOrder(context);
                                 }
                               }
                             },

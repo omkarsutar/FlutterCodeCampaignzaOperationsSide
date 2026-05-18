@@ -137,11 +137,6 @@ class CustomDrawer extends ConsumerWidget {
             icon: Icons.payments,
           ),
 
-          ListTile(
-            leading: const Icon(Icons.shopping_cart), // 🛒 My Cart
-            title: const Text('My Cart'),
-            onTap: () => context.goNamed(AppRoute.cartName),
-          ),
 
           if (isLoggedIn)
             ListTile(

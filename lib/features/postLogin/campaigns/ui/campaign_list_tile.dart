@@ -70,13 +70,14 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap:
-            widget.onTap ??
-            () {
-              ref
-                  .read(cartControllerProvider)
-                  .editCampaign(context, widget.entity);
-            },
+        onTap: widget.collaborationTile == true
+            ? widget.onTap
+            : (widget.onTap ??
+                () {
+                  ref
+                      .read(cartControllerProvider)
+                      .editCampaign(context, widget.entity);
+                }),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
