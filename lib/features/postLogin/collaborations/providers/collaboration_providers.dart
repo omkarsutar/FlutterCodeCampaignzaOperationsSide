@@ -260,3 +260,17 @@ final processedPoSummaryItemsProvider = Provider.autoDispose
         return sortedItems;
       });
     });
+
+/// Purchase count for a given promo code (fetched once per load)
+final purchaseCountProvider = FutureProvider.autoDispose
+    .family<int, String>((ref, promoCode) async {
+      final service = ref.read(collaborationServiceProvider);
+      return await service.fetchPurchaseCount(promoCode);
+    });
+
+/// Install count for a given referrer_raw string (fetched once per load)
+final installCountProvider = FutureProvider.autoDispose
+    .family<int, String>((ref, referrerRaw) async {
+      final service = ref.read(collaborationServiceProvider);
+      return await service.fetchInstallCount(referrerRaw);
+    });

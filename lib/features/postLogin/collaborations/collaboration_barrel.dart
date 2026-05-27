@@ -19,6 +19,7 @@ export 'ui/collaboration_add_card.dart';
 export 'ui/collaboration_card.dart';
 export 'ui/collaboration_list_page_riverpod.dart';
 export 'ui/collaboration_summary_list.dart';
+export 'ui/collaboration_view_page_riverpod.dart';
 // export 'ui/collaboration_summary_tile.dart'; // Uncomment if needed publicly
 
 // routes

@@ -107,14 +107,29 @@ class CollaborationServiceImpl
   @override
   Future<ModelCollaboration?> fetchById(String id) async {
     try {
-      final raw = await client
+      final rawTable = await client
+          .from(tableName)
+          .select('*')
+          .eq(idColumn, id)
+          .maybeSingle();
+
+      if (rawTable == null) return null;
+
+      final rawView = await client
           .from(ModelCollaborationFields.tableViewWithForeignKeyLabels)
           .select()
           .eq(idColumn, id)
           .maybeSingle();
 
-      if (raw == null) return null;
-      return mapper.fromMap(raw);
+      final combined = Map<String, dynamic>.from(rawTable);
+      if (rawView != null) {
+        for (final entry in rawView.entries) {
+          if (entry.key.endsWith('_label')) {
+            combined[entry.key] = entry.value;
+          }
+        }
+      }
+      return mapper.fromMap(combined);
     } catch (e) {
       rethrow;
     }
@@ -245,5 +260,23 @@ class CollaborationServiceImpl
     );
 
     return super.update(id, enriched);
+  }
+
+  /// Fetch purchase count for a promo code via Supabase RPC
+  Future<int> fetchPurchaseCount(String promoCode) async {
+    final result = await client.rpc(
+      'get_purchase_count_by_promo',
+      params: {'p_promo_code': promoCode},
+    );
+    return (result as int?) ?? 0;
+  }
+
+  /// Fetch install count for a referrer_raw string via Supabase RPC
+  Future<int> fetchInstallCount(String referrerRaw) async {
+    final result = await client.rpc(
+      'get_install_count_by_referrer',
+      params: {'p_referrer_raw': referrerRaw},
+    );
+    return (result as int?) ?? 0;
   }
 }

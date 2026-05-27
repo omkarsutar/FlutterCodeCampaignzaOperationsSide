@@ -92,6 +92,9 @@ flutter:
     - lib/features/postLogin/retailer_brand_links/retailer_brand_link_config.json
     - assets/images/rasoiaImageUsedOnBill.png
     - assets/images/google_logo.png
+    - assets/images/facebook_logo.png
+    - assets/images/instagram_logo.png
+    - assets/images/qr_code.png
     - assets/fonts/Roboto-Regular.ttf
     - assets/fonts/Roboto-Bold.ttf
 

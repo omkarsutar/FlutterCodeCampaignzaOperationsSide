@@ -7,6 +7,7 @@ import '../../../core/services/entity_service.dart';
 import 'model/collaboration_model.dart';
 import 'providers/collaboration_providers.dart';
 import 'ui/collaboration_list_page_riverpod.dart';
+import 'ui/collaboration_view_page_riverpod.dart';
 
 /// JSON-based route generation for Collaborations module
 class CollaborationsRoutesJson {
@@ -45,6 +46,8 @@ class CollaborationsRoutesJson {
       streamProvider: collaborationsStreamProvider,
       entityByIdProvider: collaborationByIdProvider,
       formProvider: collaborationFormProvider,
+      customViewBuilder: (context, entityId) =>
+          CollaborationViewPageRiverpod(entityId: entityId),
       customListBuilder: (context, state) {
         final poId = state.uri.queryParameters['po_id'] ?? '';
         // final po = state.extra as ModelCampaign; // <-- get the extra

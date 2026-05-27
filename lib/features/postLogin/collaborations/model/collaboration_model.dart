@@ -13,6 +13,8 @@ class ModelCollaborationFields {
   static const String fixedAmount = 'fixed_amount';
   static const String barterDescription = 'barter_description';
   static const String isAcceptedByInfluencer = 'is_accepted_by_influencer';
+  static const String promoCode = 'promo_code';
+  static const String discountPercentage = 'discount_percentage';
   static const String createdBy = 'created_by';
   static const String updatedBy = 'updated_by';
   static const String createdAt = 'created_at';
@@ -38,6 +40,8 @@ class ModelCollaborationFields {
     fixedAmount: 'Fixed Amount',
     barterDescription: 'Barter Details',
     isAcceptedByInfluencer: 'Accepted',
+    promoCode: 'Promo Code',
+    discountPercentage: 'Discount (%)',
     createdBy: 'Created By',
     updatedBy: 'Updated By',
     createdAt: 'Created At',
@@ -98,6 +102,8 @@ class ModelCollaboration {
   final double? fixedAmount;
   final String? barterDescription;
   final bool isAcceptedByInfluencer;
+  final String? promoCode;
+  final double? discountPercentage;
   final String? createdBy;
   final String? updatedBy;
   final DateTime? createdAt;
@@ -124,6 +130,8 @@ class ModelCollaboration {
     this.fixedAmount,
     this.barterDescription,
     this.isAcceptedByInfluencer = false,
+    this.promoCode,
+    this.discountPercentage,
     this.createdBy,
     this.updatedBy,
     this.createdAt,
@@ -155,6 +163,8 @@ class ModelCollaboration {
     double? fixedAmount,
     String? barterDescription,
     bool? isAcceptedByInfluencer,
+    String? promoCode,
+    double? discountPercentage,
     String? createdBy,
     String? updatedBy,
     DateTime? createdAt,
@@ -173,6 +183,8 @@ class ModelCollaboration {
       barterDescription: barterDescription ?? this.barterDescription,
       isAcceptedByInfluencer:
           isAcceptedByInfluencer ?? this.isAcceptedByInfluencer,
+      promoCode: promoCode ?? this.promoCode,
+      discountPercentage: discountPercentage ?? this.discountPercentage,
       createdBy: createdBy ?? this.createdBy,
       updatedBy: updatedBy ?? this.updatedBy,
       createdAt: createdAt ?? this.createdAt,
@@ -208,6 +220,10 @@ class ModelCollaboration {
           map[ModelCollaborationFields.barterDescription]?.toString(),
       isAcceptedByInfluencer:
           map[ModelCollaborationFields.isAcceptedByInfluencer] == true,
+      promoCode: map[ModelCollaborationFields.promoCode]?.toString(),
+      discountPercentage: map[ModelCollaborationFields.discountPercentage] != null
+          ? double.tryParse(map[ModelCollaborationFields.discountPercentage].toString())
+          : null,
       createdBy: map[ModelCollaborationFields.createdBy]?.toString(),
       updatedBy: map[ModelCollaborationFields.updatedBy]?.toString(),
       createdAt: map[ModelCollaborationFields.createdAt] != null
@@ -249,6 +265,12 @@ class ModelCollaboration {
       map[ModelCollaborationFields.barterDescription] = barterDescription;
     }
     map[ModelCollaborationFields.isAcceptedByInfluencer] = isAcceptedByInfluencer;
+    if (promoCode != null) {
+      map[ModelCollaborationFields.promoCode] = promoCode;
+    }
+    if (discountPercentage != null) {
+      map[ModelCollaborationFields.discountPercentage] = discountPercentage;
+    }
     if (createdBy != null) map[ModelCollaborationFields.createdBy] = createdBy;
     if (updatedBy != null) map[ModelCollaborationFields.updatedBy] = updatedBy;
     if (createdAt != null) {
@@ -272,6 +294,8 @@ class ModelCollaboration {
       'fixedAmount': fixedAmount,
       'barterDescription': barterDescription,
       'isAcceptedByInfluencer': isAcceptedByInfluencer,
+      'promoCode': promoCode,
+      'discountPercentage': discountPercentage,
       'createdBy': createdBy,
       'updatedBy': updatedBy,
       'createdAt': createdAt?.toIso8601String(),
@@ -291,6 +315,8 @@ class ModelCollaboration {
       fixedAmount: (json['fixedAmount'] as num?)?.toDouble(),
       barterDescription: json['barterDescription'] as String?,
       isAcceptedByInfluencer: json['isAcceptedByInfluencer'] as bool? ?? false,
+      promoCode: json['promoCode'] as String?,
+      discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
       createdBy: json['createdBy'] as String?,
       updatedBy: json['updatedBy'] as String?,
       createdAt: json['createdAt'] != null
