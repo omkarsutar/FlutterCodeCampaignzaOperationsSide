@@ -108,17 +108,23 @@ class ModelCollaboration {
   final String? updatedBy;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final int? purchaseCount;
+  final int? instagramInstallCount;
+  final int? facebookInstallCount;
   final Map<String, dynamic> _resolvedLabels;
 
   // Compatibility properties
   String? get poId => campaignId;
   String? get productId => influencerId;
-  String? get itemName => resolvedLabels['influencer_id_label'] ?? 'Collaboration Item';
+  String? get itemName =>
+      resolvedLabels['influencer_id_label'] ?? 'Collaboration Item';
   double? get itemQty => 1.0;
   double? get itemSellRate => agreedCommissionAmount ?? 0.0;
   double? get itemPrice => agreedCommissionAmount ?? 0.0;
   double? get itemUnitMrp => agreedCommissionAmount ?? 0.0;
   double? get profitToBrand => 0.0;
+  int get totalInstalls =>
+      (instagramInstallCount ?? 0) + (facebookInstallCount ?? 0);
 
   ModelCollaboration({
     this.collaborationId,
@@ -136,6 +142,9 @@ class ModelCollaboration {
     this.updatedBy,
     this.createdAt,
     this.updatedAt,
+    this.purchaseCount,
+    this.instagramInstallCount,
+    this.facebookInstallCount,
     // Compatibility constructor args
     String? poId,
     String? productId,
@@ -148,7 +157,8 @@ class ModelCollaboration {
     Map<String, dynamic>? resolvedLabels,
   }) : campaignId = campaignId ?? poId,
        influencerId = influencerId ?? productId,
-       agreedCommissionAmount = agreedCommissionAmount ?? itemPrice ?? itemSellRate,
+       agreedCommissionAmount =
+           agreedCommissionAmount ?? itemPrice ?? itemSellRate,
        _resolvedLabels = resolvedLabels ?? const {};
 
   Map<String, dynamic> get resolvedLabels => _resolvedLabels;
@@ -169,6 +179,9 @@ class ModelCollaboration {
     String? updatedBy,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? purchaseCount,
+    int? instagramInstallCount,
+    int? facebookInstallCount,
     Map<String, dynamic>? resolvedLabels,
   }) {
     return ModelCollaboration(
@@ -189,6 +202,10 @@ class ModelCollaboration {
       updatedBy: updatedBy ?? this.updatedBy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      purchaseCount: purchaseCount ?? this.purchaseCount,
+      instagramInstallCount:
+          instagramInstallCount ?? this.instagramInstallCount,
+      facebookInstallCount: facebookInstallCount ?? this.facebookInstallCount,
       resolvedLabels: resolvedLabels ?? _resolvedLabels,
     );
   }
@@ -202,35 +219,60 @@ class ModelCollaboration {
     }
 
     return ModelCollaboration(
-      collaborationId: map[ModelCollaborationFields.collaborationId]?.toString(),
+      collaborationId: map[ModelCollaborationFields.collaborationId]
+          ?.toString(),
       campaignId: map[ModelCollaborationFields.campaignId]?.toString(),
       influencerId: map[ModelCollaborationFields.influencerId]?.toString(),
-      agreedCommissionAmount: map[ModelCollaborationFields.agreedCommissionAmount] != null
-          ? double.tryParse(map[ModelCollaborationFields.agreedCommissionAmount].toString())
+      agreedCommissionAmount:
+          map[ModelCollaborationFields.agreedCommissionAmount] != null
+          ? double.tryParse(
+              map[ModelCollaborationFields.agreedCommissionAmount].toString(),
+            )
           : null,
       commissionType: CommissionType.fromString(
-          map[ModelCollaborationFields.commissionType]?.toString()),
+        map[ModelCollaborationFields.commissionType]?.toString(),
+      ),
       commissionRate: map[ModelCollaborationFields.commissionRate] != null
-          ? double.tryParse(map[ModelCollaborationFields.commissionRate].toString())
+          ? double.tryParse(
+              map[ModelCollaborationFields.commissionRate].toString(),
+            )
           : null,
       fixedAmount: map[ModelCollaborationFields.fixedAmount] != null
-          ? double.tryParse(map[ModelCollaborationFields.fixedAmount].toString())
+          ? double.tryParse(
+              map[ModelCollaborationFields.fixedAmount].toString(),
+            )
           : null,
-      barterDescription:
-          map[ModelCollaborationFields.barterDescription]?.toString(),
+      barterDescription: map[ModelCollaborationFields.barterDescription]
+          ?.toString(),
       isAcceptedByInfluencer:
           map[ModelCollaborationFields.isAcceptedByInfluencer] == true,
       promoCode: map[ModelCollaborationFields.promoCode]?.toString(),
-      discountPercentage: map[ModelCollaborationFields.discountPercentage] != null
-          ? double.tryParse(map[ModelCollaborationFields.discountPercentage].toString())
+      discountPercentage:
+          map[ModelCollaborationFields.discountPercentage] != null
+          ? double.tryParse(
+              map[ModelCollaborationFields.discountPercentage].toString(),
+            )
           : null,
       createdBy: map[ModelCollaborationFields.createdBy]?.toString(),
       updatedBy: map[ModelCollaborationFields.updatedBy]?.toString(),
       createdAt: map[ModelCollaborationFields.createdAt] != null
-          ? DateTime.tryParse(map[ModelCollaborationFields.createdAt].toString())
+          ? DateTime.tryParse(
+              map[ModelCollaborationFields.createdAt].toString(),
+            )
           : null,
       updatedAt: map[ModelCollaborationFields.updatedAt] != null
-          ? DateTime.tryParse(map[ModelCollaborationFields.updatedAt].toString())
+          ? DateTime.tryParse(
+              map[ModelCollaborationFields.updatedAt].toString(),
+            )
+          : null,
+      purchaseCount: map['purchase_count'] != null
+          ? int.tryParse(map['purchase_count'].toString())
+          : null,
+      instagramInstallCount: map['instagram_install_count'] != null
+          ? int.tryParse(map['instagram_install_count'].toString())
+          : null,
+      facebookInstallCount: map['facebook_install_count'] != null
+          ? int.tryParse(map['facebook_install_count'].toString())
           : null,
       resolvedLabels: labelEntries,
     );
@@ -250,10 +292,12 @@ class ModelCollaboration {
       map[ModelCollaborationFields.influencerId] = influencerId;
     }
     if (agreedCommissionAmount != null) {
-      map[ModelCollaborationFields.agreedCommissionAmount] = agreedCommissionAmount;
+      map[ModelCollaborationFields.agreedCommissionAmount] =
+          agreedCommissionAmount;
     }
     if (commissionType != null) {
-      map[ModelCollaborationFields.commissionType] = commissionType!.toDbValue();
+      map[ModelCollaborationFields.commissionType] = commissionType!
+          .toDbValue();
     }
     if (commissionRate != null) {
       map[ModelCollaborationFields.commissionRate] = commissionRate;
@@ -264,7 +308,8 @@ class ModelCollaboration {
     if (barterDescription != null) {
       map[ModelCollaborationFields.barterDescription] = barterDescription;
     }
-    map[ModelCollaborationFields.isAcceptedByInfluencer] = isAcceptedByInfluencer;
+    map[ModelCollaborationFields.isAcceptedByInfluencer] =
+        isAcceptedByInfluencer;
     if (promoCode != null) {
       map[ModelCollaborationFields.promoCode] = promoCode;
     }
@@ -308,9 +353,11 @@ class ModelCollaboration {
       collaborationId: json['collaborationId'] as String?,
       campaignId: json['campaignId'] as String?,
       influencerId: json['influencerId'] as String?,
-      agreedCommissionAmount:
-          (json['agreedCommissionAmount'] as num?)?.toDouble(),
-      commissionType: CommissionType.fromString(json['commissionType'] as String?),
+      agreedCommissionAmount: (json['agreedCommissionAmount'] as num?)
+          ?.toDouble(),
+      commissionType: CommissionType.fromString(
+        json['commissionType'] as String?,
+      ),
       commissionRate: (json['commissionRate'] as num?)?.toDouble(),
       fixedAmount: (json['fixedAmount'] as num?)?.toDouble(),
       barterDescription: json['barterDescription'] as String?,

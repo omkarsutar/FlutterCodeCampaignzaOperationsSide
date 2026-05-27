@@ -112,7 +112,12 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                       const SizedBox(height: 24),
 
                       // Promo Code & Link Section with counts
-                      _buildPromoCodeSection(context, theme, collaboration, ref),
+                      _buildPromoCodeSection(
+                        context,
+                        theme,
+                        collaboration,
+                        ref,
+                      ),
                       const SizedBox(height: 24),
 
                       // System info
@@ -394,10 +399,12 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
 
     // Watch analytics counts
     final purchaseCountAsync = ref.watch(purchaseCountProvider(promoCode));
-    final instagramInstallCountAsync =
-        ref.watch(installCountProvider(instagramReferrer));
-    final facebookInstallCountAsync =
-        ref.watch(installCountProvider(facebookReferrer));
+    final instagramInstallCountAsync = ref.watch(
+      installCountProvider(instagramReferrer),
+    );
+    final facebookInstallCountAsync = ref.watch(
+      installCountProvider(facebookReferrer),
+    );
 
     return Container(
       width: double.infinity,
@@ -435,10 +442,8 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                   ),
                   onPressed: () {
                     ref.invalidate(purchaseCountProvider(promoCode));
-                    ref.invalidate(
-                        installCountProvider(instagramReferrer));
-                    ref.invalidate(
-                        installCountProvider(facebookReferrer));
+                    ref.invalidate(installCountProvider(instagramReferrer));
+                    ref.invalidate(installCountProvider(facebookReferrer));
                     SnackbarUtils.showSuccess('Refreshing counts...');
                   },
                   padding: EdgeInsets.zero,
@@ -474,6 +479,11 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
             'Instagram Bio Link',
             instagramUrl,
             'Instagram Bio Link',
+            logoWidget: SizedBox(
+              width: 20,
+              height: 20,
+              child: Image.asset('assets/images/instagram_logo.png'),
+            ),
           ),
           const SizedBox(height: 4),
           _buildCountRow(
@@ -492,6 +502,11 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
             'Facebook Bio Link',
             facebookUrl,
             'Facebook Bio Link',
+            logoWidget: SizedBox(
+              width: 20,
+              height: 20,
+              child: Image.asset('assets/images/facebook_logo.png'),
+            ),
           ),
           const SizedBox(height: 4),
           _buildCountRow(
@@ -559,17 +574,23 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     ThemeData theme,
     String label,
     String text,
-    String snackbarLabel,
-  ) {
+    String snackbarLabel, {
+    Widget? logoWidget,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
+        Row(
+          children: [
+            if (logoWidget != null) ...[logoWidget, const SizedBox(width: 8)],
+            Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 4),
         Container(

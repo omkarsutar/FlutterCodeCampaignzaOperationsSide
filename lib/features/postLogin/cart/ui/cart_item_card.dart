@@ -69,9 +69,9 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final lastModifiedId = widget.lastModifiedId ?? ref.watch(
-      cartProvider.select((s) => s.lastModifiedItemId),
-    );
+    final lastModifiedId =
+        widget.lastModifiedId ??
+        ref.watch(cartProvider.select((s) => s.lastModifiedItemId));
 
     if (lastModifiedId == widget.entity.collaborationId && !_isHighlighted) {
       Future.microtask(() => _triggerHighlight());
@@ -83,8 +83,14 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
       influencerImage = Uri.encodeFull(Uri.decodeFull(influencerImage));
     }
 
-    final String displayName = influencer?.influencerName ?? widget.entity.resolvedLabels['influencer_id_label'] ?? 'Unnamed Influencer';
-    final String category = influencer?.influencerCategory ?? widget.entity.resolvedLabels['influencer_category_label'] ?? 'General';
+    final String displayName =
+        influencer?.influencerName ??
+        widget.entity.resolvedLabels['influencer_id_label'] ??
+        'Unnamed Influencer';
+    final String category =
+        influencer?.influencerCategory ??
+        widget.entity.resolvedLabels['influencer_category_label'] ??
+        'General';
     final double agreedAmount = widget.entity.agreedCommissionAmount ?? 0.0;
 
     return AnimatedContainer(
@@ -120,199 +126,211 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
         },
         child: Padding(
           padding: const EdgeInsets.all(12.0),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Influencer Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  color: theme.colorScheme.surfaceContainerHighest.withValues(
-                    alpha: 0.3,
-                  ),
-                  child: (influencerImage != null && influencerImage.isNotEmpty)
-                      ? Image.network(
-                          influencerImage,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                                Icons.person_outline,
-                                color: Colors.grey,
-                                size: 36,
-                              ),
-                        )
-                      : const Icon(
-                          Icons.person_outline,
-                          color: Colors.grey,
-                          size: 36,
-                        ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Influencer Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            displayName,
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              height: 1.2,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        if (!widget.isReadOnly) ...[
-                          GestureDetector(
-                            onTap: () async {
-                              await context.pushNamed(
-                                'editCollaboration',
-                                pathParameters: {'id': widget.entity.collaborationId!},
-                              );
-                              if (context.mounted) {
-                                if (widget.poId != null) {
-                                  ref.invalidate(collaborationListControllerProvider(widget.poId!));
-                                }
-                              }
-                            },
-                            child: Icon(
-                              Icons.edit_outlined,
-                              color: theme.colorScheme.primary.withValues(
-                                alpha: 0.7,
-                              ),
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          GestureDetector(
-                            onTap: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Delete Collaboration?'),
-                                  content: const Text(
-                                    'Are you sure you want to delete this collaboration from this campaign?',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context, false),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () => Navigator.pop(context, true),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                      ),
-                                      child: const Text(
-                                        'Delete',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ],
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Influencer Image
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.3,
+                    ),
+                    child:
+                        (influencerImage != null && influencerImage.isNotEmpty)
+                        ? Image.network(
+                            influencerImage,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(
+                                  Icons.person_outline,
+                                  color: Colors.grey,
+                                  size: 36,
                                 ),
-                              );
-
-                              if (confirm == true && context.mounted) {
-                                try {
+                          )
+                        : const Icon(
+                            Icons.person_outline,
+                            color: Colors.grey,
+                            size: 36,
+                          ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Influencer Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              displayName,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          if (!widget.isReadOnly) ...[
+                            GestureDetector(
+                              onTap: () async {
+                                await context.pushNamed(
+                                  'editCollaboration',
+                                  pathParameters: {
+                                    'id': widget.entity.collaborationId!,
+                                  },
+                                );
+                                if (context.mounted) {
                                   if (widget.poId != null) {
-                                    await ref
-                                        .read(collaborationListControllerProvider(widget.poId!).notifier)
-                                        .deleteItem(widget.entity.collaborationId!, widget.poId!);
-                                  } else {
-                                    await ref
-                                        .read(collaborationServiceProvider)
-                                        .delete(widget.entity.collaborationId!);
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Failed to delete: $e'),
-                                        backgroundColor: Colors.red,
+                                    ref.invalidate(
+                                      collaborationListControllerProvider(
+                                        widget.poId!,
                                       ),
                                     );
                                   }
                                 }
-                              }
-                            },
-                            child: Icon(
-                              Icons.delete_outline_rounded,
-                              color: theme.colorScheme.error.withValues(
-                                alpha: 0.7,
-                              ),
-                              size: 20,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      category,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Agreed Commission',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                                fontSize: 10,
+                              },
+                              child: Icon(
+                                Icons.edit_outlined,
+                                color: theme.colorScheme.primary.withValues(
+                                  alpha: 0.7,
+                                ),
+                                size: 20,
                               ),
                             ),
-                            Text(
-                              _formatCurrency(agreedAmount),
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary,
+                            const SizedBox(width: 12),
+                            GestureDetector(
+                              onTap: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete Collaboration?'),
+                                    content: const Text(
+                                      'Are you sure you want to delete this collaboration from this campaign?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, true),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                        ),
+                                        child: const Text(
+                                          'Delete',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true && context.mounted) {
+                                  try {
+                                    if (widget.poId != null) {
+                                      await ref
+                                          .read(
+                                            collaborationListControllerProvider(
+                                              widget.poId!,
+                                            ).notifier,
+                                          )
+                                          .deleteItem(
+                                            widget.entity.collaborationId!,
+                                            widget.poId!,
+                                          );
+                                    } else {
+                                      await ref
+                                          .read(collaborationServiceProvider)
+                                          .delete(
+                                            widget.entity.collaborationId!,
+                                          );
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Failed to delete: $e'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                }
+                              },
+                              child: Icon(
+                                Icons.delete_outline_rounded,
+                                color: theme.colorScheme.error.withValues(
+                                  alpha: 0.7,
+                                ),
+                                size: 20,
                               ),
                             ),
                           ],
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        category,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                        // Commission Type Label
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primaryContainer.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(8),
+                      ),
+                      const Spacer(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.shopping_cart_outlined,
+                            size: 16,
+                            color: Colors.deepPurple,
                           ),
-                          child: Text(
-                            widget.entity.commissionType?.displayName ?? 'Barter',
-                            style: TextStyle(
-                              fontSize: 11,
+                          const SizedBox(width: 4),
+                          Text(
+                            'Purchases: ${widget.entity.purchaseCount ?? 0}',
+                            style: theme.textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
+                              color: Colors.deepPurple,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          const SizedBox(width: 16),
+                          Icon(
+                            Icons.install_mobile,
+                            size: 16,
+                            color: Colors.pink,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Installs: ${widget.entity.totalInstalls}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.pink,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
