@@ -60,13 +60,13 @@ class CustomDrawer extends ConsumerWidget {
               children: [
                 if (displayName != null)
                   Text(
-                    "Order App",
+                    "Campaignza",
                     style: TextStyle(color: theme.colorScheme.onPrimary),
                   ),
                 Text(
                   displayName != null
                       ? 'Welcome, $displayName'
-                      : 'Welcome to Order App',
+                      : 'Welcome to Campaignza',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w400,
@@ -136,7 +136,6 @@ class CustomDrawer extends ConsumerWidget {
             title: 'Collections',
             icon: Icons.payments,
           ),
-
 
           if (isLoggedIn)
             ListTile(

@@ -1,9 +1,9 @@
 class AppConstants {
   AppConstants._();
 
-  static const String baseUrlProd = 'https://omkarsutar.github.io/';
+  static const String baseUrlProd = 'https://campaignza.github.io/';
   static const String baseUrlLocal = 'http://localhost:3000/';
-  static const String appPath = 'OrderAppOperationsV01';
+  static const String appPath = 'CampaignzaV01';
 
   /* static const String baseUrlProd = 'https://orderzapp.github.io/';
   static const String baseUrlLocal = 'http://localhost:3000/';
@@ -22,5 +22,6 @@ class AppConstants {
   static const String webAppHashUrlRetailerApp =
       '$baseUrlProdRetailerApp$appPathRetailerApp/#';
 
-  static const String mobileRedirectUri = 'com.orderzapp.operations://login-callback';
+  static const String mobileRedirectUri =
+      'com.orderzapp.operations://login-callback';
 }
