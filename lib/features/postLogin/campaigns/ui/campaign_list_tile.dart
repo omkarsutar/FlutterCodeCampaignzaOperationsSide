@@ -256,7 +256,7 @@ class _StatusSelector extends StatelessWidget {
           style: theme.textTheme.bodySmall?.copyWith(
             color: statusColor,
             fontWeight: FontWeight.bold,
-            fontSize: 10,
+            fontSize: 13,
           ),
           onChanged: onChanged,
           items: CampaignTileLogic.statusOptions
@@ -291,7 +291,7 @@ class _StatusBadge extends StatelessWidget {
         style: theme.textTheme.bodySmall?.copyWith(
           color: statusColor,
           fontWeight: FontWeight.bold,
-          fontSize: 10,
+          fontSize: 13,
         ),
       ),
     );

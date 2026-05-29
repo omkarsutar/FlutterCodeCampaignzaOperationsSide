@@ -150,7 +150,7 @@ class CampaignCollectionListTile extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               color: color,
               fontWeight: FontWeight.w600,
             ),
@@ -166,7 +166,7 @@ class CampaignCollectionListTile extends StatelessWidget {
               child: Text(
                 '₹${amount.ceil()}',
                 style: const TextStyle(
-                  fontSize: 11,
+                  fontSize: 13,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),

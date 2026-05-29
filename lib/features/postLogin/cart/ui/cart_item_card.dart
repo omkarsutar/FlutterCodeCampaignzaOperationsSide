@@ -64,8 +64,6 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
     }
   }
 
-  String _formatCurrency(num value) => '₹${value.toStringAsFixed(2)}';
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -91,8 +89,6 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
         influencer?.influencerCategory ??
         widget.entity.resolvedLabels['influencer_category_label'] ??
         'General';
-    final double agreedAmount = widget.entity.agreedCommissionAmount ?? 0.0;
-
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeOut,

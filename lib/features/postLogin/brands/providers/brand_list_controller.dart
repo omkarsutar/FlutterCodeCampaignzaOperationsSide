@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/config/module_config.dart';
 import 'brand_providers.dart';
+import 'brands_by_po_status_provider.dart';
 
 class BrandListState {
   final String searchQuery;
@@ -64,7 +65,8 @@ class BrandListController extends AutoDisposeNotifier<BrandListState> {
   }
 
   Future<void> refreshData() async {
-    final _ = ref.refresh(brandsStreamProvider.future);
+    ref.invalidate(regularBrandsProvider(state.selectedRouteId));
+    await ref.read(regularBrandsProvider(state.selectedRouteId).future);
   }
 }
 

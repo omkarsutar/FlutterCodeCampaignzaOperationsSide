@@ -77,7 +77,7 @@ class CampaignBrandAgencyInfo extends StatelessWidget {
         style: theme.textTheme.bodySmall?.copyWith(
           color: statusColor,
           fontWeight: FontWeight.bold,
-          fontSize: 10,
+          fontSize: 13,
         ),
       ),
     );

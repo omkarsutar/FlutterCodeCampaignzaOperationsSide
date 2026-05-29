@@ -79,89 +79,120 @@ class InfluencerListPageRiverpod extends ConsumerWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: entitiesAsync.when(
-          data: (entities) {
-            if (entities.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.people_outline,
-                      size: 64,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No influencers found',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      onPressed: () => context.pushNamed(newRouteName),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add First Influencer'),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: entities.length,
-              itemBuilder: (context, index) {
-                final entity = entities[index];
-                return InfluencerListTile(
-                  entity: entity,
-                  adapter: entityAdapter,
-                  onTap: () {
-                    if (isSelectionMode) {
-                      context.pop(entity);
-                    } else {
-                      context.pushNamed(
-                        viewRouteName,
-                        pathParameters: {'id': entity.influencerId!},
-                      );
-                    }
-                  },
-                );
-              },
-            );
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(influencersStreamProvider);
+            await Future<void>.delayed(const Duration(milliseconds: 250));
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: theme.colorScheme.error,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Error loading ${entityMeta.entityNamePluralLower}',
-                  style: theme.textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  err.toString(),
-                  style: theme.textTheme.bodySmall,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(influencersStreamProvider),
-                  child: const Text('Retry'),
-                ),
-              ],
+          child: entitiesAsync.when(
+            data: (entities) {
+              if (entities.isEmpty) {
+                return _RefreshableCenter(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.people_outline,
+                        size: 64,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.3,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No influencers found',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        onPressed: () => context.pushNamed(newRouteName),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add First Influencer'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: entities.length,
+                itemBuilder: (context, index) {
+                  final entity = entities[index];
+                  return InfluencerListTile(
+                    entity: entity,
+                    adapter: entityAdapter,
+                    onTap: () {
+                      if (isSelectionMode) {
+                        context.pop(entity);
+                      } else {
+                        context.pushNamed(
+                          viewRouteName,
+                          pathParameters: {'id': entity.influencerId!},
+                        );
+                      }
+                    },
+                  );
+                },
+              );
+            },
+            loading: () =>
+                const _RefreshableCenter(child: CircularProgressIndicator()),
+            error: (err, stack) => _RefreshableCenter(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: theme.colorScheme.error,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Error loading ${entityMeta.entityNamePluralLower}',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    err.toString(),
+                    style: theme.textTheme.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => ref.invalidate(influencersStreamProvider),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _RefreshableCenter extends StatelessWidget {
+  final Widget child;
+
+  const _RefreshableCenter({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.55,
+          child: Center(child: child),
+        ),
+      ],
     );
   }
 }

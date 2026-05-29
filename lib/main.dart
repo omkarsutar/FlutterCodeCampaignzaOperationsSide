@@ -19,6 +19,7 @@ import 'core/utils/web_utils.dart' as web_utils;
 import 'core/config/supabase_config.dart';
 import 'core/globals.dart';
 import 'core/providers/auth_providers.dart';
+import 'core/theme/app_theme.dart';
 import 'router/app_router.dart';
 
 // Translate letters to numbers: a-0, b-1, c-2, d-3, e-4, f-5, g-6, h-7, i-8, j-9
@@ -134,7 +135,13 @@ class _MainAppState extends ConsumerState<MainApp> {
       // Load profile if session is already active
       final session = Supabase.instance.client.auth.currentSession;
       if (session != null) {
-        ref.read(authServiceProvider).loadAndStoreUserProfile();
+        ref
+            .read(authServiceProvider)
+            .loadAndStoreUserProfile()
+            .then((_) => ref.read(routerProvider).refresh())
+            .catchError((error) {
+              debugPrint('MainApp: Failed to restore user session: $error');
+            });
       }
     });
   }
@@ -148,40 +155,7 @@ class _MainAppState extends ConsumerState<MainApp> {
         child: MaterialApp.router(
           scaffoldMessengerKey: scaffoldMessengerKey,
           routerConfig: router,
-          theme: ThemeData(
-            useMaterial3: true,
-            fontFamily: 'Roboto',
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF673AB7), // Deep Purple
-              brightness: Brightness.light,
-            ),
-            cardTheme: CardThemeData(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              color: const Color(0xFFF3E5F5), // Soft Lilac background
-            ),
-            inputDecorationTheme: InputDecorationTheme(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              filled: true,
-              fillColor: const Color(0xFFF3E5F5), // Subtle lilac fill
-            ),
-            appBarTheme: const AppBarTheme(
-              centerTitle: false,
-              elevation: 0,
-              backgroundColor: Color(0xFF673AB7), // Deep Purple AppBar
-              foregroundColor: Colors.white, // White text/icons
-            ),
-            floatingActionButtonTheme: FloatingActionButtonThemeData(
-              backgroundColor: const Color(0xFFFFC107), // Amber FAB
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
+          theme: AppTheme.light,
         ),
       ),
     );

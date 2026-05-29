@@ -135,7 +135,7 @@ class AgencyBrandLinkListTile extends StatelessWidget {
                 'Updated: $updatedAt',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
-                  fontSize: 11,
+                  fontSize: 13,
                 ),
               ),
             ],

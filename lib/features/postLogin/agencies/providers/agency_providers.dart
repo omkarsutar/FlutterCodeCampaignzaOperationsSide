@@ -47,7 +47,7 @@ final currentAgencyNameProvider = FutureProvider.autoDispose<String>((
 ) async {
   final userProfile = ref.watch(userProfileProvider).value;
   final agencyId = userProfile?.preferredAgencyId;
-  if (agencyId == null || agencyId.isEmpty) return 'Unknown';
+  if (agencyId == null || agencyId.isEmpty) return 'All Agencies';
 
   try {
     final agency = await ref.watch(agencyByIdProvider(agencyId).future);

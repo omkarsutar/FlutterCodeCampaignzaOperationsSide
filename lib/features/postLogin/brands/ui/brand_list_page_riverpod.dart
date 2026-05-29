@@ -171,11 +171,14 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
 
             // Entity List
             Expanded(
-              child: _buildListContent(
-                theme: theme,
-                entityAdapter: entityAdapter,
-                entityService: entityService,
-                viewData: viewData,
+              child: RefreshIndicator(
+                onRefresh: controller.refreshData,
+                child: _buildListContent(
+                  theme: theme,
+                  entityAdapter: entityAdapter,
+                  entityService: entityService,
+                  viewData: viewData,
+                ),
               ),
             ),
           ],
@@ -192,11 +195,11 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
     required ProcessedBrandListData viewData,
   }) {
     if (viewData.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const _RefreshableCenter(child: CircularProgressIndicator());
     }
 
     if (viewData.error != null) {
-      return Center(
+      return _RefreshableCenter(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -220,7 +223,7 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
     final brands = viewData.filteredBrands;
 
     if (brands.isEmpty) {
-      return Center(
+      return _RefreshableCenter(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -242,6 +245,7 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
     }
 
     return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       itemCount: brands.length,
       itemBuilder: (context, index) {
@@ -292,6 +296,25 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
       isSelectionMode: widget.isSelectionMode,
       viewRouteName: widget.viewRouteName,
       idField: widget.idField,
+    );
+  }
+}
+
+class _RefreshableCenter extends StatelessWidget {
+  final Widget child;
+
+  const _RefreshableCenter({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.55,
+          child: Center(child: child),
+        ),
+      ],
     );
   }
 }

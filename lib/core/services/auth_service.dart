@@ -61,6 +61,7 @@ class AuthService {
           }
           await loadAndStoreUserProfile();
           initializeUserProfileStream();
+          _ref.read(routerProvider).refresh();
           break;
         case AuthChangeEvent.signedOut:
           disposeProfileStream();
@@ -71,6 +72,7 @@ class AuthService {
         case AuthChangeEvent.userUpdated:
           // Keep profile fresh when token or user info changes
           await loadAndStoreUserProfile();
+          _ref.read(routerProvider).refresh();
           break;
         default:
           break;

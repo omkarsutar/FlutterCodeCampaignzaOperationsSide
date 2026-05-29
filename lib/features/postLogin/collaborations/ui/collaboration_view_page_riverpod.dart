@@ -454,183 +454,170 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
 
-          // Promocode field with purchase count
-          _buildCopyableField(
+          _buildCopyableTile(
             context,
             theme,
-            'Promo Code',
-            promoCode,
-            'Promo Code',
-          ),
-          const SizedBox(height: 4),
-          _buildCountRow(
-            theme,
-            'Purchase Count',
-            purchaseCountAsync,
-            Icons.shopping_cart_outlined,
-            Colors.deepPurple,
+            title: 'Promo Code',
+            text: promoCode,
+            snackbarLabel: 'Promo Code',
+            countLabel: 'Purchase Count',
+            countAsync: purchaseCountAsync,
+            icon: Icons.local_offer_outlined,
+            color: Colors.deepPurple,
           ),
           const SizedBox(height: 16),
 
-          // Instagram Bio Link field with install count
-          _buildCopyableField(
+          _buildCopyableTile(
             context,
             theme,
-            'Instagram Bio Link',
-            instagramUrl,
-            'Instagram Bio Link',
+            title: 'Instagram Bio Link',
+            text: instagramUrl,
+            snackbarLabel: 'Instagram Bio Link',
+            countLabel: 'Installed Count',
+            countAsync: instagramInstallCountAsync,
+            color: Colors.pink,
             logoWidget: SizedBox(
               width: 20,
               height: 20,
               child: Image.asset('assets/images/instagram_logo.png'),
             ),
           ),
-          const SizedBox(height: 4),
-          _buildCountRow(
-            theme,
-            'Installed Count',
-            instagramInstallCountAsync,
-            Icons.install_mobile,
-            Colors.pink,
-          ),
           const SizedBox(height: 16),
 
-          // Facebook Bio Link field with install count
-          _buildCopyableField(
+          _buildCopyableTile(
             context,
             theme,
-            'Facebook Bio Link',
-            facebookUrl,
-            'Facebook Bio Link',
+            title: 'Facebook Bio Link',
+            text: facebookUrl,
+            snackbarLabel: 'Facebook Bio Link',
+            countLabel: 'Installed Count',
+            countAsync: facebookInstallCountAsync,
+            color: Colors.blue,
             logoWidget: SizedBox(
               width: 20,
               height: 20,
               child: Image.asset('assets/images/facebook_logo.png'),
             ),
           ),
-          const SizedBox(height: 4),
-          _buildCountRow(
-            theme,
-            'Installed Count',
-            facebookInstallCountAsync,
-            Icons.install_mobile,
-            Colors.blue,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCopyableTile(
+    BuildContext context,
+    ThemeData theme, {
+    required String title,
+    required String text,
+    required String snackbarLabel,
+    required String countLabel,
+    required AsyncValue<int> countAsync,
+    required Color color,
+    IconData? icon,
+    Widget? logoWidget,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.8),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: logoWidget ?? Icon(icon, color: color, size: 22),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    _buildInlineCount(theme, countLabel, countAsync, color),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                SelectableText(
+                  text,
+                  maxLines: 2,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontFamily: 'monospace',
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            tooltip: 'Copy $title',
+            icon: const Icon(Icons.copy, size: 20),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: text));
+              SnackbarUtils.showSuccess('$snackbarLabel copied to clipboard!');
+            },
+            color: theme.colorScheme.primary,
           ),
         ],
       ),
     );
   }
 
-  /// Displays a count value with loading/error states
-  Widget _buildCountRow(
+  Widget _buildInlineCount(
     ThemeData theme,
     String label,
     AsyncValue<int> countAsync,
-    IconData icon,
     Color color,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
-          Text(
-            '$label: ',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
-            ),
+    return countAsync.when(
+      data: (count) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          '$label: $count',
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: color,
+            fontWeight: FontWeight.w700,
           ),
-          countAsync.when(
-            data: (count) => Text(
-              '$count',
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
-                fontSize: 14,
-              ),
-            ),
-            loading: () => const SizedBox(
-              width: 14,
-              height: 14,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            error: (err, _) => Text(
-              'Error',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.red,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  }
-
-  Widget _buildCopyableField(
-    BuildContext context,
-    ThemeData theme,
-    String label,
-    String text,
-    String snackbarLabel, {
-    Widget? logoWidget,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            if (logoWidget != null) ...[logoWidget, const SizedBox(width: 8)],
-            Text(
-              label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+      loading: () => const SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      ),
+      error: (err, _) => Text(
+        '$label: Error',
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: theme.colorScheme.error,
+          fontWeight: FontWeight.w700,
         ),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Text(
-                    text,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontFamily: 'monospace',
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.copy, size: 20),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: text));
-                  SnackbarUtils.showSuccess(
-                    '$snackbarLabel copied to clipboard!',
-                  );
-                },
-                color: theme.colorScheme.primary,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 

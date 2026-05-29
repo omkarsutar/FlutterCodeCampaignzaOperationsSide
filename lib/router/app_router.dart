@@ -28,6 +28,10 @@ import '../core/routing/module_route_generator.dart';
 import '../core/services/rbac_service.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
+  ref.watch(userProfileStateProvider);
+  final rbacService = ref.watch(rbacServiceProvider);
+  final isRbacInitialized = ref.watch(rbacInitializationProvider);
+
   return GoRouter(
     routes: [
       ...authRoutes,
@@ -54,21 +58,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isAuthPage =
           state.uri.path == AppRoute.login || state.uri.path == AppRoute.signup;
 
-      final profile = ref.read(userProfileStateProvider).profile;
-      final rbacService = ref.read(rbacServiceProvider);
-
       // Check role first if possible
       final roleName = rbacService.roleName?.toLowerCase();
-      final isGuest = roleName == 'guest';
 
       debugPrint(
         'AppRouter: Redirect Check | LoggedIn: $isLoggedIn | Role: $roleName | Path: ${state.uri.path}',
       );
 
-      // Profile is "ready" if RBAC is initialized AND (is Guest OR has preferred route)
-      final isProfileReady =
-          rbacService.isInitialized &&
-          (isGuest || profile?.preferredAgencyId != null);
+      final hasRole = roleName != null && roleName.isNotEmpty;
 
       final isPublicRoute =
           state.uri.path.startsWith('/influencers') ||
@@ -88,18 +85,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           'AppRouter: Handling Root/Auth Page Redirect for LoggedIn User',
         );
 
-        if (!isProfileReady && !rbacService.isInitialized) {
+        if (!isRbacInitialized || !hasRole) {
           debugPrint('AppRouter: Profile/RBAC not ready -> Loading');
           return AppRoute.loading; // Wait for RBAC at minimum
-        }
-
-        // If RBAC is ready but preferredAgencyId is null, and NOT guest, still show loading
-        // (This preserves existing behavior for other roles while fixing it for guests)
-        if (rbacService.isInitialized &&
-            !isGuest &&
-            profile?.preferredAgencyId == null) {
-          debugPrint('AppRouter: Profile missing preferredAgencyId -> Loading');
-          return AppRoute.loading;
         }
 
         debugPrint('AppRouter: User role is $roleName');
@@ -160,6 +148,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 final authRoutes = [
   GoRoute(
+    name: AppRoute.loadingName,
     path: AppRoute.loading,
     builder: (context, state) => const LoadingPage(),
   ),

@@ -94,6 +94,26 @@ class _EntityListPageRiverpodState<T>
     super.dispose();
   }
 
+  Future<void> _refreshEntities() async {
+    final provider = widget.streamProvider;
+    if (provider is ProviderOrFamily) {
+      ref.invalidate(provider as ProviderOrFamily);
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+  }
+
+  Widget _buildRefreshableCenter(Widget child) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.55,
+          child: Center(child: child),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -173,107 +193,113 @@ class _EntityListPageRiverpodState<T>
 
             // Entity List
             Expanded(
-              child: entitiesAsync.when(
-                data: (entities) {
-                  // Watch the processed view data (SRP: filtering, searching)
-                  final filteredEntities = ref.watch(
-                    genericListViewLogicProvider((
-                      controllerKey: controllerKey,
-                      allEntities: entities,
-                      adapter: entityAdapter,
-                      searchFields: widget.searchFields,
-                      customMatcher: widget.searchMatcher,
-                    )),
-                  );
+              child: RefreshIndicator(
+                onRefresh: _refreshEntities,
+                child: entitiesAsync.when(
+                  data: (entities) {
+                    // Watch the processed view data (SRP: filtering, searching)
+                    final filteredEntities = ref.watch(
+                      genericListViewLogicProvider((
+                        controllerKey: controllerKey,
+                        allEntities: entities,
+                        adapter: entityAdapter,
+                        searchFields: widget.searchFields,
+                        customMatcher: widget.searchMatcher,
+                      )),
+                    );
 
-                  if (filteredEntities.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.inbox_outlined,
-                            size: 64,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.3,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            listState.searchQuery.isEmpty
-                                ? 'No ${widget.entityMeta.entityNamePluralLower} found'
-                                : 'No matching ${widget.entityMeta.entityNamePluralLower}',
-                            style: theme.textTheme.titleMedium?.copyWith(
+                    if (filteredEntities.isEmpty) {
+                      return _buildRefreshableCenter(
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.inbox_outlined,
+                              size: 64,
                               color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.6,
+                                alpha: 0.3,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    itemCount: filteredEntities.length,
-                    itemBuilder: (context, index) {
-                      final entity = filteredEntities[index];
-                      // Use custom builder if provided
-                      if (widget.customItemBuilder != null) {
-                        return widget.customItemBuilder!(
-                          context,
-                          entity,
-                          entityAdapter,
-                          () => context.pushNamed(
-                            widget.viewRouteName,
-                            pathParameters: {
-                              'id': entityAdapter
-                                  .getId(entity, widget.idField)
-                                  .toString(),
-                            },
-                          ),
-                        );
-                      }
-
-                      return EntityCard<T>(
-                        entity: entity,
-                        adapter: entityAdapter,
-                        entityService: service,
-                        fieldConfigs: widget.fieldConfigs
-                            .where((f) => f.visibleInList)
-                            .toList(),
-                        idField: widget.idField,
-                        timestampField: widget.timestampField,
-                        entityLabel: widget.entityMeta.entityName,
-                        entityLabelLower: widget.entityMeta.entityNameLower,
-                        viewRouteName: widget.viewRouteName,
+                            const SizedBox(height: 16),
+                            Text(
+                              listState.searchQuery.isEmpty
+                                  ? 'No ${widget.entityMeta.entityNamePluralLower} found'
+                                  : 'No matching ${widget.entityMeta.entityNamePluralLower}',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       );
-                    },
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, stack) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: theme.colorScheme.error,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Error loading ${widget.entityMeta.entityNamePluralLower}',
-                        style: theme.textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        err.toString(),
-                        style: theme.textTheme.bodySmall,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                    }
+
+                    return ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      itemCount: filteredEntities.length,
+                      itemBuilder: (context, index) {
+                        final entity = filteredEntities[index];
+                        // Use custom builder if provided
+                        if (widget.customItemBuilder != null) {
+                          return widget.customItemBuilder!(
+                            context,
+                            entity,
+                            entityAdapter,
+                            () => context.pushNamed(
+                              widget.viewRouteName,
+                              pathParameters: {
+                                'id': entityAdapter
+                                    .getId(entity, widget.idField)
+                                    .toString(),
+                              },
+                            ),
+                          );
+                        }
+
+                        return EntityCard<T>(
+                          entity: entity,
+                          adapter: entityAdapter,
+                          entityService: service,
+                          fieldConfigs: widget.fieldConfigs
+                              .where((f) => f.visibleInList)
+                              .toList(),
+                          idField: widget.idField,
+                          timestampField: widget.timestampField,
+                          entityLabel: widget.entityMeta.entityName,
+                          entityLabelLower: widget.entityMeta.entityNameLower,
+                          viewRouteName: widget.viewRouteName,
+                        );
+                      },
+                    );
+                  },
+                  loading: () => _buildRefreshableCenter(
+                    const CircularProgressIndicator(),
+                  ),
+                  error: (err, stack) => _buildRefreshableCenter(
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: theme.colorScheme.error,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error loading ${widget.entityMeta.entityNamePluralLower}',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          err.toString(),
+                          style: theme.textTheme.bodySmall,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

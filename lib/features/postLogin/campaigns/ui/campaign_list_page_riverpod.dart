@@ -162,7 +162,14 @@ class _CampaignListPageRiverpodState
             _buildFilterPills(theme, listState, viewData.statusCounts),
 
             // Campaigns List
-            Expanded(child: _buildListContent(theme, listState, displayList)),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () => ref
+                    .read(campaignListControllerProvider('campaignList').notifier)
+                    .refreshData(),
+                child: _buildListContent(theme, listState, displayList),
+              ),
+            ),
           ],
         ),
       ),
@@ -228,12 +235,12 @@ class _CampaignListPageRiverpodState
   ) {
     // Loading state
     if (listState.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const _RefreshableCenter(child: CircularProgressIndicator());
     }
 
     // Error state
     if (listState.error != null) {
-      return Center(
+      return _RefreshableCenter(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -267,7 +274,7 @@ class _CampaignListPageRiverpodState
 
     // Empty state
     if (displayList.isEmpty) {
-      return Center(
+      return _RefreshableCenter(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -299,6 +306,7 @@ class _CampaignListPageRiverpodState
     CampaignListState listState,
   ) {
     return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: displayList.length + 1,
       itemBuilder: (context, index) {
@@ -380,7 +388,7 @@ class _CampaignListPageRiverpodState
                 style: TextStyle(
                   color: isSelected ? Colors.white : pillColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 10,
+                  fontSize: 13,
                 ),
               ),
               selected: isSelected,
@@ -426,5 +434,24 @@ class _CampaignListPageRiverpodState
         curve: Curves.easeInOut,
       );
     }
+  }
+}
+
+class _RefreshableCenter extends StatelessWidget {
+  final Widget child;
+
+  const _RefreshableCenter({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.55,
+          child: Center(child: child),
+        ),
+      ],
+    );
   }
 }
