@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../influencers/influencer_barrel.dart';
 import '../model/collaboration_model.dart';
 import '../providers/collaboration_list_controller.dart';
+import '../providers/collaboration_providers.dart';
 
 class CollaborationCard extends ConsumerStatefulWidget {
   final ModelCollaboration entity;
@@ -424,6 +425,7 @@ class _CollaborationCardState extends ConsumerState<CollaborationCard> {
                         await ref
                             .read(collaborationListControllerProvider(widget.poId).notifier)
                             .deleteItem(widget.entity.collaborationId!, widget.poId);
+                        ref.invalidate(collaborationsByPoIdProvider(widget.poId));
                       }
                     },
                     icon: const Icon(Icons.delete, color: Colors.red, size: 18),

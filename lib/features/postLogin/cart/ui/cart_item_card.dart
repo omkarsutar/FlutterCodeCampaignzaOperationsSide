@@ -246,12 +246,16 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                                             widget.entity.collaborationId!,
                                             widget.poId!,
                                           );
+                                      ref.invalidate(collaborationsByPoIdProvider(widget.poId!));
                                     } else {
                                       await ref
                                           .read(collaborationServiceProvider)
                                           .delete(
                                             widget.entity.collaborationId!,
                                           );
+                                      if (widget.entity.campaignId != null && widget.entity.campaignId!.isNotEmpty) {
+                                        ref.invalidate(collaborationsByPoIdProvider(widget.entity.campaignId!));
+                                      }
                                     }
                                   } catch (e) {
                                     if (context.mounted) {

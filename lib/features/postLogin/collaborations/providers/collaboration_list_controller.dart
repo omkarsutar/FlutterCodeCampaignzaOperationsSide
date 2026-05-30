@@ -153,7 +153,16 @@ class CollaborationListController
   Future<bool> deleteItem(String itemId, String poId) async {
     try {
       await _service.delete(itemId);
-      state = await AsyncValue.guard(() => build(poId));
+      final currentData = state.value;
+      if (currentData != null) {
+        state = AsyncValue.data(
+          currentData.copyWith(
+            items: currentData.items.where((i) => i.collaborationId != itemId).toList(),
+          ),
+        );
+      } else {
+        state = await AsyncValue.guard(() => build(poId));
+      }
       return true;
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);

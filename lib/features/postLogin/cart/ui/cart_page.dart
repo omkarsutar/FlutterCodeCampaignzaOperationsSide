@@ -345,6 +345,7 @@ class _CartPageState extends ConsumerState<CartPage>
                     await ref
                         .read(collaborationServiceProvider)
                         .deleteAllByPo(campaignId);
+                    ref.invalidate(collaborationsByPoIdProvider(campaignId));
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
