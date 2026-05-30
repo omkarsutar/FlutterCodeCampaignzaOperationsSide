@@ -26,6 +26,7 @@ enum FieldType {
   textField,
   integer,
   selector,
+  dateTimePicker,
 }
 
 class FieldConfig {

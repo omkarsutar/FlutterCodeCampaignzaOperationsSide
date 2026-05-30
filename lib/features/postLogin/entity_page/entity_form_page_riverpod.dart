@@ -262,10 +262,65 @@ class _EntityFormPageRiverpodState<T>
         return _buildSelectorField(field);
       case FieldType.textarea:
         return _buildTextAreaField(field, isFirst: isFirst);
+      case FieldType.dateTimePicker:
+        return _buildDateTimePickerField(field);
       case FieldType.text:
       default:
         return _buildTextField(field, isFirst: isFirst);
     }
+  }
+
+  Widget _buildDateTimePickerField(FieldConfig field) {
+    final controller = _controllers[field.name];
+    return TextFormField(
+      controller: controller,
+      readOnly: true,
+      decoration: InputDecoration(
+        labelText: field.label,
+        border: const OutlineInputBorder(),
+        suffixIcon: const Icon(Icons.calendar_today),
+        helperText: field.readOnly ? 'Read-only' : null,
+      ),
+      validator: EntityFormLogic.buildValidator(field),
+      onTap: field.readOnly
+          ? null
+          : () async {
+              DateTime initialDate = DateTime.now();
+              if (controller != null && controller.text.isNotEmpty) {
+                final parsed = DateTime.tryParse(controller.text);
+                if (parsed != null) {
+                  initialDate = parsed;
+                }
+              }
+
+              final pickedDate = await showDatePicker(
+                context: context,
+                initialDate: initialDate,
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              );
+
+              if (pickedDate != null && mounted) {
+                final pickedTime = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.fromDateTime(initialDate),
+                );
+
+                if (pickedTime != null && mounted) {
+                  final finalDateTime = DateTime(
+                    pickedDate.year,
+                    pickedDate.month,
+                    pickedDate.day,
+                    pickedTime.hour,
+                    pickedTime.minute,
+                  );
+                  setState(() {
+                    controller?.text = finalDateTime.toIso8601String();
+                  });
+                }
+              }
+            },
+    );
   }
 
   Widget _buildTextField(FieldConfig field, {bool isFirst = false}) {

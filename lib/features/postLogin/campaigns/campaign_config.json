@@ -25,6 +25,8 @@
             "sortAscending": false
         },
         "searchFields": [
+            "campaign_name",
+            "campaign_name_string",
             "po_agency_id_label",
             "po_brand_id_label",
             "status",
@@ -38,6 +40,23 @@
             "label": "Campaign ID",
             "type": "text",
             "required": true,
+            "readOnly": true,
+            "visibleInList": true,
+            "visibleInForm": false
+        },
+        {
+            "name": "campaign_name",
+            "label": "Campaign Name",
+            "type": "text",
+            "required": true,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "campaign_name_string",
+            "label": "UTM String Reference",
+            "type": "text",
+            "required": false,
             "readOnly": true,
             "visibleInList": true,
             "visibleInForm": false
@@ -65,10 +84,27 @@
             }
         },
         {
+            "name": "valid_from",
+            "label": "Valid From",
+            "type": "dateTimePicker",
+            "required": true,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "valid_until",
+            "label": "Valid Until",
+            "type": "dateTimePicker",
+            "required": true,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
             "name": "collaboration_count",
             "label": "Collaboration Count",
             "type": "intField",
-            "required": false
+            "required": false,
+            "visibleInForm": false
         },
         {
             "name": "user_comment",
@@ -89,6 +125,7 @@
             "label": "Status",
             "type": "dropdown",
             "required": true,
+            "visibleInForm": false,
             "dropdownOptions": [
                 "pending",
                 "confirmed",

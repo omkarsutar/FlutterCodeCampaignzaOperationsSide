@@ -84,6 +84,9 @@ final campaignStatusFilterProvider = StateProvider.family
 
 /// Form state for campaign
 class CampaignFormState {
+  final String campaignName;
+  final DateTime? validFrom;
+  final DateTime? validUntil;
   final String poAgencyId;
   final String poBrandId;
   final double? poTotalAmount;
@@ -97,6 +100,9 @@ class CampaignFormState {
   final String? error;
 
   CampaignFormState({
+    this.campaignName = '',
+    this.validFrom,
+    this.validUntil,
     this.poAgencyId = '',
     this.poBrandId = '',
     this.poTotalAmount,
@@ -111,6 +117,9 @@ class CampaignFormState {
   });
 
   CampaignFormState copyWith({
+    String? campaignName,
+    DateTime? validFrom,
+    DateTime? validUntil,
     String? poAgencyId,
     String? poBrandId,
     double? poTotalAmount,
@@ -124,6 +133,9 @@ class CampaignFormState {
     String? error,
   }) {
     return CampaignFormState(
+      campaignName: campaignName ?? this.campaignName,
+      validFrom: validFrom ?? this.validFrom,
+      validUntil: validUntil ?? this.validUntil,
       poAgencyId: poAgencyId ?? this.poAgencyId,
       poBrandId: poBrandId ?? this.poBrandId,
       poTotalAmount: poTotalAmount ?? this.poTotalAmount,
@@ -156,6 +168,21 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
     if (!_mounted) return;
 
     switch (fieldName) {
+      case ModelCampaignFields.campaignName:
+        state = state.copyWith(campaignName: value as String, error: null);
+        break;
+      case ModelCampaignFields.validFrom:
+        state = state.copyWith(
+          validFrom: value != null ? DateTime.tryParse(value.toString()) : null,
+          error: null,
+        );
+        break;
+      case ModelCampaignFields.validUntil:
+        state = state.copyWith(
+          validUntil: value != null ? DateTime.tryParse(value.toString()) : null,
+          error: null,
+        );
+        break;
       case ModelCampaignFields.poAgencyId:
         state = state.copyWith(poAgencyId: value as String, error: null);
         break;
@@ -211,12 +238,24 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
     if (!_mounted) return false;
 
     // Validation
+    if (state.campaignName.trim().isEmpty) {
+      state = state.copyWith(error: 'Campaign Name is required');
+      return false;
+    }
     if (state.poAgencyId.trim().isEmpty) {
-      state = state.copyWith(error: 'Route is required');
+      state = state.copyWith(error: 'Agency is required');
       return false;
     }
     if (state.poBrandId.trim().isEmpty) {
       state = state.copyWith(error: 'Brand is required');
+      return false;
+    }
+    if (state.validFrom == null) {
+      state = state.copyWith(error: 'Valid From date is required');
+      return false;
+    }
+    if (state.validUntil == null) {
+      state = state.copyWith(error: 'Valid Until date is required');
       return false;
     }
 
@@ -226,6 +265,9 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
       final service = ref.read(campaignServiceProvider);
       final entity = ModelCampaign(
         poId: entityId,
+        campaignName: state.campaignName.trim(),
+        validFrom: state.validFrom,
+        validUntil: state.validUntil,
         poAgencyId: state.poAgencyId.trim(),
         poBrandId: state.poBrandId.trim(),
         poTotalAmount: state.poTotalAmount,
@@ -281,6 +323,9 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
   void loadEntity(ModelCampaign entity) {
     if (!_mounted) return;
     state = CampaignFormState(
+      campaignName: entity.campaignName ?? '',
+      validFrom: entity.validFrom,
+      validUntil: entity.validUntil,
       poAgencyId: entity.poAgencyId ?? '',
       poBrandId: entity.poBrandId ?? '',
       poTotalAmount: entity.poTotalAmount,

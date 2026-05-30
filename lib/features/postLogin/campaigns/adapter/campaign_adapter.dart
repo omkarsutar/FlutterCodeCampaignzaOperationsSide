@@ -1,4 +1,5 @@
 import '../../../../core/services/entity_service.dart';
+import '../../../../core/utils/date_utils.dart';
 import '../model/campaign_model.dart';
 
 class CampaignAdapter implements EntityAdapter<ModelCampaign> {
@@ -7,6 +8,10 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
     switch (fieldName) {
       case ModelCampaignFields.campaignId:
         return entity.campaignId;
+      case ModelCampaignFields.campaignName:
+        return entity.campaignName;
+      case ModelCampaignFields.campaignNameString:
+        return entity.campaignNameString;
       case ModelCampaignFields.collaborationCount:
         return entity.collaborationCount;
       case ModelCampaignFields.campaignAgencyId:
@@ -19,6 +24,10 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
         return entity.adminComment;
       case ModelCampaignFields.status:
         return entity.status;
+      case ModelCampaignFields.validFrom:
+        return entity.validFrom;
+      case ModelCampaignFields.validUntil:
+        return entity.validUntil;
       case ModelCampaignFields.createdBy:
         return entity.createdBy;
       case ModelCampaignFields.updatedBy:
@@ -43,6 +52,14 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
       case ModelCampaignFields.createdBy:
       case ModelCampaignFields.updatedBy:
         return entity.resolvedLabels['${fieldName}_label'];
+      case ModelCampaignFields.campaignName:
+        return entity.campaignName ?? '';
+      case ModelCampaignFields.campaignNameString:
+        return entity.campaignNameString ?? '';
+      case ModelCampaignFields.validFrom:
+        return entity.validFrom != null ? formatTimestamp(entity.validFrom) : '';
+      case ModelCampaignFields.validUntil:
+        return entity.validUntil != null ? formatTimestamp(entity.validUntil) : '';
       case ModelCampaignFields.status:
         return entity.status ?? 'Pending';
       case ModelCampaignFields.collaborationCount:

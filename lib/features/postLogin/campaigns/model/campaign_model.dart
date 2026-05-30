@@ -5,12 +5,16 @@ class ModelCampaignFields {
   static const String tableViewWithForeignKeyLabels = 'view_campaigns';
 
   static const String campaignId = 'campaign_id';
+  static const String campaignName = 'campaign_name';
+  static const String campaignNameString = 'campaign_name_string';
   static const String collaborationCount = 'collaboration_count';
   static const String campaignAgencyId = 'campaign_agency_id';
   static const String campaignBrandId = 'campaign_brand_id';
   static const String userComment = 'user_comment';
   static const String adminComment = 'admin_comment';
   static const String status = 'status';
+  static const String validFrom = 'valid_from';
+  static const String validUntil = 'valid_until';
   static const String createdBy = 'created_by';
   static const String updatedBy = 'updated_by';
   static const String createdAt = 'created_at';
@@ -29,12 +33,16 @@ class ModelCampaignFields {
 
   static const Map<String, String> labels = {
     campaignId: 'Campaign',
+    campaignName: 'Campaign Name',
+    campaignNameString: 'Campaign Name String',
     collaborationCount: 'Collaborations',
     campaignAgencyId: 'Agency',
     campaignBrandId: 'Brand',
     userComment: 'User Comment',
     adminComment: 'Admin Comment',
     status: 'Status',
+    validFrom: 'Valid From',
+    validUntil: 'Valid Until',
     createdBy: 'Created By',
     updatedBy: 'Updated By',
     createdAt: 'Created At',
@@ -47,12 +55,16 @@ class ModelCampaignFields {
 
 class ModelCampaign {
   final String? campaignId;
+  final String? campaignName;
+  final String? campaignNameString;
   final int? collaborationCount;
   final String? campaignAgencyId;
   final String? campaignBrandId;
   final String? userComment;
   final String? adminComment;
   final String? status;
+  final DateTime? validFrom;
+  final DateTime? validUntil;
   final String? createdBy;
   final String? updatedBy;
   final DateTime? createdAt;
@@ -72,12 +84,16 @@ class ModelCampaign {
 
   ModelCampaign({
     String? campaignId,
+    this.campaignName,
+    this.campaignNameString,
     int? collaborationCount,
     String? campaignAgencyId,
     String? campaignBrandId,
     this.userComment,
     this.adminComment,
     this.status,
+    this.validFrom,
+    this.validUntil,
     this.createdBy,
     this.updatedBy,
     this.createdAt,
@@ -111,6 +127,8 @@ class ModelCampaign {
 
     return ModelCampaign(
       campaignId: map[ModelCampaignFields.campaignId] as String?,
+      campaignName: map[ModelCampaignFields.campaignName] as String?,
+      campaignNameString: map[ModelCampaignFields.campaignNameString] as String?,
       collaborationCount: map[ModelCampaignFields.collaborationCount] != null
           ? int.tryParse(map[ModelCampaignFields.collaborationCount].toString())
           : null,
@@ -119,6 +137,12 @@ class ModelCampaign {
       userComment: map[ModelCampaignFields.userComment] as String?,
       adminComment: map[ModelCampaignFields.adminComment] as String?,
       status: map[ModelCampaignFields.status] as String?,
+      validFrom: map[ModelCampaignFields.validFrom] != null
+          ? DateTime.tryParse(map[ModelCampaignFields.validFrom].toString())
+          : null,
+      validUntil: map[ModelCampaignFields.validUntil] != null
+          ? DateTime.tryParse(map[ModelCampaignFields.validUntil].toString())
+          : null,
       createdBy: map[ModelCampaignFields.createdBy] as String?,
       updatedBy: map[ModelCampaignFields.updatedBy] as String?,
       createdAt: map[ModelCampaignFields.createdAt] != null
@@ -138,6 +162,10 @@ class ModelCampaign {
     final map = <String, dynamic>{};
 
     if (campaignId != null) map[ModelCampaignFields.campaignId] = campaignId;
+    if (campaignName != null) map[ModelCampaignFields.campaignName] = campaignName;
+    if (campaignNameString != null) {
+      map[ModelCampaignFields.campaignNameString] = campaignNameString;
+    }
     if (collaborationCount != null) {
       map[ModelCampaignFields.collaborationCount] = collaborationCount;
     }
@@ -154,6 +182,12 @@ class ModelCampaign {
       map[ModelCampaignFields.adminComment] = adminComment;
     }
     if (status != null) map[ModelCampaignFields.status] = status;
+    if (validFrom != null) {
+      map[ModelCampaignFields.validFrom] = validFrom!.toIso8601String();
+    }
+    if (validUntil != null) {
+      map[ModelCampaignFields.validUntil] = validUntil!.toIso8601String();
+    }
     if (createdBy != null) map[ModelCampaignFields.createdBy] = createdBy;
     if (updatedBy != null) map[ModelCampaignFields.updatedBy] = updatedBy;
     if (createdAt != null) {
@@ -172,12 +206,16 @@ class ModelCampaign {
   Map<String, dynamic> toJson() {
     return {
       'campaignId': campaignId,
+      'campaignName': campaignName,
+      'campaignNameString': campaignNameString,
       'collaborationCount': collaborationCount,
       'campaignAgencyId': campaignAgencyId,
       'campaignBrandId': campaignBrandId,
       'userComment': userComment,
       'adminComment': adminComment,
       'status': status,
+      'validFrom': validFrom?.toIso8601String(),
+      'validUntil': validUntil?.toIso8601String(),
       'createdBy': createdBy,
       'updatedBy': updatedBy,
       'createdAt': createdAt?.toIso8601String(),
@@ -189,12 +227,16 @@ class ModelCampaign {
   factory ModelCampaign.fromJson(Map<String, dynamic> json) {
     return ModelCampaign(
       campaignId: json['campaignId'] as String?,
+      campaignName: json['campaignName'] as String?,
+      campaignNameString: json['campaignNameString'] as String?,
       collaborationCount: json['collaborationCount'] as int?,
       campaignAgencyId: json['campaignAgencyId'] as String?,
       campaignBrandId: json['campaignBrandId'] as String?,
       userComment: json['userComment'] as String?,
       adminComment: json['adminComment'] as String?,
       status: json['status'] as String? ?? 'pending',
+      validFrom: DateTime.tryParse(json['validFrom'] ?? ''),
+      validUntil: DateTime.tryParse(json['validUntil'] ?? ''),
       createdBy: json['createdBy'] as String?,
       updatedBy: json['updatedBy'] as String?,
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
@@ -205,12 +247,16 @@ class ModelCampaign {
 
   ModelCampaign copyWith({
     String? campaignId,
+    String? campaignName,
+    String? campaignNameString,
     int? collaborationCount,
     String? campaignAgencyId,
     String? campaignBrandId,
     String? userComment,
     String? adminComment,
     String? status,
+    DateTime? validFrom,
+    DateTime? validUntil,
     String? createdBy,
     String? updatedBy,
     DateTime? createdAt,
@@ -220,12 +266,16 @@ class ModelCampaign {
   }) {
     return ModelCampaign(
       campaignId: campaignId ?? this.campaignId,
+      campaignName: campaignName ?? this.campaignName,
+      campaignNameString: campaignNameString ?? this.campaignNameString,
       collaborationCount: collaborationCount ?? this.collaborationCount,
       campaignAgencyId: campaignAgencyId ?? this.campaignAgencyId,
       campaignBrandId: campaignBrandId ?? this.campaignBrandId,
       userComment: userComment ?? this.userComment,
       adminComment: adminComment ?? this.adminComment,
       status: status ?? this.status,
+      validFrom: validFrom ?? this.validFrom,
+      validUntil: validUntil ?? this.validUntil,
       createdBy: createdBy ?? this.createdBy,
       updatedBy: updatedBy ?? this.updatedBy,
       createdAt: createdAt ?? this.createdAt,
