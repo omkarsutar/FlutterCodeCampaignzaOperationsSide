@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
-import 'package:flutter_supabase_order_app_mobile/core/utils/date_utils.dart';
+import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/services/entity_service.dart';
-import '../../collaborations/collaboration_barrel.dart';
 import '../model/campaign_model.dart';
 import '../providers/campaign_tile_logic.dart';
 import '../../cart/providers/cart_controller.dart';
-import 'widgets/po_brand_route_info.dart';
 import 'widgets/po_actions.dart';
 
 class CampaignListTile extends ConsumerStatefulWidget {
@@ -34,7 +33,6 @@ class CampaignListTile extends ConsumerStatefulWidget {
 }
 
 class _CampaignListTileState extends ConsumerState<CampaignListTile> {
-  bool _isExpanded = false;
   bool _isUpdating = false;
 
   @override
@@ -43,12 +41,12 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
     final isRbacReady = ref.watch(rbacInitializationProvider);
     final rbacService = ref.watch(rbacServiceProvider);
 
-    final canUpdate = isRbacReady && rbacService.canUpdate('campaign');
     final canDelete = isRbacReady && rbacService.canDelete('campaign');
 
-    final dateStr = widget.entity.createdAt != null
-        ? formatTimestamp(widget.entity.createdAt!)
-        : '';
+    final campaignName = widget.entity.campaignName ??
+        widget.entity.campaignNameString ??
+        'Unnamed Campaign';
+
     final brandName =
         widget.adapter
             .getLabelValue(widget.entity, ModelCampaignFields.poBrandId)
@@ -60,16 +58,33 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
             ?.toString() ??
         'Unknown Agency';
     final status = widget.entity.status ?? 'pending';
-    final itemCount = widget.entity.poLineItemCount ?? 0;
+    final collabsCount = widget.entity.poLineItemCount ?? 0;
     final commentStr = widget.entity.userComment ?? '';
     final adminCommentStr = widget.entity.adminComment ?? '';
 
+    // Date formatting (convert to local timezone first)
+    final DateFormat formatter = DateFormat('dd MMM yyyy HH:mm');
+    final validFromStr = widget.entity.validFrom != null
+        ? formatter.format(widget.entity.validFrom!.toLocal())
+        : 'N/A';
+    final validUntilStr = widget.entity.validUntil != null
+        ? formatter.format(widget.entity.validUntil!.toLocal())
+        : 'N/A';
+
+    final statusColor = CampaignTileLogic.getStatusColor(status);
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1,
+        ),
+      ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         onTap: widget.collaborationTile == true
             ? widget.onTap
             : (widget.onTap ??
@@ -79,38 +94,192 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                       .editCampaign(context, widget.entity);
                 }),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.collaborationTile != true) ...[
-                _buildHeader(theme, dateStr, status, canUpdate),
-                const SizedBox(height: 8),
-              ],
-              CampaignBrandAgencyInfo(
-                brandName: brandName,
-                agencyName: agencyName,
-                trailing: CampaignActions(
-                  entity: widget.entity,
-                  adapter: widget.adapter,
-                  showShare: widget.showShare,
-                  canDelete: canDelete,
-                  status: status,
-                  isUpdating: _isUpdating,
-                  onUpdating: (val) {
-                    if (mounted) setState(() => _isUpdating = val);
-                  },
-                ),
+              // Header row: Campaign Name & Status Badge
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      campaignName,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  if (_isUpdating)
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  else
+                    _StatusBadge(status: status, statusColor: statusColor),
+                ],
               ),
+              const SizedBox(height: 12),
+
+              // Brand & Agency Info Row
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.business,
+                              size: 16,
+                              color: theme.colorScheme.primary.withValues(alpha: 0.8),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                brandName,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (widget.entity.poBrandId != null)
+                              InkWell(
+                                onTap: () => context.pushNamed(
+                                  'viewBrand',
+                                  pathParameters: {'id': widget.entity.poBrandId!},
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  child: Icon(
+                                    Icons.open_in_new,
+                                    size: 16,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.corporate_fare,
+                              size: 16,
+                              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Agency: $agencyName',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 20),
+
+              // Validity & Collabs Info Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today_outlined,
+                              size: 14,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Valid From: $validFromStr',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              size: 14,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Valid Until: $validUntilStr',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Collabs: $collabsCount',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              // Actions Row
               const SizedBox(height: 8),
-              _buildStatsRow(theme, itemCount),
-              if (_isExpanded && widget.entity.poId != null) ...[
-                const SizedBox(height: 16),
-                CollaborationSummaryList(
-                  poId: widget.entity.poId!,
-                  status: status,
-                ),
-              ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CampaignActions(
+                    entity: widget.entity,
+                    adapter: widget.adapter,
+                    showShare: widget.showShare,
+                    canDelete: canDelete,
+                    status: status,
+                    isUpdating: _isUpdating,
+                    onUpdating: (val) {
+                      if (mounted) setState(() => _isUpdating = val);
+                    },
+                  ),
+                ],
+              ),
+
               if (commentStr.isNotEmpty)
                 _buildComment(theme, 'User Comment', commentStr),
               if (adminCommentStr.isNotEmpty)
@@ -127,88 +296,6 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
     );
   }
 
-  Widget _buildHeader(
-    ThemeData theme,
-    String dateStr,
-    String status,
-    bool canUpdate,
-  ) {
-    final statusColor = CampaignTileLogic.getStatusColor(status);
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(
-            dateStr,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        if (_isUpdating)
-          const SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          )
-        else if (canUpdate)
-          _StatusSelector(
-            status: status,
-            statusColor: statusColor,
-            onChanged: (newValue) async {
-              if (newValue != null && newValue != status) {
-                final success = await CampaignTileLogic.updateStatus(
-                  context: context,
-                  ref: ref,
-                  entity: widget.entity,
-                  newStatus: newValue,
-                  setUpdating: (updating) {
-                    if (mounted) setState(() => _isUpdating = updating);
-                  },
-                );
-                if (success) widget.onStatusChanged?.call(status, newValue);
-              }
-            },
-          )
-        else
-          _StatusBadge(status: status, statusColor: statusColor),
-      ],
-    );
-  }
-
-  Widget _buildStatsRow(ThemeData theme, int itemCount) {
-    final profitStr = CampaignTileLogic.formatCurrency(
-      widget.entity.profitToBrand,
-    );
-    final amountStr = CampaignTileLogic.formatCurrency(
-      widget.entity.poTotalAmount,
-    );
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        if (itemCount > 0)
-          _ExpandToggle(
-            isExpanded: _isExpanded,
-            onToggle: () => setState(() => _isExpanded = !_isExpanded),
-          ),
-        _StatItem(label: 'Items', value: '$itemCount'),
-        _StatItem(
-          label: 'Brand Profit',
-          value: '₹$profitStr',
-          valueColor: Colors.green,
-        ),
-        _StatItem(
-          label: 'Total Amount',
-          value: '₹$amountStr',
-          valueColor: theme.colorScheme.primary,
-          crossAxisAlignment: CrossAxisAlignment.end,
-        ),
-      ],
-    );
-  }
-
   Widget _buildComment(
     ThemeData theme,
     String title,
@@ -222,48 +309,6 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
         style: theme.textTheme.bodySmall?.copyWith(
           fontStyle: FontStyle.italic,
           color: color ?? theme.colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusSelector extends StatelessWidget {
-  final String status;
-  final Color statusColor;
-  final ValueChanged<String?> onChanged;
-
-  const _StatusSelector({
-    required this.status,
-    required this.statusColor,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: statusColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: statusColor, width: 1),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: status.toLowerCase(),
-          icon: Icon(Icons.arrow_drop_down, color: statusColor, size: 16),
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: statusColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
-          ),
-          onChanged: onChanged,
-          items: CampaignTileLogic.statusOptions
-              .map(
-                (s) => DropdownMenuItem(value: s, child: Text(s.toUpperCase())),
-              )
-              .toList(),
         ),
       ),
     );
@@ -294,74 +339,6 @@ class _StatusBadge extends StatelessWidget {
           fontSize: 13,
         ),
       ),
-    );
-  }
-}
-
-class _ExpandToggle extends StatelessWidget {
-  final bool isExpanded;
-  final VoidCallback onToggle;
-
-  const _ExpandToggle({required this.isExpanded, required this.onToggle});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return InkWell(
-      onTap: onToggle,
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.primary.withValues(alpha: 0.15),
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: theme.colorScheme.primary.withValues(alpha: 0.3),
-            width: 1,
-          ),
-        ),
-        child: Icon(
-          isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-          size: 32,
-        ),
-      ),
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color? valueColor;
-  final CrossAxisAlignment crossAxisAlignment;
-
-  const _StatItem({
-    required this.label,
-    required this.value,
-    this.valueColor,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: crossAxisAlignment,
-      children: [
-        Text(
-          label,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        Text(
-          value,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: valueColor,
-          ),
-        ),
-      ],
     );
   }
 }

@@ -34,16 +34,19 @@ class CampaignActions extends ConsumerWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // View Brand Button
-        if (entity.poBrandId != null)
-          _IconButton(
-            icon: Icons.store,
-            color: theme.colorScheme.primary,
-            onPressed: () => context.pushNamed(
-              'viewBrand',
-              pathParameters: {'id': entity.poBrandId!},
-            ),
-          ),
+        // Edit Campaign Button (Opens the campaign metadata edit form)
+        _IconButton(
+          icon: Icons.edit,
+          color: theme.colorScheme.secondary,
+          onPressed: () {
+            if (entity.campaignId != null) {
+              context.pushNamed(
+                'editCampaign',
+                pathParameters: {'id': entity.campaignId!},
+              );
+            }
+          },
+        ),
 
         // Share Button
         // Share Button (Only if delivered)
