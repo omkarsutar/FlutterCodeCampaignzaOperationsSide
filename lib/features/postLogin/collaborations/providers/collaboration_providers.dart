@@ -48,17 +48,25 @@ final collaborationByIdProvider = FutureProvider.autoDispose
 /// Fetches parent campaign for a collaboration by collaboration ID
 final collaborationParentCampaignProvider = FutureProvider.autoDispose
     .family<dynamic, String>((ref, collaborationId) async {
-      final collaboration = await ref.watch(collaborationByIdProvider(collaborationId).future);
+      final collaboration = await ref.watch(
+        collaborationByIdProvider(collaborationId).future,
+      );
       if (collaboration?.campaignId == null) return null;
-      return await ref.watch(campaignByIdProvider(collaboration!.campaignId!).future);
+      return await ref.watch(
+        campaignByIdProvider(collaboration!.campaignId!).future,
+      );
     });
 
 /// Fetches parent brand for a collaboration by collaboration ID
 final collaborationParentBrandProvider = FutureProvider.autoDispose
     .family<dynamic, String>((ref, collaborationId) async {
-      final campaign = await ref.watch(collaborationParentCampaignProvider(collaborationId).future);
+      final campaign = await ref.watch(
+        collaborationParentCampaignProvider(collaborationId).future,
+      );
       if (campaign?.campaignBrandId == null) return null;
-      return await ref.watch(brandByIdProvider(campaign!.campaignBrandId!).future);
+      return await ref.watch(
+        brandByIdProvider(campaign!.campaignBrandId!).future,
+      );
     });
 
 /// State provider for managing Collaboration creation/editing
@@ -79,6 +87,9 @@ class CollaborationFormState {
   final String? barterDescription;
   final double agreedCommissionAmount;
   final bool isAcceptedByInfluencer;
+  final String? promoCode;
+  final double? discountPercentage;
+  final bool isActive;
   final bool isLoading;
   final String? error;
 
@@ -91,6 +102,9 @@ class CollaborationFormState {
     this.barterDescription,
     this.agreedCommissionAmount = 0.0,
     this.isAcceptedByInfluencer = false,
+    this.promoCode,
+    this.discountPercentage,
+    this.isActive = true,
     this.isLoading = false,
     this.error,
   });
@@ -104,6 +118,9 @@ class CollaborationFormState {
     String? barterDescription,
     double? agreedCommissionAmount,
     bool? isAcceptedByInfluencer,
+    String? promoCode,
+    double? discountPercentage,
+    bool? isActive,
     bool? isLoading,
     String? error,
   }) {
@@ -114,8 +131,13 @@ class CollaborationFormState {
       commissionRate: commissionRate ?? this.commissionRate,
       fixedAmount: fixedAmount ?? this.fixedAmount,
       barterDescription: barterDescription ?? this.barterDescription,
-      agreedCommissionAmount: agreedCommissionAmount ?? this.agreedCommissionAmount,
-      isAcceptedByInfluencer: isAcceptedByInfluencer ?? this.isAcceptedByInfluencer,
+      agreedCommissionAmount:
+          agreedCommissionAmount ?? this.agreedCommissionAmount,
+      isAcceptedByInfluencer:
+          isAcceptedByInfluencer ?? this.isAcceptedByInfluencer,
+      promoCode: promoCode ?? this.promoCode,
+      discountPercentage: discountPercentage ?? this.discountPercentage,
+      isActive: isActive ?? this.isActive,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -139,10 +161,16 @@ class CollaborationFormNotifier extends StateNotifier<CollaborationFormState> {
     if (!_mounted) return;
     switch (fieldName) {
       case ModelCollaborationFields.campaignId:
-        state = state.copyWith(campaignId: value?.toString() ?? '', error: null);
+        state = state.copyWith(
+          campaignId: value?.toString() ?? '',
+          error: null,
+        );
         break;
       case ModelCollaborationFields.influencerId:
-        state = state.copyWith(influencerId: value?.toString() ?? '', error: null);
+        state = state.copyWith(
+          influencerId: value?.toString() ?? '',
+          error: null,
+        );
         break;
       case ModelCollaborationFields.commissionType:
         if (value is CommissionType) {
@@ -156,7 +184,9 @@ class CollaborationFormNotifier extends StateNotifier<CollaborationFormState> {
         break;
       case ModelCollaborationFields.commissionRate:
         state = state.copyWith(
-          commissionRate: value != null ? double.tryParse(value.toString()) : null,
+          commissionRate: value != null
+              ? double.tryParse(value.toString())
+              : null,
           error: null,
         );
         break;
@@ -167,11 +197,15 @@ class CollaborationFormNotifier extends StateNotifier<CollaborationFormState> {
         );
         break;
       case ModelCollaborationFields.barterDescription:
-        state = state.copyWith(barterDescription: value?.toString(), error: null);
+        state = state.copyWith(
+          barterDescription: value?.toString(),
+          error: null,
+        );
         break;
       case ModelCollaborationFields.agreedCommissionAmount:
         state = state.copyWith(
-          agreedCommissionAmount: double.tryParse(value?.toString() ?? '0.0') ?? 0.0,
+          agreedCommissionAmount:
+              double.tryParse(value?.toString() ?? '0.0') ?? 0.0,
           error: null,
         );
         break;
@@ -180,6 +214,20 @@ class CollaborationFormNotifier extends StateNotifier<CollaborationFormState> {
           isAcceptedByInfluencer: value == true,
           error: null,
         );
+        break;
+      case ModelCollaborationFields.promoCode:
+        state = state.copyWith(promoCode: value?.toString(), error: null);
+        break;
+      case ModelCollaborationFields.discountPercentage:
+        state = state.copyWith(
+          discountPercentage: value != null
+              ? double.tryParse(value.toString())
+              : null,
+          error: null,
+        );
+        break;
+      case ModelCollaborationFields.isActive:
+        state = state.copyWith(isActive: value == true, error: null);
         break;
     }
   }
@@ -200,6 +248,9 @@ class CollaborationFormNotifier extends StateNotifier<CollaborationFormState> {
         barterDescription: state.barterDescription?.trim(),
         agreedCommissionAmount: state.agreedCommissionAmount,
         isAcceptedByInfluencer: state.isAcceptedByInfluencer,
+        promoCode: state.promoCode?.trim(),
+        discountPercentage: state.discountPercentage,
+        isActive: state.isActive,
       );
 
       if (entityId == null) {
@@ -280,15 +331,19 @@ final processedPoSummaryItemsProvider = Provider.autoDispose
     });
 
 /// Purchase count for a given promo code (fetched once per load)
-final purchaseCountProvider = FutureProvider.autoDispose
-    .family<int, String>((ref, promoCode) async {
-      final service = ref.read(collaborationServiceProvider);
-      return await service.fetchPurchaseCount(promoCode);
-    });
+final purchaseCountProvider = FutureProvider.autoDispose.family<int, String>((
+  ref,
+  promoCode,
+) async {
+  final service = ref.read(collaborationServiceProvider);
+  return await service.fetchPurchaseCount(promoCode);
+});
 
 /// Install count for a given referrer_raw string (fetched once per load)
-final installCountProvider = FutureProvider.autoDispose
-    .family<int, String>((ref, referrerRaw) async {
-      final service = ref.read(collaborationServiceProvider);
-      return await service.fetchInstallCount(referrerRaw);
-    });
+final installCountProvider = FutureProvider.autoDispose.family<int, String>((
+  ref,
+  referrerRaw,
+) async {
+  final service = ref.read(collaborationServiceProvider);
+  return await service.fetchInstallCount(referrerRaw);
+});

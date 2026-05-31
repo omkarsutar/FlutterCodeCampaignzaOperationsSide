@@ -138,28 +138,25 @@ class _EntityFormPageRiverpodState<T>
     if (_isDataLoaded) return;
 
     for (var field in widget.fieldConfigs) {
-      if (!field.visibleInForm) continue;
-
       final value = values[field.name];
+      if (value == null) continue;
 
       if (field.type == FieldType.switchField) {
-        if (value != null) setState(() => _switchValues[field.name] = value);
+        setState(() => _switchValues[field.name] = value);
       } else if (field.type == FieldType.dropdown ||
           field.type == FieldType.selector) {
-        if (value != null) {
-          setState(() {
-            _dropdownValues[field.name] = value.toString();
+        setState(() {
+          _dropdownValues[field.name] = value.toString();
 
-            // Use the label provided in the map if available
-            final label = values['${field.name}_label'];
-            if (label != null) {
-              _selectorLabels[field.name] = label.toString();
-            } else {
-              _selectorLabels[field.name] = value.toString();
-            }
-          });
-        }
-      } else if (value != null) {
+          // Use the label provided in the map if available
+          final label = values['${field.name}_label'];
+          if (label != null) {
+            _selectorLabels[field.name] = label.toString();
+          } else {
+            _selectorLabels[field.name] = value.toString();
+          }
+        });
+      } else {
         _controllers[field.name]?.text = value.toString();
       }
     }
@@ -171,13 +168,18 @@ class _EntityFormPageRiverpodState<T>
     if (!_formKey.currentState!.validate()) return;
 
     // Determine currently visible fields (taking into account any conditional filtering)
-    var activeFields = widget.fieldConfigs.where((field) => field.visibleInForm).toList();
+    var activeFields = widget.fieldConfigs
+        .where((field) => field.visibleInForm)
+        .toList();
     if (widget.entityMeta.entityNameLower == 'collaboration') {
       final commissionType = _dropdownValues['commission_type'] ?? 'percentage';
       activeFields = activeFields.where((field) {
-        if (field.name == 'commission_rate') return commissionType == 'percentage';
-        if (field.name == 'fixed_amount') return commissionType == 'fixed_amount';
-        if (field.name == 'barter_description') return commissionType == 'barter';
+        if (field.name == 'commission_rate')
+          return commissionType == 'percentage';
+        if (field.name == 'fixed_amount')
+          return commissionType == 'fixed_amount';
+        if (field.name == 'barter_description')
+          return commissionType == 'barter';
         return true;
       }).toList();
     }

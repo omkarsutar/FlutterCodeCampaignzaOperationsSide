@@ -101,6 +101,31 @@
             "maxLength": 1000
         },
         {
+            "name": "promo_code",
+            "label": "Promo Code",
+            "type": "text",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "discount_percentage",
+            "label": "Discount Percentage",
+            "type": "doubleField",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true,
+            "suffix": "%"
+        },
+        {
+            "name": "is_active",
+            "label": "Is Active",
+            "type": "switchField",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
             "name": "agreed_commission_amount",
             "label": "Agreed Commission Amount",
             "type": "doubleField",

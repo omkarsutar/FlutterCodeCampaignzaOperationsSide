@@ -90,8 +90,6 @@ class GenericFormController
           final adapter = ref.read(adapterProvider);
           values = {};
           for (var field in fieldConfigs) {
-            if (!field.visibleInForm) continue;
-
             final val = adapter.getFieldValue(entity, field.name);
             if (val != null) {
               if (field.type == FieldType.doubleField ||
