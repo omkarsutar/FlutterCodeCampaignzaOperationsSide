@@ -23,6 +23,15 @@ class CollaborationAdapter implements EntityAdapter<ModelCollaboration> {
         return entity.barterDescription;
       case ModelCollaborationFields.isAcceptedByInfluencer:
         return entity.isAcceptedByInfluencer;
+      // NEW: promo code field
+      case ModelCollaborationFields.promoCode:
+        return entity.promoCode;
+      // NEW: discount percentage field
+      case ModelCollaborationFields.discountPercentage:
+        return entity.discountPercentage;
+      // NEW: is_active field
+      case ModelCollaborationFields.isActive:
+        return entity.isActive;
       case ModelCollaborationFields.createdBy:
         return entity.createdBy;
       case ModelCollaborationFields.updatedBy:
