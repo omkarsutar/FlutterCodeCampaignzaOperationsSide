@@ -19,6 +19,7 @@ class ModelCollaborationFields {
   static const String updatedBy = 'updated_by';
   static const String createdAt = 'created_at';
   static const String updatedAt = 'updated_at';
+  static const String isActive = 'is_active';
 
   // Compatibility fields
   static const String poId = campaignId;
@@ -46,6 +47,7 @@ class ModelCollaborationFields {
     updatedBy: 'Updated By',
     createdAt: 'Created At',
     updatedAt: 'Updated At',
+    isActive: 'Is Active',
   };
 
   static String getLabel(String field) => labels[field] ?? field;
@@ -104,6 +106,7 @@ class ModelCollaboration {
   final bool isAcceptedByInfluencer;
   final String? promoCode;
   final double? discountPercentage;
+  final bool isActive;
   final String? createdBy;
   final String? updatedBy;
   final DateTime? createdAt;
@@ -138,6 +141,7 @@ class ModelCollaboration {
     this.isAcceptedByInfluencer = false,
     this.promoCode,
     this.discountPercentage,
+    this.isActive = true,
     this.createdBy,
     this.updatedBy,
     this.createdAt,
@@ -175,6 +179,7 @@ class ModelCollaboration {
     bool? isAcceptedByInfluencer,
     String? promoCode,
     double? discountPercentage,
+    bool? isActive,
     String? createdBy,
     String? updatedBy,
     DateTime? createdAt,
@@ -198,6 +203,7 @@ class ModelCollaboration {
           isAcceptedByInfluencer ?? this.isAcceptedByInfluencer,
       promoCode: promoCode ?? this.promoCode,
       discountPercentage: discountPercentage ?? this.discountPercentage,
+      isActive: isActive ?? this.isActive,
       createdBy: createdBy ?? this.createdBy,
       updatedBy: updatedBy ?? this.updatedBy,
       createdAt: createdAt ?? this.createdAt,
@@ -253,6 +259,7 @@ class ModelCollaboration {
               map[ModelCollaborationFields.discountPercentage].toString(),
             )
           : null,
+      isActive: map[ModelCollaborationFields.isActive] != false,
       createdBy: map[ModelCollaborationFields.createdBy]?.toString(),
       updatedBy: map[ModelCollaborationFields.updatedBy]?.toString(),
       createdAt: map[ModelCollaborationFields.createdAt] != null
@@ -316,6 +323,7 @@ class ModelCollaboration {
     if (discountPercentage != null) {
       map[ModelCollaborationFields.discountPercentage] = discountPercentage;
     }
+    map[ModelCollaborationFields.isActive] = isActive;
     if (createdBy != null) map[ModelCollaborationFields.createdBy] = createdBy;
     if (updatedBy != null) map[ModelCollaborationFields.updatedBy] = updatedBy;
     if (createdAt != null) {
@@ -341,6 +349,7 @@ class ModelCollaboration {
       'isAcceptedByInfluencer': isAcceptedByInfluencer,
       'promoCode': promoCode,
       'discountPercentage': discountPercentage,
+      'isActive': isActive,
       'createdBy': createdBy,
       'updatedBy': updatedBy,
       'createdAt': createdAt?.toIso8601String(),
@@ -364,6 +373,7 @@ class ModelCollaboration {
       isAcceptedByInfluencer: json['isAcceptedByInfluencer'] as bool? ?? false,
       promoCode: json['promoCode'] as String?,
       discountPercentage: (json['discountPercentage'] as num?)?.toDouble(),
+      isActive: json['isActive'] as bool? ?? true,
       createdBy: json['createdBy'] as String?,
       updatedBy: json['updatedBy'] as String?,
       createdAt: json['createdAt'] != null

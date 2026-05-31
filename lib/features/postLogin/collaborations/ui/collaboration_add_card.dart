@@ -30,10 +30,14 @@ class _CollaborationAddCardState extends ConsumerState<CollaborationAddCard> {
   final TextEditingController _fixedAmountController = TextEditingController();
   final TextEditingController _barterController = TextEditingController();
   final TextEditingController _agreedController = TextEditingController();
+  final TextEditingController _promoController = TextEditingController();
+  final TextEditingController _discountController = TextEditingController();
 
   String? _selectedInfluencerId;
   ModelInfluencer? _selectedInfluencer;
   CommissionType _commissionType = CommissionType.percentage;
+  bool _isAcceptedByInfluencer = false;
+  bool _isActive = true;
   bool _isSaving = false;
 
   @override
@@ -56,6 +60,8 @@ class _CollaborationAddCardState extends ConsumerState<CollaborationAddCard> {
     _fixedAmountController.dispose();
     _barterController.dispose();
     _agreedController.dispose();
+    _promoController.dispose();
+    _discountController.dispose();
     super.dispose();
   }
 
@@ -88,6 +94,8 @@ class _CollaborationAddCardState extends ConsumerState<CollaborationAddCard> {
     final double rate = double.tryParse(_rateController.text) ?? 0.0;
     final double fixedAmount = double.tryParse(_fixedAmountController.text) ?? 0.0;
     final double agreedAmount = double.tryParse(_agreedController.text) ?? 0.0;
+    final String? promoCode = _promoController.text.trim().isEmpty ? null : _promoController.text.trim();
+    final double? discountPercentage = _discountController.text.trim().isEmpty ? null : double.tryParse(_discountController.text.trim());
 
     // Check for duplicate influencer in this Campaign or local cart
     final List<ModelCollaboration> existingItems;
@@ -125,7 +133,10 @@ class _CollaborationAddCardState extends ConsumerState<CollaborationAddCard> {
       fixedAmount: _commissionType == CommissionType.fixedAmount ? fixedAmount : null,
       barterDescription: _commissionType == CommissionType.barter ? _barterController.text : null,
       agreedCommissionAmount: agreedAmount,
-      isAcceptedByInfluencer: false,
+      isAcceptedByInfluencer: _isAcceptedByInfluencer,
+      promoCode: promoCode,
+      discountPercentage: discountPercentage,
+      isActive: _isActive,
       resolvedLabels: {
         'influencer_id_label': _selectedInfluencer!.influencerName,
         'influencer_category_label': _selectedInfluencer!.influencerCategory,
@@ -382,6 +393,67 @@ class _CollaborationAddCardState extends ConsumerState<CollaborationAddCard> {
               ),
             ],
             const SizedBox(height: 12),
+
+            // Promo Code and Discount
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _promoController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Promo Code',
+                      labelStyle: TextStyle(color: accentColor),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.local_offer, color: accentColor, size: 16),
+                      contentPadding: const EdgeInsets.all(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 140,
+                  child: TextFormField(
+                    controller: _discountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Discount (%)',
+                      labelStyle: TextStyle(color: accentColor),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.percent, color: accentColor, size: 16),
+                      contentPadding: const EdgeInsets.all(8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            Row(
+              children: [
+                Expanded(
+                  child: CheckboxListTile(
+                    value: _isAcceptedByInfluencer,
+                    onChanged: (v) => setState(() => _isAcceptedByInfluencer = v ?? false),
+                    title: Text('Accepted by Influencer', style: TextStyle(color: Colors.white)),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    activeColor: accentColor,
+                    tileColor: Colors.white.withValues(alpha: 0.02),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: CheckboxListTile(
+                    value: _isActive,
+                    onChanged: (v) => setState(() => _isActive = v ?? true),
+                    title: Text('Is Active', style: TextStyle(color: Colors.white)),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    activeColor: accentColor,
+                    tileColor: Colors.white.withValues(alpha: 0.02),
+                  ),
+                ),
+              ],
+            ),
 
             // Agreed Commission Amount
             Row(
