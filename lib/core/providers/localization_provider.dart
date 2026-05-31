@@ -4,7 +4,8 @@ enum AppLanguage { english, hindi, marathi }
 
 class LanguageNotifier extends Notifier<AppLanguage> {
   @override
-  AppLanguage build() => AppLanguage.hindi;
+  // Default app language set to English instead of Hindi
+  AppLanguage build() => AppLanguage.english;
 
   void toggleLanguage() {
     if (state == AppLanguage.english) {

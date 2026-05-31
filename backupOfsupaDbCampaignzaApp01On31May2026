@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict KLrCyd3sjSMScM2JewJKfO2pVUGS3Mr0LA16qa4bnCjns8cQvQU2iyRzaec9eM2
+\restrict ZHMg1XEvLaMBQNnDb5732fZ3l11WSaOLNCr3Xcs4GKZ9lcucTbWhnujltn6rSNW
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 18.3
 
--- Started on 2026-05-30 23:57:44
+-- Started on 2026-05-31 14:59:49
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -933,7 +933,7 @@ CREATE VIEW public.view_brands AS
 ALTER VIEW public.view_brands OWNER TO postgres;
 
 --
--- TOC entry 423 (class 1259 OID 25120)
+-- TOC entry 422 (class 1259 OID 25120)
 -- Name: view_campaigns; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -2270,7 +2270,7 @@ GRANT ALL ON TABLE public.view_brands TO service_role;
 
 --
 -- TOC entry 4195 (class 0 OID 0)
--- Dependencies: 423
+-- Dependencies: 422
 -- Name: TABLE view_campaigns; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -2411,11 +2411,11 @@ ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON T
 ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO service_role;
 
 
--- Completed on 2026-05-30 23:57:52
+-- Completed on 2026-05-31 15:00:13
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict KLrCyd3sjSMScM2JewJKfO2pVUGS3Mr0LA16qa4bnCjns8cQvQU2iyRzaec9eM2
+\unrestrict ZHMg1XEvLaMBQNnDb5732fZ3l11WSaOLNCr3Xcs4GKZ9lcucTbWhnujltn6rSNW
 

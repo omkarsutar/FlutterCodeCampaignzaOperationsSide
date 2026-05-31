@@ -164,7 +164,7 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
-                                brandName,
+                                'Brand: $brandName',
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -181,15 +181,15 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                                   },
                                 ),
                                 borderRadius: BorderRadius.circular(12),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(
                                     horizontal: 6,
                                     vertical: 2,
                                   ),
                                   child: Icon(
                                     Icons.open_in_new,
                                     size: 16,
-                                    color: theme.colorScheme.primary,
+                                    color: Colors.blue,
                                   ),
                                 ),
                               ),

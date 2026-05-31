@@ -125,38 +125,34 @@ class _CartPageState extends ConsumerState<CartPage> {
     ProcessedCartData viewData,
     Map<String, String> l10n,
   ) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        if (ref.watch(cartProvider).brandId != null) ...[
-          Builder(
-            builder: (context) {
-              final cartState = ref.watch(cartProvider);
-              final campaignAsync = ref.watch(
-                campaignByIdProvider(cartState.campaignId!),
-              );
-              final adapter = ref.watch(campaignAdapterProvider);
+    // The summary header previously displayed a row with items, profit, and total amount.
+    // Those rows have been removed. We now simply show the campaign tile (if a brand is set)
+    // and let it occupy the full available width, matching the layout on the campaigns list page.
+    if (ref.watch(cartProvider).brandId == null) return const SizedBox.shrink();
+    return Builder(
+      builder: (context) {
+        final cartState = ref.watch(cartProvider);
+        final campaignAsync = ref.watch(
+          campaignByIdProvider(cartState.campaignId!),
+        );
+        final adapter = ref.watch(campaignAdapterProvider);
 
-              return campaignAsync.when(
-                data: (campaign) => campaign != null
-                    ? CartCampaignTile(
-                        entity: campaign,
-                        adapter: adapter,
-                        isUpdating: _isUpdating,
-                        onUpdating: (val) {
-                          if (mounted) setState(() => _isUpdating = val);
-                        },
-                      )
-                    : const Center(child: Text('Campaign not found')),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stackTrace) =>
-                    Center(child: Text('Error loading campaign: $error')),
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-        ],
-      ],
+        return campaignAsync.when(
+          data: (campaign) => campaign != null
+              ? CartCampaignTile(
+                  entity: campaign,
+                  adapter: adapter,
+                  isUpdating: _isUpdating,
+                  onUpdating: (val) {
+                    if (mounted) setState(() => _isUpdating = val);
+                  },
+                )
+              : const Center(child: Text('Campaign not found')),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) =>
+              Center(child: Text('Error loading campaign: $error')),
+        );
+      },
     );
   }
 
@@ -299,33 +295,6 @@ class _CartPageState extends ConsumerState<CartPage> {
     );
   }
 
-  Widget _buildSummaryItem(
-    BuildContext context,
-    String label,
-    String value, {
-    bool isBold = false,
-    Color? color,
-    double? valueSize,
-    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
-  }) {
-    final theme = Theme.of(context);
-    final labelStyle = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-      fontSize: 12,
-    );
-    final valueStyle = theme.textTheme.bodySmall?.copyWith(
-      fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-      color: color ?? theme.colorScheme.onSurface,
-      fontSize: valueSize ?? 14,
-    );
-
-    return Column(
-      crossAxisAlignment: crossAxisAlignment,
-      children: [
-        Text(label, style: labelStyle),
-        const SizedBox(height: 2),
-        Text(value, style: valueStyle),
-      ],
-    );
-  }
+  // The summary item widget was used for the removed summary row. It is no longer needed.
+  // Keeping the method would add dead code, so it has been removed.
 }

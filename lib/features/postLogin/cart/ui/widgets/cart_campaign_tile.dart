@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart'; // Added for context.pushNamed
 import '../../../../../../core/services/entity_service.dart';
 import '../../../campaigns/model/campaign_model.dart';
 import '../../../campaigns/providers/campaign_tile_logic.dart';
@@ -65,7 +66,7 @@ class CartCampaignTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header row: Campaign Name & Status Badge
+            // Header row: Campaign Name, Edit Icon & Status Badge
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -80,6 +81,25 @@ class CartCampaignTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
+                // Edit button – navigates to edit campaign screen
+                InkWell(
+                  onTap: entity.campaignId != null
+                      ? () => context.pushNamed(
+                          'editCampaign',
+                          pathParameters: {'id': entity.campaignId!},
+                        )
+                      : null,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      Icons.edit,
+                      size: 20,
+                      color: theme.colorScheme.secondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
                 if (isUpdating)
                   const SizedBox(
                     width: 16,
@@ -111,7 +131,7 @@ class CartCampaignTile extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              brandName,
+                              'Brand: $brandName',
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -119,6 +139,25 @@ class CartCampaignTile extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          if (entity.poBrandId != null)
+                            InkWell(
+                              onTap: () => context.pushNamed(
+                                'viewBrand',
+                                pathParameters: {'id': entity.poBrandId!},
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                child: Icon(
+                                  Icons.open_in_new,
+                                  size: 16,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                       const SizedBox(height: 4),
