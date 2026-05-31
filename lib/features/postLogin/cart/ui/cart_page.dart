@@ -6,13 +6,10 @@ import '../providers/cart_view_logic.dart';
 import '../providers/cart_providers.dart';
 import '../../../../core/providers/localization_provider.dart';
 import '../../influencers/influencer_barrel.dart';
-import '../../brands/brand_barrel.dart';
-import '../../agencies/agency_barrel.dart';
-import '../../campaigns/ui/widgets/po_brand_route_info.dart';
-import '../../campaigns/ui/widgets/po_actions.dart';
 import '../../campaigns/campaign_barrel.dart';
 import '../../collaborations/providers/collaboration_providers.dart';
 import 'cart_item_card.dart';
+import 'widgets/cart_campaign_tile.dart';
 
 class CartPage extends ConsumerStatefulWidget {
   const CartPage({super.key});
@@ -21,49 +18,16 @@ class CartPage extends ConsumerStatefulWidget {
   ConsumerState<CartPage> createState() => _CartPageState();
 }
 
-class _CartPageState extends ConsumerState<CartPage>
-    with SingleTickerProviderStateMixin {
+class _CartPageState extends ConsumerState<CartPage> {
   bool _isUpdating = false;
-
-  late AnimationController _profitHighlightController;
-  late Animation<double> _profitScaleAnimation;
-  late Animation<Color?> _profitColorAnimation;
 
   @override
   void initState() {
     super.initState();
-    _profitHighlightController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
-
-    _profitScaleAnimation =
-        TweenSequence<double>([
-          TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 50),
-          TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 50),
-        ]).animate(
-          CurvedAnimation(
-            parent: _profitHighlightController,
-            curve: Curves.easeInOut,
-          ),
-        );
-
-    _profitColorAnimation =
-        ColorTween(
-          begin: Colors.green.withValues(alpha: 0.2),
-          end: Colors.white,
-        ).animate(
-          CurvedAnimation(
-            parent: _profitHighlightController,
-            curve: Curves.linear,
-          ),
-        );
-
   }
 
   @override
   void dispose() {
-    _profitHighlightController.dispose();
     super.dispose();
   }
 
@@ -76,15 +40,6 @@ class _CartPageState extends ConsumerState<CartPage>
     final cartState = ref.watch(cartProvider);
 
     final isReadOnly = cartState.isReadOnly;
-
-    ref.listen(
-      cartViewLogicProvider.select((d) => (d.totalProfit, d.itemCount)),
-      (previous, next) {
-        if (previous != next && next.$1 != '0.00') {
-          _profitHighlightController.forward(from: 0.0);
-        }
-      },
-    );
 
     final canPop = context.canPop();
 
@@ -122,7 +77,9 @@ class _CartPageState extends ConsumerState<CartPage>
                         const SizedBox(height: 24),
                         FilledButton.icon(
                           onPressed: () {
-                            final campaignId = ref.read(cartProvider).campaignId;
+                            final campaignId = ref
+                                .read(cartProvider)
+                                .campaignId;
                             if (campaignId == null || campaignId.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -169,118 +126,37 @@ class _CartPageState extends ConsumerState<CartPage>
     Map<String, String> l10n,
   ) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            offset: const Offset(0, 4),
-            blurRadius: 8,
+    return Column(
+      children: [
+        if (ref.watch(cartProvider).brandId != null) ...[
+          Builder(
+            builder: (context) {
+              final cartState = ref.watch(cartProvider);
+              final campaignAsync = ref.watch(
+                campaignByIdProvider(cartState.campaignId!),
+              );
+              final adapter = ref.watch(campaignAdapterProvider);
+
+              return campaignAsync.when(
+                data: (campaign) => campaign != null
+                    ? CartCampaignTile(
+                        entity: campaign,
+                        adapter: adapter,
+                        isUpdating: _isUpdating,
+                        onUpdating: (val) {
+                          if (mounted) setState(() => _isUpdating = val);
+                        },
+                      )
+                    : const Center(child: Text('Campaign not found')),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stackTrace) =>
+                    Center(child: Text('Error loading campaign: $error')),
+              );
+            },
           ),
+          const SizedBox(height: 16),
         ],
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            if (ref.watch(cartProvider).brandId != null) ...[
-              Builder(
-                builder: (context) {
-                  final cartState = ref.watch(cartProvider);
-                  final brandAsync = ref.watch(
-                    brandByIdProvider(cartState.brandId!),
-                  );
-                  final routeAsync = ref.watch(
-                    agencyByIdProvider(cartState.agencyId!),
-                  );
-                  final adapter = ref.watch(campaignAdapterProvider);
-
-                  // Create a dummy/temp PO entity for actions
-                  final tempPo = ModelCampaign(
-                    poId: cartState.campaignId,
-                    poBrandId: cartState.brandId,
-                    poAgencyId: cartState.agencyId,
-                    status: cartState.status,
-                  );
-
-                  return CampaignBrandAgencyInfo(
-                    brandName: brandAsync.value?.brandName ?? 'Loading...',
-                    agencyName: routeAsync.value?.agencyName ?? 'Loading...',
-                    campaignId: null, // Hide PO ID on Cart Page
-                    status: cartState.status,
-                    trailing: CampaignActions(
-                      entity: tempPo,
-                      adapter: adapter,
-                      status: cartState.status ?? 'pending',
-                      isUpdating: _isUpdating,
-                      onUpdating: (val) {
-                        if (mounted) setState(() => _isUpdating = val);
-                      },
-                    ),
-                  );
-                },
-              ),
-              const Divider(),
-              const SizedBox(height: 8),
-            ],
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildSummaryItem(
-                  context,
-                  l10n['items'] ?? 'Items',
-                  '${viewData.itemCount}',
-                  valueSize: 18,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                ),
-                AnimatedBuilder(
-                  animation: _profitHighlightController,
-                  builder: (context, child) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _profitHighlightController.value > 0
-                            ? _profitColorAnimation.value
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.green.withValues(alpha: 0.1),
-                          width: 1,
-                        ),
-                      ),
-                      child: ScaleTransition(
-                        scale: _profitScaleAnimation,
-                        child: _buildSummaryItem(
-                          context,
-                          l10n['brand_profit'] ?? 'Brand Profit on MRP',
-                          '₹${viewData.totalProfit}',
-                          color: Colors.green[700],
-                          valueSize: 18,
-                          isBold: true,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                _buildSummaryItem(
-                  context,
-                  l10n['final_amount'] ?? 'Final Amount',
-                  '₹${viewData.totalAmount}',
-                  isBold: true,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  valueSize: 18,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 
@@ -349,7 +225,9 @@ class _CartPageState extends ConsumerState<CartPage>
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Successfully deleted all collaborations.'),
+                          content: Text(
+                            'Successfully deleted all collaborations.',
+                          ),
                         ),
                       );
                     }
@@ -366,10 +244,16 @@ class _CartPageState extends ConsumerState<CartPage>
                 }
               },
               icon: const Icon(Icons.delete_sweep_outlined, color: Colors.red),
-              label: const Text('Delete All', style: TextStyle(color: Colors.red)),
+              label: const Text(
+                'Delete All',
+                style: TextStyle(color: Colors.red),
+              ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.red),
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 16,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
