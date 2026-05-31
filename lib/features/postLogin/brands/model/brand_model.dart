@@ -20,6 +20,8 @@ class ModelBrandFields {
   static const String brandPhotoUrl = 'brand_photo_url';
   static const String brandLat = 'brand_lat';
   static const String brandLong = 'brand_long';
+  static const String androidAppId = 'android_app_id';
+  static const String websiteUrl = 'website_url';
   static const String createdAt = 'created_at';
   static const String updatedAt = 'updated_at';
   static const String visitOrder = 'visit_order';
@@ -41,6 +43,8 @@ class ModelBrandFields {
     brandPhotoUrl: 'Photo URL',
     brandLat: 'Latitude',
     brandLong: 'Longitude',
+    androidAppId: 'Android App ID',
+    websiteUrl: 'Website URL',
     createdAt: 'Created At',
     updatedAt: 'Updated At',
     visitOrder: 'Visit Order',
@@ -66,6 +70,8 @@ class ModelBrand {
   final String? brandPhotoUrl;
   final double? brandLat;
   final double? brandLong;
+  final String? androidAppId;
+  final String? websiteUrl;
   final DateTime? createdAt; // nullable, DB default
   final DateTime? updatedAt; // nullable, DB default
   final int? visitOrder;
@@ -88,6 +94,8 @@ class ModelBrand {
     this.brandPhotoUrl,
     this.brandLat,
     this.brandLong,
+    this.androidAppId,
+    this.websiteUrl,
     this.createdAt,
     this.updatedAt,
     this.visitOrder,
@@ -121,6 +129,8 @@ class ModelBrand {
       brandPhotoUrl: map[ModelBrandFields.brandPhotoUrl],
       brandLat: map[ModelBrandFields.brandLat]?.toDouble(),
       brandLong: map[ModelBrandFields.brandLong]?.toDouble(),
+      androidAppId: map[ModelBrandFields.androidAppId],
+      websiteUrl: map[ModelBrandFields.websiteUrl],
       createdAt: map[ModelBrandFields.createdAt] != null
           ? DateTime.tryParse(map[ModelBrandFields.createdAt])
           : null,
@@ -153,6 +163,8 @@ class ModelBrand {
       if (brandPhotoUrl != null) ModelBrandFields.brandPhotoUrl: brandPhotoUrl,
       if (brandLat != null) ModelBrandFields.brandLat: brandLat,
       if (brandLong != null) ModelBrandFields.brandLong: brandLong,
+      if (androidAppId != null) ModelBrandFields.androidAppId: androidAppId,
+      if (websiteUrl != null) ModelBrandFields.websiteUrl: websiteUrl,
       if (createdAt != null)
         ModelBrandFields.createdAt: createdAt!.toIso8601String(),
       if (updatedAt != null)
@@ -179,6 +191,8 @@ class ModelBrand {
       'brandPhotoUrl': brandPhotoUrl,
       'brandLat': brandLat,
       'brandLong': brandLong,
+      'androidAppId': androidAppId,
+      'websiteUrl': websiteUrl,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       'visitOrder': visitOrder,
@@ -203,6 +217,8 @@ class ModelBrand {
       brandPhotoUrl: json['brandPhotoUrl'] as String?,
       brandLat: (json['brandLat'] as num?)?.toDouble(),
       brandLong: (json['brandLong'] as num?)?.toDouble(),
+      androidAppId: json['androidAppId'] as String?,
+      websiteUrl: json['websiteUrl'] as String?,
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
       visitOrder: json['visitOrder'] as int?,

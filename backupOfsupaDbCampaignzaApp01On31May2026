@@ -121,6 +121,7 @@ BEGIN
   SET 
     collaboration_count = v_collab_count,
     status = CASE 
+      WHEN v_collab_count = 0 THEN 'pending'                     -- No collaborations left
       WHEN v_collab_count > 0 AND status = 'pending' THEN 'confirmed'
       ELSE status
     END

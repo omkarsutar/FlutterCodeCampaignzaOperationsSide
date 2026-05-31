@@ -37,6 +37,10 @@ class BrandAdapter implements EntityAdapter<ModelBrand> {
         return entity.brandLat;
       case ModelBrandFields.brandLong:
         return entity.brandLong;
+      case ModelBrandFields.androidAppId:
+        return entity.androidAppId;
+      case ModelBrandFields.websiteUrl:
+        return entity.websiteUrl;
       case ModelBrandFields.createdAt:
         return entity.createdAt;
       case ModelBrandFields.updatedAt:

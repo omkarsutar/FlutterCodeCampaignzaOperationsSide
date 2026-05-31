@@ -242,22 +242,20 @@ class CollaborationServiceImpl
     final user = client.auth.currentUser;
     if (user == null) throw Exception('No signed-in user found');
 
-    final enriched = entity.copyWith(
-      createdBy: user.id,
-      updatedBy: user.id,
-    );
+    final enriched = entity.copyWith(createdBy: user.id, updatedBy: user.id);
 
     return super.create(enriched);
   }
 
   @override
-  Future<ModelCollaboration> update(String id, ModelCollaboration entity) async {
+  Future<ModelCollaboration> update(
+    String id,
+    ModelCollaboration entity,
+  ) async {
     final user = client.auth.currentUser;
     if (user == null) throw Exception('No signed-in user found');
 
-    final enriched = entity.copyWith(
-      updatedBy: user.id,
-    );
+    final enriched = entity.copyWith(updatedBy: user.id);
 
     return super.update(id, enriched);
   }

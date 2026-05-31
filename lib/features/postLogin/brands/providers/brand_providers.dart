@@ -71,6 +71,8 @@ class BrandFormState {
   final String? brandPhotoUrl;
   final double? brandLat;
   final double? brandLong;
+  final String? androidAppId;
+  final String? websiteUrl;
   final bool isLoading;
   final String? error;
 
@@ -90,6 +92,8 @@ class BrandFormState {
     this.brandPhotoUrl,
     this.brandLat,
     this.brandLong,
+    this.androidAppId,
+    this.websiteUrl,
     this.isLoading = false,
     this.error,
   });
@@ -110,6 +114,8 @@ class BrandFormState {
     String? brandPhotoUrl,
     double? brandLat,
     double? brandLong,
+    String? androidAppId,
+    String? websiteUrl,
     bool? isLoading,
     String? error,
   }) {
@@ -129,6 +135,8 @@ class BrandFormState {
       brandPhotoUrl: brandPhotoUrl ?? this.brandPhotoUrl,
       brandLat: brandLat ?? this.brandLat,
       brandLong: brandLong ?? this.brandLong,
+      androidAppId: androidAppId ?? this.androidAppId,
+      websiteUrl: websiteUrl ?? this.websiteUrl,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -206,6 +214,12 @@ class BrandFormNotifier extends StateNotifier<BrandFormState> {
           error: null,
         );
         break;
+      case ModelBrandFields.androidAppId:
+        state = state.copyWith(androidAppId: value as String?, error: null);
+        break;
+      case ModelBrandFields.websiteUrl:
+        state = state.copyWith(websiteUrl: value as String?, error: null);
+        break;
     }
   }
 
@@ -239,6 +253,8 @@ class BrandFormNotifier extends StateNotifier<BrandFormState> {
         brandPhotoUrl: state.brandPhotoUrl,
         brandLat: state.brandLat,
         brandLong: state.brandLong,
+        androidAppId: state.androidAppId,
+        websiteUrl: state.websiteUrl,
       );
 
       if (entityId == null) {
@@ -300,6 +316,8 @@ class BrandFormNotifier extends StateNotifier<BrandFormState> {
       brandPhotoUrl: entity.brandPhotoUrl,
       brandLat: entity.brandLat,
       brandLong: entity.brandLong,
+      androidAppId: entity.androidAppId,
+      websiteUrl: entity.websiteUrl,
     );
   }
 

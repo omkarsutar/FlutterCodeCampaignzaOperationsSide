@@ -164,6 +164,26 @@
             "visibleInForm": true
         },
         {
+            "name": "android_app_id",
+            "label": "Android App ID",
+            "type": "text",
+            "required": false,
+            "maxLength": 255,
+            "hintText": "e.g., com.numeroshastra.client",
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "website_url",
+            "label": "Website URL",
+            "type": "text",
+            "required": false,
+            "maxLength": 500,
+            "hintText": "e.g., https://www.example.com",
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
             "name": "created_at",
             "label": "Created At",
             "type": "text",

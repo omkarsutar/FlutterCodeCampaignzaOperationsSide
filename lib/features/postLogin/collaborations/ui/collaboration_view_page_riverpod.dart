@@ -181,6 +181,24 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     );
   }
 
+  /// Builds a URL‑encoded referrer string for the given [socialMedia].
+  ///
+  /// Example output for Instagram:
+  ///   utm_source%3Dinstagram%26utm_campaign%3Djan2026%26utm_medium%3DPROMO123
+  String _buildReferrer({
+    required String promoCode,
+    required String campaignCode,
+    required String socialMedia,
+  }) {
+    return 'utm_source%3D$socialMedia%26utm_campaign%3D$campaignCode%26utm_medium%3D$promoCode';
+  }
+
+  /// Constructs the Google Play Store URL for the given [appId] and
+  /// URL‑encoded [referrer] query.
+  String _buildStoreUrl({required String appId, required String referrer}) {
+    return 'https://play.google.com/store/apps/details?id=$appId&referrer=$referrer';
+  }
+
   Widget _buildProfileHeader(
     BuildContext context,
     ThemeData theme,
@@ -370,8 +388,9 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    // Build campaign code based on creation date
     final date = collaboration.createdAt ?? DateTime.now();
-    final months = [
+    const months = [
       'jan',
       'feb',
       'mar',
@@ -387,15 +406,27 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     ];
     final campaignCode = '${months[date.month - 1]}${date.year}';
 
-    final instagramReferrer =
-        'utm_source%3Dinstagram%26utm_campaign%3D$campaignCode%26utm_medium%3D$promoCode';
-    final facebookReferrer =
-        'utm_source%3Dfacebook%26utm_campaign%3D$campaignCode%26utm_medium%3D$promoCode';
+    // Use helper functions to generate referrer strings and store URLs
+    final instagramReferrer = _buildReferrer(
+      promoCode: promoCode,
+      campaignCode: campaignCode,
+      socialMedia: 'instagram',
+    );
+    final facebookReferrer = _buildReferrer(
+      promoCode: promoCode,
+      campaignCode: campaignCode,
+      socialMedia: 'facebook',
+    );
 
-    final instagramUrl =
-        'https://play.google.com/store/apps/details?id=com.numeroshastra.client&referrer=$instagramReferrer';
-    final facebookUrl =
-        'https://play.google.com/store/apps/details?id=com.numeroshastra.client&referrer=$facebookReferrer';
+    const appId = 'com.numeroshastra.client';
+    final instagramUrl = _buildStoreUrl(
+      appId: appId,
+      referrer: instagramReferrer,
+    );
+    final facebookUrl = _buildStoreUrl(
+      appId: appId,
+      referrer: facebookReferrer,
+    );
 
     // Watch analytics counts
     final purchaseCountAsync = ref.watch(purchaseCountProvider(promoCode));
