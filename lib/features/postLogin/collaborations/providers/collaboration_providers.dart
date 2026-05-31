@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/services/entity_service.dart';
+import '../../campaigns/providers/campaign_providers.dart';
+import '../../brands/providers/brand_providers.dart';
 
 import '../adapter/collaboration_adapter.dart';
 import '../model/collaboration_model.dart';
@@ -41,6 +43,22 @@ final collaborationByIdProvider = FutureProvider.autoDispose
     .family<ModelCollaboration?, String>((ref, collaborationId) async {
       final service = ref.read(collaborationServiceProvider);
       return await service.fetchById(collaborationId);
+    });
+
+/// Fetches parent campaign for a collaboration by collaboration ID
+final collaborationParentCampaignProvider = FutureProvider.autoDispose
+    .family<dynamic, String>((ref, collaborationId) async {
+      final collaboration = await ref.watch(collaborationByIdProvider(collaborationId).future);
+      if (collaboration?.campaignId == null) return null;
+      return await ref.watch(campaignByIdProvider(collaboration!.campaignId!).future);
+    });
+
+/// Fetches parent brand for a collaboration by collaboration ID
+final collaborationParentBrandProvider = FutureProvider.autoDispose
+    .family<dynamic, String>((ref, collaborationId) async {
+      final campaign = await ref.watch(collaborationParentCampaignProvider(collaborationId).future);
+      if (campaign?.campaignBrandId == null) return null;
+      return await ref.watch(brandByIdProvider(campaign!.campaignBrandId!).future);
     });
 
 /// State provider for managing Collaboration creation/editing

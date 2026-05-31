@@ -388,149 +388,166 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    // Build campaign code based on creation date
-    final date = collaboration.createdAt ?? DateTime.now();
-    const months = [
-      'jan',
-      'feb',
-      'mar',
-      'apr',
-      'may',
-      'jun',
-      'jul',
-      'aug',
-      'sep',
-      'oct',
-      'nov',
-      'dec',
-    ];
-    final campaignCode = '${months[date.month - 1]}${date.year}';
+    // Watch parent campaign and brand data
+    final parentCampaignAsync = ref.watch(collaborationParentCampaignProvider(collaboration.collaborationId ?? ''));
+    final parentBrandAsync = ref.watch(collaborationParentBrandProvider(collaboration.collaborationId ?? ''));
 
-    // Use helper functions to generate referrer strings and store URLs
-    final instagramReferrer = _buildReferrer(
-      promoCode: promoCode,
-      campaignCode: campaignCode,
-      socialMedia: 'instagram',
-    );
-    final facebookReferrer = _buildReferrer(
-      promoCode: promoCode,
-      campaignCode: campaignCode,
-      socialMedia: 'facebook',
-    );
+    return parentCampaignAsync.when(
+      data: (campaign) => parentBrandAsync.when(
+        data: (brand) {
+          // Get campaign code from campaign_name_string, or fallback to date-based
+          String campaignCode = campaign?.campaignNameString ?? '';
+          if (campaignCode.isEmpty) {
+            final date = collaboration.createdAt ?? DateTime.now();
+            const months = [
+              'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+              'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+            ];
+            campaignCode = '${months[date.month - 1]}${date.year}';
+          }
 
-    const appId = 'com.numeroshastra.client';
-    final instagramUrl = _buildStoreUrl(
-      appId: appId,
-      referrer: instagramReferrer,
-    );
-    final facebookUrl = _buildStoreUrl(
-      appId: appId,
-      referrer: facebookReferrer,
-    );
+          // Get app ID from brand's android_app_id, or fallback to default
+          final appId = brand?.androidAppId ?? 'com.numeroshastra.client';
 
-    // Watch analytics counts
-    final purchaseCountAsync = ref.watch(purchaseCountProvider(promoCode));
-    final instagramInstallCountAsync = ref.watch(
-      installCountProvider(instagramReferrer),
-    );
-    final facebookInstallCountAsync = ref.watch(
-      installCountProvider(facebookReferrer),
-    );
+          // Use helper functions to generate referrer strings and store URLs
+          final instagramReferrer = _buildReferrer(
+            promoCode: promoCode,
+            campaignCode: campaignCode,
+            socialMedia: 'instagram',
+          );
+          final facebookReferrer = _buildReferrer(
+            promoCode: promoCode,
+            campaignCode: campaignCode,
+            socialMedia: 'facebook',
+          );
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.3),
-          width: 1,
+          final instagramUrl = _buildStoreUrl(
+            appId: appId,
+            referrer: instagramReferrer,
+          );
+          final facebookUrl = _buildStoreUrl(
+            appId: appId,
+            referrer: facebookReferrer,
+          );
+
+          // Watch analytics counts
+          final purchaseCountAsync = ref.watch(purchaseCountProvider(promoCode));
+          final instagramInstallCountAsync = ref.watch(
+            installCountProvider(instagramReferrer),
+          );
+          final facebookInstallCountAsync = ref.watch(
+            installCountProvider(facebookReferrer),
+          );
+
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Section header with refresh button
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Promo Code & Copyable Links',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    Tooltip(
+                      message: 'Refresh counts',
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.refresh,
+                          color: theme.colorScheme.primary,
+                          size: 22,
+                        ),
+                        onPressed: () {
+                          ref.invalidate(purchaseCountProvider(promoCode));
+                          ref.invalidate(installCountProvider(instagramReferrer));
+                          ref.invalidate(installCountProvider(facebookReferrer));
+                          SnackbarUtils.showSuccess('Refreshing counts...');
+                        },
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                _buildCopyableTile(
+                  context,
+                  theme,
+                  title: 'Promo Code',
+                  text: promoCode,
+                  snackbarLabel: 'Promo Code',
+                  countLabel: 'Purchase Count',
+                  countAsync: purchaseCountAsync,
+                  icon: Icons.local_offer_outlined,
+                  color: Colors.deepPurple,
+                ),
+                const SizedBox(height: 16),
+
+                _buildCopyableTile(
+                  context,
+                  theme,
+                  title: 'Instagram Bio Link',
+                  text: instagramUrl,
+                  snackbarLabel: 'Instagram Bio Link',
+                  countLabel: 'Installed Count',
+                  countAsync: instagramInstallCountAsync,
+                  color: Colors.pink,
+                  logoWidget: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Image.asset('assets/images/instagram_logo.png'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                _buildCopyableTile(
+                  context,
+                  theme,
+                  title: 'Facebook Bio Link',
+                  text: facebookUrl,
+                  snackbarLabel: 'Facebook Bio Link',
+                  countLabel: 'Installed Count',
+                  countAsync: facebookInstallCountAsync,
+                  color: Colors.blue,
+                  logoWidget: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Image.asset('assets/images/facebook_logo.png'),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        error: (error, stackTrace) => Center(
+          child: Text('Error loading campaign data: $error'),
+        ),
+        loading: () => const Center(
+          child: CircularProgressIndicator(),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Section header with refresh button
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Promo Code & Copyable Links',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ),
-              Tooltip(
-                message: 'Refresh counts',
-                child: IconButton(
-                  icon: Icon(
-                    Icons.refresh,
-                    color: theme.colorScheme.primary,
-                    size: 22,
-                  ),
-                  onPressed: () {
-                    ref.invalidate(purchaseCountProvider(promoCode));
-                    ref.invalidate(installCountProvider(instagramReferrer));
-                    ref.invalidate(installCountProvider(facebookReferrer));
-                    SnackbarUtils.showSuccess('Refreshing counts...');
-                  },
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          _buildCopyableTile(
-            context,
-            theme,
-            title: 'Promo Code',
-            text: promoCode,
-            snackbarLabel: 'Promo Code',
-            countLabel: 'Purchase Count',
-            countAsync: purchaseCountAsync,
-            icon: Icons.local_offer_outlined,
-            color: Colors.deepPurple,
-          ),
-          const SizedBox(height: 16),
-
-          _buildCopyableTile(
-            context,
-            theme,
-            title: 'Instagram Bio Link',
-            text: instagramUrl,
-            snackbarLabel: 'Instagram Bio Link',
-            countLabel: 'Installed Count',
-            countAsync: instagramInstallCountAsync,
-            color: Colors.pink,
-            logoWidget: SizedBox(
-              width: 20,
-              height: 20,
-              child: Image.asset('assets/images/instagram_logo.png'),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          _buildCopyableTile(
-            context,
-            theme,
-            title: 'Facebook Bio Link',
-            text: facebookUrl,
-            snackbarLabel: 'Facebook Bio Link',
-            countLabel: 'Installed Count',
-            countAsync: facebookInstallCountAsync,
-            color: Colors.blue,
-            logoWidget: SizedBox(
-              width: 20,
-              height: 20,
-              child: Image.asset('assets/images/facebook_logo.png'),
-            ),
-          ),
-        ],
+      error: (error, stackTrace) => Center(
+        child: Text('Error loading brand data: $error'),
+      ),
+      loading: () => const Center(
+        child: CircularProgressIndicator(),
       ),
     );
   }
