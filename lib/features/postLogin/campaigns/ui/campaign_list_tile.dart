@@ -43,7 +43,8 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
 
     final canDelete = isRbacReady && rbacService.canDelete('campaign');
 
-    final campaignName = widget.entity.campaignName ??
+    final campaignName =
+        widget.entity.campaignName ??
         widget.entity.campaignNameString ??
         'Unnamed Campaign';
 
@@ -88,19 +89,19 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
         onTap: widget.collaborationTile == true
             ? widget.onTap
             : (widget.onTap ??
-                () {
-                  ref
-                      .read(cartControllerProvider)
-                      .editCampaign(context, widget.entity);
-                }),
+                  () {
+                    ref
+                        .read(cartControllerProvider)
+                        .editCampaign(context, widget.entity);
+                  }),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header row: Campaign Name & Status Badge
+              // Header row: Campaign Name & Edit Button & Status Badge
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
@@ -113,6 +114,25 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                     ),
                   ),
                   const SizedBox(width: 8),
+                  // Edit Button
+                  InkWell(
+                    onTap: widget.entity.campaignId != null
+                        ? () => context.pushNamed(
+                            'editCampaign',
+                            pathParameters: {'id': widget.entity.campaignId!},
+                          )
+                        : null,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.edit,
+                        size: 20,
+                        color: theme.colorScheme.secondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
                   if (_isUpdating)
                     const SizedBox(
                       width: 16,
@@ -137,7 +157,9 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                             Icon(
                               Icons.business,
                               size: 16,
-                              color: theme.colorScheme.primary.withValues(alpha: 0.8),
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.8,
+                              ),
                             ),
                             const SizedBox(width: 6),
                             Expanded(
@@ -154,11 +176,16 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                               InkWell(
                                 onTap: () => context.pushNamed(
                                   'viewBrand',
-                                  pathParameters: {'id': widget.entity.poBrandId!},
+                                  pathParameters: {
+                                    'id': widget.entity.poBrandId!,
+                                  },
                                 ),
                                 borderRadius: BorderRadius.circular(12),
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
                                   child: Icon(
                                     Icons.open_in_new,
                                     size: 16,
@@ -174,7 +201,8 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                             Icon(
                               Icons.corporate_fare,
                               size: 16,
-                              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.8),
                             ),
                             const SizedBox(width: 6),
                             Expanded(
@@ -245,9 +273,14 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.4),
+                      color: theme.colorScheme.secondaryContainer.withValues(
+                        alpha: 0.4,
+                      ),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(

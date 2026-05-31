@@ -92,6 +92,8 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     );
 
     final enriched = mapper.toMap(entity);
+    // Exclude status field as per Supabase logic
+    enriched.remove(ModelCampaignFields.status);
     final response = await client
         .from(tableName)
         .insert(enriched)
@@ -243,27 +245,57 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
 
   @override
   Future<ModelCampaign> create(ModelCampaign entity) async {
-    final userId = _ref.read(userProfileStateProvider).profile?.userId;
-    if (userId == null) throw Exception('No signed-in user found');
+    try {
+      final userId = _ref.read(userProfileStateProvider).profile?.userId;
+      if (userId == null) throw Exception('No signed-in user found');
 
-    final enriched = entity.copyWith(
-      createdBy: userId,
-      updatedBy: userId,
-    );
+      final enriched = entity.copyWith(createdBy: userId, updatedBy: userId);
 
-    return super.create(enriched);
+      // Get the map and exclude status field as per Supabase logic
+      final payload = mapper.toMap(enriched);
+      payload.remove(ModelCampaignFields.status);
+
+      logger.info('Creating new $ModelCampaign in $tableName');
+      final inserted = await client
+          .from(tableName)
+          .insert(payload)
+          .select()
+          .single();
+      final resolved = await resolveForeignLabelsForSingle(inserted);
+      logger.info('Successfully created $ModelCampaign');
+      return mapper.fromMap(resolved);
+    } catch (e, st) {
+      logger.error('Failed to create $ModelCampaign', st);
+      rethrow;
+    }
   }
 
   @override
   Future<ModelCampaign> update(String id, ModelCampaign entity) async {
-    final userId = _ref.read(userProfileStateProvider).profile?.userId;
-    if (userId == null) throw Exception('No signed-in user found');
+    try {
+      final userId = _ref.read(userProfileStateProvider).profile?.userId;
+      if (userId == null) throw Exception('No signed-in user found');
 
-    final enriched = entity.copyWith(
-      updatedBy: userId,
-    );
+      final enriched = entity.copyWith(updatedBy: userId);
 
-    return super.update(id, enriched);
+      // Get the map and exclude status field as per Supabase logic
+      final payload = mapper.toMap(enriched);
+      payload.remove(ModelCampaignFields.status);
+
+      logger.info('Updating $ModelCampaign with id=$id in $tableName');
+      final updated = await client
+          .from(tableName)
+          .update(payload)
+          .eq(idColumn, id)
+          .select()
+          .single();
+      final resolved = await resolveForeignLabelsForSingle(updated);
+      logger.info('Successfully updated $ModelCampaign with id=$id');
+      return mapper.fromMap(resolved);
+    } catch (e, st) {
+      logger.error('Failed to update $ModelCampaign with id=$id', st);
+      rethrow;
+    }
   }
 
   // --- Override insertEntity to enrich with createdBy/updatedBy ---
@@ -275,6 +307,8 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     final enriched = mapper.toMap(entity);
     enriched[ModelCampaignFields.createdBy] = userId;
     enriched[ModelCampaignFields.updatedBy] = userId;
+    // Exclude status field as per Supabase logic
+    enriched.remove(ModelCampaignFields.status);
 
     await client.from(tableName).insert(enriched);
   }
