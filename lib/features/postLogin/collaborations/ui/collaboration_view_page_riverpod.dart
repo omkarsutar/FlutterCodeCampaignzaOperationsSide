@@ -103,20 +103,20 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                       ),
                       const SizedBox(height: 24),
 
-                      // Commission Config Detail Box
-                      _buildCommissionTypeDetails(
-                        theme,
-                        collaboration,
-                        baseCommissionRate,
-                      ),
-                      const SizedBox(height: 24),
-
                       // Promo Code & Link Section with counts
                       _buildPromoCodeSection(
                         context,
                         theme,
                         collaboration,
                         ref,
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Commission Config Detail Box
+                      _buildCommissionTypeDetails(
+                        theme,
+                        collaboration,
+                        baseCommissionRate,
                       ),
                       const SizedBox(height: 24),
 
@@ -389,8 +389,12 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     }
 
     // Watch parent campaign and brand data
-    final parentCampaignAsync = ref.watch(collaborationParentCampaignProvider(collaboration.collaborationId ?? ''));
-    final parentBrandAsync = ref.watch(collaborationParentBrandProvider(collaboration.collaborationId ?? ''));
+    final parentCampaignAsync = ref.watch(
+      collaborationParentCampaignProvider(collaboration.collaborationId ?? ''),
+    );
+    final parentBrandAsync = ref.watch(
+      collaborationParentBrandProvider(collaboration.collaborationId ?? ''),
+    );
 
     return parentCampaignAsync.when(
       data: (campaign) => parentBrandAsync.when(
@@ -400,8 +404,18 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
           if (campaignCode.isEmpty) {
             final date = collaboration.createdAt ?? DateTime.now();
             const months = [
-              'jan', 'feb', 'mar', 'apr', 'may', 'jun',
-              'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+              'jan',
+              'feb',
+              'mar',
+              'apr',
+              'may',
+              'jun',
+              'jul',
+              'aug',
+              'sep',
+              'oct',
+              'nov',
+              'dec',
             ];
             campaignCode = '${months[date.month - 1]}${date.year}';
           }
@@ -431,7 +445,9 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
           );
 
           // Watch analytics counts
-          final purchaseCountAsync = ref.watch(purchaseCountProvider(promoCode));
+          final purchaseCountAsync = ref.watch(
+            purchaseCountProvider(promoCode),
+          );
           final instagramInstallCountAsync = ref.watch(
             installCountProvider(instagramReferrer),
           );
@@ -475,8 +491,12 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                         ),
                         onPressed: () {
                           ref.invalidate(purchaseCountProvider(promoCode));
-                          ref.invalidate(installCountProvider(instagramReferrer));
-                          ref.invalidate(installCountProvider(facebookReferrer));
+                          ref.invalidate(
+                            installCountProvider(instagramReferrer),
+                          );
+                          ref.invalidate(
+                            installCountProvider(facebookReferrer),
+                          );
                           SnackbarUtils.showSuccess('Refreshing counts...');
                         },
                         padding: EdgeInsets.zero,
@@ -536,19 +556,13 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
             ),
           );
         },
-        error: (error, stackTrace) => Center(
-          child: Text('Error loading campaign data: $error'),
-        ),
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        error: (error, stackTrace) =>
+            Center(child: Text('Error loading campaign data: $error')),
+        loading: () => const Center(child: CircularProgressIndicator()),
       ),
-      error: (error, stackTrace) => Center(
-        child: Text('Error loading brand data: $error'),
-      ),
-      loading: () => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      error: (error, stackTrace) =>
+          Center(child: Text('Error loading brand data: $error')),
+      loading: () => const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -593,14 +607,14 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     _buildInlineCount(theme, countLabel, countAsync, color),
