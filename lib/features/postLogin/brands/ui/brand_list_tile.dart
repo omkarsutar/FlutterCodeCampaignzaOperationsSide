@@ -59,6 +59,22 @@ class BrandListTile<T> extends ConsumerWidget {
     final photoUrl =
         adapter.getFieldValue(entity, ModelBrandFields.brandPhotoUrl)
             as String?;
+    final isActive = adapter.getFieldValue(
+      entity,
+      ModelBrandFields.isActive,
+    ) as bool? ?? false;
+    final agencyLabel = adapter.getLabelValue(
+      entity,
+      ModelBrandFields.brandsPrimaryAgency,
+    )?.toString() ?? '';
+    final androidAppId = adapter.getFieldValue(
+      entity,
+      ModelBrandFields.androidAppId,
+    )?.toString() ?? '';
+    final websiteUrl = adapter.getFieldValue(
+      entity,
+      ModelBrandFields.websiteUrl,
+    )?.toString() ?? '';
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -66,204 +82,257 @@ class BrandListTile<T> extends ConsumerWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
-        // onTap: () => _handleCreateCampaign(context),
-        // onTap: onTap ?? () => _handleCreateCampaign(context),
         onTap: onTap ?? () => onTap,
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Left Side: Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  child: photoUrl != null
-                      ? Image.network(
-                          photoUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              Icons.store,
-                              color: theme.colorScheme.onSurfaceVariant,
-                              size: 40,
-                            );
-                          },
-                        )
-                      : Icon(
-                          Icons.store,
-                          color: theme.colorScheme.onSurfaceVariant,
-                          size: 40,
-                        ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Right Side: Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Brand Name
-                    Text(
-                      displayName,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    // Brand Note under name
-                    if (brandNote.isNotEmpty)
-                      Text(
-                        brandNote,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-
-                    const SizedBox(height: 4),
-
-                    // Hidden Note under brand note
-                    if (hiddenNote.isNotEmpty)
-                      Text(
-                        hiddenNote,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-
-                    const SizedBox(height: 4),
-
-                    // Mobiles + Person name
-                    Builder(
-                      builder: (_) {
-                        final mobile1 = adapter.getFieldValue(
-                          entity,
-                          ModelBrandFields.brandMobile1,
-                        );
-                        final mobile2 = adapter.getFieldValue(
-                          entity,
-                          ModelBrandFields.brandMobile2,
-                        );
-                        final personName = adapter.getFieldValue(
-                          entity,
-                          ModelBrandFields.brandPersonName,
-                        );
-
-                        final contactLine = [
-                          if (mobile1 != null && mobile1.toString().isNotEmpty)
-                            mobile1.toString(),
-                          if (mobile2 != null && mobile2.toString().isNotEmpty)
-                            mobile2.toString(),
-                        ].join(", ");
-
-                        final displayLine =
-                            personName != null &&
-                                personName.toString().isNotEmpty
-                            ? "$contactLine (${personName.toString()})"
-                            : contactLine;
-
-                        return Text(
-                          displayLine,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface,
+              // Top Row: Brand Name + Status Badge + View Button
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Brand Name
+                        Text(
+                          displayName,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
-                        );
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        // Agency Label
+                        if (agencyLabel.isNotEmpty)
+                          Text(
+                            agencyLabel,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? Colors.green.withValues(alpha: 0.15)
+                          : Colors.orange.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isActive ? Colors.green : Colors.orange,
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Text(
+                      isActive ? 'Active' : 'Inactive',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: isActive
+                            ? Colors.green[800]
+                            : Colors.orange[800],
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  InkWell(
+                    onTap: () => context.pushNamed(
+                      viewRouteName,
+                      pathParameters: {
+                        'id': adapter.getId(entity, idField).toString(),
                       },
                     ),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Icon(
+                        Icons.visibility,
+                        size: 20,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
-                    // Row 3: Actions
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        if (canCopyLink &&
-                            (_isValidMobile(
-                                  adapter.getFieldValue(
-                                    entity,
-                                    ModelBrandFields.brandMobile1,
-                                  ),
-                                ) ||
-                                _isValidMobile(
-                                  adapter.getFieldValue(
-                                    entity,
-                                    ModelBrandFields.brandMobile2,
-                                  ),
-                                )))
-                          InkWell(
-                            onTap: () => _copyUtmLink(context),
-                            borderRadius: BorderRadius.circular(20),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Icon(
-                                Icons.link,
-                                size: 20,
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                        InkWell(
-                          onTap: () => _openMap(context),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.location_on,
-                              size: 20,
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
+              const SizedBox(height: 8),
+
+              // Divider
+              Divider(
+                color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                thickness: 1,
+              ),
+
+              const SizedBox(height: 8),
+
+              // Brand Note
+              if (brandNote.isNotEmpty) ...[
+                Text(
+                  brandNote,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+              ],
+
+              // Hidden Note
+              if (hiddenNote.isNotEmpty) ...[
+                Text(
+                  hiddenNote,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+              ],
+
+              // Mobiles + Person name
+              Builder(
+                builder: (_) {
+                  final mobile1 = adapter.getFieldValue(
+                    entity,
+                    ModelBrandFields.brandMobile1,
+                  );
+                  final mobile2 = adapter.getFieldValue(
+                    entity,
+                    ModelBrandFields.brandMobile2,
+                  );
+                  final personName = adapter.getFieldValue(
+                    entity,
+                    ModelBrandFields.brandPersonName,
+                  );
+
+                  final contactLine = [
+                    if (mobile1 != null && mobile1.toString().isNotEmpty)
+                      mobile1.toString(),
+                    if (mobile2 != null && mobile2.toString().isNotEmpty)
+                      mobile2.toString(),
+                  ].join(", ");
+
+                  final displayLine = personName != null &&
+                          personName.toString().isNotEmpty
+                      ? "$contactLine (${personName.toString()})"
+                      : contactLine;
+
+                  if (displayLine.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      displayLine,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  );
+                },
+              ),
+
+              // Android App ID and Website URL
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  if (androidAppId.isNotEmpty)
+                    Chip(
+                      label: Text(
+                        'Android: $androidAppId',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontSize: 11,
                         ),
-                        InkWell(
-                          onTap: () => context.pushNamed(
-                            viewRouteName,
-                            pathParameters: {
-                              'id': adapter.getId(entity, idField).toString(),
-                            },
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.visibility,
-                              size: 20,
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
+                      ),
+                      visualDensity: const VisualDensity(
+                        horizontal: -4,
+                        vertical: -4,
+                      ),
+                      backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                      side: BorderSide(
+                        color: Colors.blue.withValues(alpha: 0.3),
+                        width: 0.5,
+                      ),
+                    ),
+                  if (websiteUrl.isNotEmpty)
+                    Chip(
+                      label: Text(
+                        'Website: ${websiteUrl.replaceFirst('https://', '')}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontSize: 11,
                         ),
-                      ],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      visualDensity: const VisualDensity(
+                        horizontal: -4,
+                        vertical: -4,
+                      ),
+                      backgroundColor: Colors.purple.withValues(alpha: 0.1),
+                      side: BorderSide(
+                        color: Colors.purple.withValues(alpha: 0.3),
+                        width: 0.5,
+                      ),
+                    ),
+                ],
+              ),
+
+              // Copy Link Action Button (if valid mobile)
+              if (canCopyLink &&
+                  (_isValidMobile(
+                        adapter.getFieldValue(
+                          entity,
+                          ModelBrandFields.brandMobile1,
+                        ),
+                      ) ||
+                      _isValidMobile(
+                        adapter.getFieldValue(
+                          entity,
+                          ModelBrandFields.brandMobile2,
+                        ),
+                      ))) ...[
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: () => _copyUtmLink(context),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.link,
+                          size: 20,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
+              ],
             ],
           ),
         ),
       ),
     );
-  }
-
-  Future<void> _openMap(BuildContext context) async {
-    final lat = adapter.getFieldValue(entity, ModelBrandFields.brandLat);
-    final long = adapter.getFieldValue(entity, ModelBrandFields.brandLong);
-    if (lat == null || long == null) {
-      SnackbarUtils.showError('Brand location not available');
-      return;
-    }
-
-    final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$long';
-    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   Future<void> _copyUtmLink(BuildContext context) async {
@@ -315,7 +384,6 @@ class BrandListTile<T> extends ConsumerWidget {
 
     final utmLink =
         '${AppConstants.webAppUrlRetailerApp}?utm_source=$utmSource';
-    // 'https://omkarsutar.github.io/OrderAppV01?utm_source=$utmSource';
 
     // Copy to clipboard
     // Share to WhatsApp if mobile number is available
