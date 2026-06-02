@@ -59,9 +59,11 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
             ?.toString() ??
         'Unknown Agency';
     final status = widget.entity.status ?? 'pending';
+    final campaignType = widget.entity.effectiveCampaignType;
     final collabsCount = widget.entity.poLineItemCount ?? 0;
     final commentStr = widget.entity.userComment ?? '';
     final adminCommentStr = widget.entity.adminComment ?? '';
+    final showCollabsCount = campaignType.isInfluencerCollaboration;
 
     // Date formatting (convert to local timezone first)
     final DateFormat formatter = DateFormat('dd MMM yyyy HH:mm');
@@ -224,7 +226,7 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
               ),
               const Divider(height: 20),
 
-              // Validity & Collabs Info Row
+              // Validity & Campaign Info Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -272,25 +274,21 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.secondaryContainer.withValues(
-                        alpha: 0.4,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
+                ],
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _buildTypeChip(theme, campaignType.displayName),
+                  if (showCollabsCount)
+                    _buildMetricChip(
+                      theme,
                       'Collabs: $collabsCount',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
+                      theme.colorScheme.secondaryContainer,
+                      theme.colorScheme.onSecondaryContainer,
                     ),
-                  ),
                 ],
               ),
 
@@ -342,6 +340,45 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
         style: theme.textTheme.bodySmall?.copyWith(
           fontStyle: FontStyle.italic,
           color: color ?? theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTypeChip(ThemeData theme, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.bodySmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: theme.colorScheme.onPrimaryContainer,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetricChip(
+    ThemeData theme,
+    String label,
+    Color background,
+    Color foreground,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.bodySmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: foreground,
         ),
       ),
     );

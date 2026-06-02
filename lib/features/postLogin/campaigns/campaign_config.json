@@ -27,6 +27,7 @@
         "searchFields": [
             "campaign_name",
             "campaign_name_string",
+            "campaign_type",
             "po_agency_id_label",
             "po_brand_id_label",
             "status",
@@ -60,6 +61,19 @@
             "readOnly": true,
             "visibleInList": true,
             "visibleInForm": false
+        },
+        {
+            "name": "campaign_type",
+            "label": "Campaign Type",
+            "type": "dropdown",
+            "required": true,
+            "visibleInList": true,
+            "visibleInForm": true,
+            "dropdownOptions": [
+                "paid_ads",
+                "influencer_collaborations",
+                "direct_brand_promotions"
+            ]
         },
         {
             "name": "campaign_agency_id",
@@ -104,6 +118,15 @@
             "label": "Collaboration Count",
             "type": "intField",
             "required": false,
+            "visibleInForm": false,
+            "visibleInList": false
+        },
+        {
+            "name": "referrer_links",
+            "label": "Referrer Links",
+            "type": "textarea",
+            "required": false,
+            "visibleInList": false,
             "visibleInForm": false
         },
         {

@@ -102,6 +102,57 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     return response;
   }
 
+  /// Append a referrer link to an existing campaign, keeping newest links first.
+  Future<ModelCampaign> addReferrerLink({
+    required String campaignId,
+    required String referrerLink,
+  }) async {
+    final campaign = await fetchById(campaignId);
+    final existingLinks = List<String>.from(campaign.referrerLinks);
+    existingLinks.removeWhere(
+      (link) => link.trim().toLowerCase() == referrerLink.trim().toLowerCase(),
+    );
+    existingLinks.insert(0, referrerLink.trim());
+
+    final updatedCampaign = campaign.copyWith(referrerLinks: existingLinks);
+    return update(campaignId, updatedCampaign);
+  }
+
+  /// Update an existing referrer link by replacing the old URL with a new one.
+  Future<ModelCampaign> updateReferrerLink({
+    required String campaignId,
+    required String oldReferrerLink,
+    required String newReferrerLink,
+  }) async {
+    final campaign = await fetchById(campaignId);
+    final existingLinks = List<String>.from(campaign.referrerLinks);
+    final oldIndex = existingLinks.indexWhere(
+      (link) => link.trim() == oldReferrerLink.trim(),
+    );
+
+    if (oldIndex == -1) {
+      throw Exception('Referrer link not found');
+    }
+
+    existingLinks[oldIndex] = newReferrerLink.trim();
+
+    final updatedCampaign = campaign.copyWith(referrerLinks: existingLinks);
+    return update(campaignId, updatedCampaign);
+  }
+
+  /// Remove a referrer link from an existing campaign.
+  Future<ModelCampaign> deleteReferrerLink({
+    required String campaignId,
+    required String referrerLink,
+  }) async {
+    final campaign = await fetchById(campaignId);
+    final existingLinks = List<String>.from(campaign.referrerLinks);
+    existingLinks.removeWhere((link) => link.trim() == referrerLink.trim());
+
+    final updatedCampaign = campaign.copyWith(referrerLinks: existingLinks);
+    return update(campaignId, updatedCampaign);
+  }
+
   /// Fetch all campaigns for a given brand
   Future<List<Map<String, dynamic>>> fetchCampaignsForBrand(
     String? selectedBrandId,

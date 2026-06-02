@@ -136,6 +136,12 @@ class EntityViewLogic {
     } else if (field.type == FieldType.switchField) {
       type = EntityViewFieldType.switchField;
       displayValue = value == true ? 'Yes' : 'No';
+    } else if (value is List) {
+      final items = value
+          .map((e) => e?.toString().trim() ?? '')
+          .where((e) => e.isNotEmpty)
+          .toList();
+      displayValue = items.isEmpty ? '' : items.map((e) => '- $e').join('\n');
     } else {
       displayValue = formatDateLikeField(field, value);
 

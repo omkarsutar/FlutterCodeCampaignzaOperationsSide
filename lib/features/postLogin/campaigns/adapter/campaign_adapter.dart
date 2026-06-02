@@ -12,8 +12,12 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
         return entity.campaignName;
       case ModelCampaignFields.campaignNameString:
         return entity.campaignNameString;
+      case ModelCampaignFields.campaignType:
+        return entity.campaignType?.toDbValue();
       case ModelCampaignFields.collaborationCount:
         return entity.collaborationCount;
+      case ModelCampaignFields.referrerLinks:
+        return entity.referrerLinks;
       case ModelCampaignFields.campaignAgencyId:
         return entity.campaignAgencyId;
       case ModelCampaignFields.campaignBrandId:
@@ -56,6 +60,8 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
         return entity.campaignName ?? '';
       case ModelCampaignFields.campaignNameString:
         return entity.campaignNameString ?? '';
+      case ModelCampaignFields.campaignType:
+        return entity.campaignType?.displayName ?? '';
       case ModelCampaignFields.validFrom:
         return entity.validFrom != null ? formatTimestamp(entity.validFrom) : '';
       case ModelCampaignFields.validUntil:
@@ -64,6 +70,10 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
         return entity.status ?? 'Pending';
       case ModelCampaignFields.collaborationCount:
         return entity.collaborationCount?.toString() ?? '0';
+      case ModelCampaignFields.referrerLinks:
+        return entity.referrerLinks.isEmpty
+            ? ''
+            : entity.referrerLinks.join('\n');
       default:
         return null;
     }

@@ -449,10 +449,10 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
             purchaseCountProvider(promoCode),
           );
           final instagramInstallCountAsync = ref.watch(
-            installCountProvider(instagramReferrer),
+            installCountProvider(instagramUrl),
           );
           final facebookInstallCountAsync = ref.watch(
-            installCountProvider(facebookReferrer),
+            installCountProvider(facebookUrl),
           );
 
           return Container(
@@ -492,10 +492,10 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                         onPressed: () {
                           ref.invalidate(purchaseCountProvider(promoCode));
                           ref.invalidate(
-                            installCountProvider(instagramReferrer),
+                            installCountProvider(instagramUrl),
                           );
                           ref.invalidate(
-                            installCountProvider(facebookReferrer),
+                            installCountProvider(facebookUrl),
                           );
                           SnackbarUtils.showSuccess('Refreshing counts...');
                         },

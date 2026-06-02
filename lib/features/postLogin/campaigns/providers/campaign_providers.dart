@@ -85,6 +85,7 @@ final campaignStatusFilterProvider = StateProvider.family
 /// Form state for campaign
 class CampaignFormState {
   final String campaignName;
+  final CampaignType campaignType;
   final DateTime? validFrom;
   final DateTime? validUntil;
   final String poAgencyId;
@@ -101,6 +102,7 @@ class CampaignFormState {
 
   CampaignFormState({
     this.campaignName = '',
+    this.campaignType = CampaignType.paidAds,
     this.validFrom,
     this.validUntil,
     this.poAgencyId = '',
@@ -118,6 +120,7 @@ class CampaignFormState {
 
   CampaignFormState copyWith({
     String? campaignName,
+    CampaignType? campaignType,
     DateTime? validFrom,
     DateTime? validUntil,
     String? poAgencyId,
@@ -134,6 +137,7 @@ class CampaignFormState {
   }) {
     return CampaignFormState(
       campaignName: campaignName ?? this.campaignName,
+      campaignType: campaignType ?? this.campaignType,
       validFrom: validFrom ?? this.validFrom,
       validUntil: validUntil ?? this.validUntil,
       poAgencyId: poAgencyId ?? this.poAgencyId,
@@ -170,6 +174,16 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
     switch (fieldName) {
       case ModelCampaignFields.campaignName:
         state = state.copyWith(campaignName: value as String, error: null);
+        break;
+      case ModelCampaignFields.campaignType:
+        if (value is CampaignType) {
+          state = state.copyWith(campaignType: value, error: null);
+        } else if (value != null) {
+          state = state.copyWith(
+            campaignType: CampaignType.fromString(value.toString()),
+            error: null,
+          );
+        }
         break;
       case ModelCampaignFields.validFrom:
         state = state.copyWith(
@@ -266,6 +280,7 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
       final entity = ModelCampaign(
         poId: entityId,
         campaignName: state.campaignName.trim(),
+        campaignType: state.campaignType,
         validFrom: state.validFrom,
         validUntil: state.validUntil,
         poAgencyId: state.poAgencyId.trim(),
@@ -324,6 +339,7 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
     if (!_mounted) return;
     state = CampaignFormState(
       campaignName: entity.campaignName ?? '',
+      campaignType: entity.effectiveCampaignType,
       validFrom: entity.validFrom,
       validUntil: entity.validUntil,
       poAgencyId: entity.poAgencyId ?? '',

@@ -7,7 +7,9 @@ class ModelCampaignFields {
   static const String campaignId = 'campaign_id';
   static const String campaignName = 'campaign_name';
   static const String campaignNameString = 'campaign_name_string';
+  static const String campaignType = 'campaign_type';
   static const String collaborationCount = 'collaboration_count';
+  static const String referrerLinks = 'referrer_links';
   static const String campaignAgencyId = 'campaign_agency_id';
   static const String campaignBrandId = 'campaign_brand_id';
   static const String userComment = 'user_comment';
@@ -35,7 +37,9 @@ class ModelCampaignFields {
     campaignId: 'Campaign',
     campaignName: 'Campaign Name',
     campaignNameString: 'Campaign Name String',
+    campaignType: 'Campaign Type',
     collaborationCount: 'Collaborations',
+    referrerLinks: 'Referrer Links',
     campaignAgencyId: 'Agency',
     campaignBrandId: 'Brand',
     userComment: 'User Comment',
@@ -53,11 +57,57 @@ class ModelCampaignFields {
   static String getLabel(String field) => labels[field] ?? field;
 }
 
+enum CampaignType {
+  influencerCollaborations,
+  directBrandPromotions,
+  paidAds;
+
+  static CampaignType fromString(String? value) {
+    switch (value) {
+      case 'influencer_collaborations':
+        return CampaignType.influencerCollaborations;
+      case 'direct_brand_promotions':
+        return CampaignType.directBrandPromotions;
+      case 'paid_ads':
+        return CampaignType.paidAds;
+      default:
+        return CampaignType.paidAds;
+    }
+  }
+
+  String toDbValue() {
+    switch (this) {
+      case CampaignType.influencerCollaborations:
+        return 'influencer_collaborations';
+      case CampaignType.directBrandPromotions:
+        return 'direct_brand_promotions';
+      case CampaignType.paidAds:
+        return 'paid_ads';
+    }
+  }
+
+  String get displayName {
+    switch (this) {
+      case CampaignType.influencerCollaborations:
+        return 'Influencer Collaborations';
+      case CampaignType.directBrandPromotions:
+        return 'Direct Brand Promotions';
+      case CampaignType.paidAds:
+        return 'Paid Ads';
+    }
+  }
+
+  bool get isInfluencerCollaboration =>
+      this == CampaignType.influencerCollaborations;
+}
+
 class ModelCampaign {
   final String? campaignId;
   final String? campaignName;
   final String? campaignNameString;
+  final CampaignType? campaignType;
   final int? collaborationCount;
+  final List<String> referrerLinks;
   final String? campaignAgencyId;
   final String? campaignBrandId;
   final String? userComment;
@@ -77,6 +127,16 @@ class ModelCampaign {
   String? get poAgencyId => campaignAgencyId;
   String? get poBrandId => campaignBrandId;
   int? get poLineItemCount => collaborationCount;
+  CampaignType get effectiveCampaignType {
+    if (campaignType != null) return campaignType!;
+    if ((collaborationCount ?? 0) > 0) {
+      return CampaignType.influencerCollaborations;
+    }
+    if (referrerLinks.isNotEmpty) {
+      return CampaignType.directBrandPromotions;
+    }
+    return CampaignType.paidAds;
+  }
   double? get poTotalAmount => 0.0;
   double? get profitToBrand => 0.0;
   double? get poLat => null;
@@ -86,7 +146,9 @@ class ModelCampaign {
     String? campaignId,
     this.campaignName,
     this.campaignNameString,
+    this.campaignType,
     int? collaborationCount,
+    List<String>? referrerLinks,
     String? campaignAgencyId,
     String? campaignBrandId,
     this.userComment,
@@ -111,6 +173,7 @@ class ModelCampaign {
     Map<String, dynamic>? resolvedLabels,
   }) : campaignId = campaignId ?? poId,
        collaborationCount = collaborationCount ?? poLineItemCount,
+       referrerLinks = referrerLinks ?? const [],
        campaignAgencyId = campaignAgencyId ?? poAgencyId,
        campaignBrandId = campaignBrandId ?? poBrandId,
        _resolvedLabels = resolvedLabels ?? const {};
@@ -129,9 +192,17 @@ class ModelCampaign {
       campaignId: map[ModelCampaignFields.campaignId] as String?,
       campaignName: map[ModelCampaignFields.campaignName] as String?,
       campaignNameString: map[ModelCampaignFields.campaignNameString] as String?,
+      campaignType: map[ModelCampaignFields.campaignType] != null
+          ? CampaignType.fromString(
+              map[ModelCampaignFields.campaignType]?.toString(),
+            )
+          : null,
       collaborationCount: map[ModelCampaignFields.collaborationCount] != null
           ? int.tryParse(map[ModelCampaignFields.collaborationCount].toString())
           : null,
+      referrerLinks: (map[ModelCampaignFields.referrerLinks] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
       campaignAgencyId: map[ModelCampaignFields.campaignAgencyId] as String?,
       campaignBrandId: map[ModelCampaignFields.campaignBrandId] as String?,
       userComment: map[ModelCampaignFields.userComment] as String?,
@@ -166,8 +237,14 @@ class ModelCampaign {
     if (campaignNameString != null) {
       map[ModelCampaignFields.campaignNameString] = campaignNameString;
     }
+    if (campaignType != null) {
+      map[ModelCampaignFields.campaignType] = campaignType!.toDbValue();
+    }
     if (collaborationCount != null) {
       map[ModelCampaignFields.collaborationCount] = collaborationCount;
+    }
+    if (referrerLinks.isNotEmpty) {
+      map[ModelCampaignFields.referrerLinks] = referrerLinks;
     }
     if (campaignAgencyId != null) {
       map[ModelCampaignFields.campaignAgencyId] = campaignAgencyId;
@@ -196,9 +273,6 @@ class ModelCampaign {
     if (updatedAt != null) {
       map[ModelCampaignFields.updatedAt] = updatedAt!.toIso8601String();
     }
-    if (visitOrder != null) {
-      map[ModelCampaignFields.visitOrder] = visitOrder;
-    }
 
     return map;
   }
@@ -208,7 +282,9 @@ class ModelCampaign {
       'campaignId': campaignId,
       'campaignName': campaignName,
       'campaignNameString': campaignNameString,
+      'campaignType': campaignType?.toDbValue(),
       'collaborationCount': collaborationCount,
+      'referrerLinks': referrerLinks,
       'campaignAgencyId': campaignAgencyId,
       'campaignBrandId': campaignBrandId,
       'userComment': userComment,
@@ -229,7 +305,13 @@ class ModelCampaign {
       campaignId: json['campaignId'] as String?,
       campaignName: json['campaignName'] as String?,
       campaignNameString: json['campaignNameString'] as String?,
+      campaignType: json['campaignType'] != null
+          ? CampaignType.fromString(json['campaignType'] as String?)
+          : null,
       collaborationCount: json['collaborationCount'] as int?,
+      referrerLinks: (json['referrerLinks'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
       campaignAgencyId: json['campaignAgencyId'] as String?,
       campaignBrandId: json['campaignBrandId'] as String?,
       userComment: json['userComment'] as String?,
@@ -249,7 +331,9 @@ class ModelCampaign {
     String? campaignId,
     String? campaignName,
     String? campaignNameString,
+    CampaignType? campaignType,
     int? collaborationCount,
+    List<String>? referrerLinks,
     String? campaignAgencyId,
     String? campaignBrandId,
     String? userComment,
@@ -268,7 +352,9 @@ class ModelCampaign {
       campaignId: campaignId ?? this.campaignId,
       campaignName: campaignName ?? this.campaignName,
       campaignNameString: campaignNameString ?? this.campaignNameString,
+      campaignType: campaignType ?? this.campaignType,
       collaborationCount: collaborationCount ?? this.collaborationCount,
+      referrerLinks: referrerLinks ?? this.referrerLinks,
       campaignAgencyId: campaignAgencyId ?? this.campaignAgencyId,
       campaignBrandId: campaignBrandId ?? this.campaignBrandId,
       userComment: userComment ?? this.userComment,

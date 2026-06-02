@@ -8,6 +8,7 @@ import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.
 import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
 import '../../campaigns/campaign_barrel.dart';
 import '../../collaborations/collaboration_barrel.dart';
+import '../../collaborations/collaboration_routes_json.dart';
 import '../../../../core/utils/dialogs.dart';
 import '../../../../core/providers/localization_provider.dart';
 import '../../brands/brand_barrel.dart';
@@ -157,6 +158,15 @@ class CartController {
 
   Future<void> editCampaign(BuildContext context, ModelCampaign po) async {
     final l10n = ref.read(l10nProvider);
+    final campaignType = po.effectiveCampaignType;
+
+    if (!campaignType.isInfluencerCollaboration) {
+      context.pushNamed(
+        CollaborationsRoutesJson.listRouteName,
+        queryParameters: {'po_id': po.poId ?? ''},
+      );
+      return;
+    }
 
     // 1. Show loading dialog
     showLoadingDialog(
