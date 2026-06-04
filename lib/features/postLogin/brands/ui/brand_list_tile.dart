@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../../core/constants/app_constants.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/services/entity_service.dart';
 import '../../../../core/utils/snackbar_utils.dart';
@@ -38,7 +38,7 @@ class BrandListTile<T> extends ConsumerWidget {
     final rbacService = ref.watch(rbacServiceProvider);
     final canCopyLink = rbacService.canCreate(rbacModule);
     final brandName =
-        adapter.getFieldValue(entity, ModelBrandFields.brandName) ??
+        adapter.getFieldValue(entity, ModelBrandFields.brandName)?.toString() ??
         'Unnamed Brand';
     final visitOrder = adapter.getFieldValue(
       entity,
@@ -46,8 +46,15 @@ class BrandListTile<T> extends ConsumerWidget {
     );
     final displayName = visitOrder != null
         ? '$visitOrder. $brandName'
-        : brandName.toString();
-
+        : brandName;
+    final agencyLabel =
+        adapter
+            .getLabelValue(entity, ModelBrandFields.brandsPrimaryAgency)
+            ?.toString() ??
+        'Unknown Agency';
+    final isActive =
+        adapter.getFieldValue(entity, ModelBrandFields.isActive) as bool? ??
+        false;
     final brandNote =
         adapter.getFieldValue(entity, ModelBrandFields.brandNote)?.toString() ??
         '';
@@ -56,127 +63,81 @@ class BrandListTile<T> extends ConsumerWidget {
             .getFieldValue(entity, ModelBrandFields.hiddenNote)
             ?.toString() ??
         '';
-    final photoUrl =
-        adapter.getFieldValue(entity, ModelBrandFields.brandPhotoUrl)
-            as String?;
-    final isActive = adapter.getFieldValue(
-      entity,
-      ModelBrandFields.isActive,
-    ) as bool? ?? false;
-    final agencyLabel = adapter.getLabelValue(
-      entity,
-      ModelBrandFields.brandsPrimaryAgency,
-    )?.toString() ?? '';
-    final androidAppId = adapter.getFieldValue(
-      entity,
-      ModelBrandFields.androidAppId,
-    )?.toString() ?? '';
-    final websiteUrl = adapter.getFieldValue(
-      entity,
-      ModelBrandFields.websiteUrl,
-    )?.toString() ?? '';
+    final androidAppId =
+        adapter
+            .getFieldValue(entity, ModelBrandFields.androidAppId)
+            ?.toString() ??
+        '';
+    final websiteUrl =
+        adapter.getFieldValue(entity, ModelBrandFields.websiteUrl)?.toString() ??
+        '';
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.55),
+          width: 1,
+        ),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
-        onTap: onTap ?? () => onTap,
+        onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Row: Brand Name + Status Badge + View Button
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Brand Name
-                        Text(
-                          displayName,
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        // Agency Label
-                        if (agencyLabel.isNotEmpty)
-                          Text(
-                            agencyLabel,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                      ],
+                  _StatusPill(isActive: isActive),
+                  const SizedBox(width: 6),
+                  IconButton(
+                    tooltip: 'View brand',
+                    icon: const Icon(Icons.visibility_outlined),
+                    iconSize: 20,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isActive
-                          ? Colors.green.withValues(alpha: 0.15)
-                          : Colors.orange.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isActive ? Colors.green : Colors.orange,
-                        width: 0.8,
-                      ),
-                    ),
-                    child: Text(
-                      isActive ? 'Active' : 'Inactive',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: isActive
-                            ? Colors.green[800]
-                            : Colors.orange[800],
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  InkWell(
-                    onTap: () => context.pushNamed(
+                    onPressed: () => context.pushNamed(
                       viewRouteName,
                       pathParameters: {
                         'id': adapter.getId(entity, idField).toString(),
                       },
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                    child: Padding(
-                      padding: const EdgeInsets.all(6.0),
-                      child: Icon(
-                        Icons.visibility,
-                        size: 20,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
                   ),
                 ],
               ),
-
               const SizedBox(height: 8),
-
-              // Divider
+              _InfoRow(
+                icon: Icons.business_outlined,
+                label: 'Brand',
+                value: displayName,
+                valueStyle: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _InfoRow(
+                icon: Icons.corporate_fare_outlined,
+                label: 'Agency',
+                value: agencyLabel,
+                valueStyle: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
               Divider(
                 color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
                 thickness: 1,
               ),
-
               const SizedBox(height: 8),
-
-              // Brand Note
               if (brandNote.isNotEmpty) ...[
                 Text(
                   brandNote,
@@ -188,8 +149,6 @@ class BrandListTile<T> extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
               ],
-
-              // Hidden Note
               if (hiddenNote.isNotEmpty) ...[
                 Text(
                   hiddenNote,
@@ -202,8 +161,6 @@ class BrandListTile<T> extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
               ],
-
-              // Mobiles + Person name
               Builder(
                 builder: (_) {
                   final mobile1 = adapter.getFieldValue(
@@ -224,11 +181,11 @@ class BrandListTile<T> extends ConsumerWidget {
                       mobile1.toString(),
                     if (mobile2 != null && mobile2.toString().isNotEmpty)
                       mobile2.toString(),
-                  ].join(", ");
+                  ].join(', ');
 
-                  final displayLine = personName != null &&
-                          personName.toString().isNotEmpty
-                      ? "$contactLine (${personName.toString()})"
+                  final displayLine =
+                      personName != null && personName.toString().isNotEmpty
+                      ? '$contactLine (${personName.toString()})'
                       : contactLine;
 
                   if (displayLine.isEmpty) {
@@ -248,8 +205,6 @@ class BrandListTile<T> extends ConsumerWidget {
                   );
                 },
               ),
-
-              // Android App ID and Website URL
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
@@ -294,8 +249,6 @@ class BrandListTile<T> extends ConsumerWidget {
                     ),
                 ],
               ),
-
-              // Copy Link Action Button (if valid mobile)
               if (canCopyLink &&
                   (_isValidMobile(
                         adapter.getFieldValue(
@@ -336,7 +289,6 @@ class BrandListTile<T> extends ConsumerWidget {
   }
 
   Future<void> _copyUtmLink(BuildContext context) async {
-    // Get brand mobile numbers
     final mobile1 = adapter
         .getFieldValue(entity, ModelBrandFields.brandMobile1)
         ?.toString();
@@ -344,7 +296,6 @@ class BrandListTile<T> extends ConsumerWidget {
         .getFieldValue(entity, ModelBrandFields.brandMobile2)
         ?.toString();
 
-    // Select first valid 10-digit mobile number
     String? selectedMobile;
     if (_isValidMobile(mobile1)) {
       selectedMobile = mobile1;
@@ -359,9 +310,6 @@ class BrandListTile<T> extends ConsumerWidget {
       return;
     }
 
-    final mobileNumber = selectedMobile;
-
-    // Translate mobile number digits to characters
     final translationMap = {
       '0': 'a',
       '1': 'b',
@@ -375,30 +323,22 @@ class BrandListTile<T> extends ConsumerWidget {
       '9': 'j',
     };
 
-    final utmSource = mobileNumber
+    final utmSource = selectedMobile
         .split('')
-        .map((digit) {
-          return translationMap[digit] ?? digit;
-        })
+        .map((digit) => translationMap[digit] ?? digit)
         .join('');
 
     final utmLink =
         '${AppConstants.webAppUrlRetailerApp}?utm_source=$utmSource';
 
-    // Copy to clipboard
-    // Share to WhatsApp if mobile number is available
-    if (_isValidMobile(mobileNumber)) {
-      // Validate and format mobile number
-      String formattedMobile = mobileNumber;
+    if (_isValidMobile(selectedMobile)) {
+      var formattedMobile = selectedMobile;
 
-      if (mobileNumber.length == 10) {
-        // Add '91' prefix for 10-digit numbers
-        formattedMobile = '91$mobileNumber';
-      } else if (mobileNumber.length == 12) {
-        // Check if first 2 digits are '91', if not add '91' prefix
-        if (!mobileNumber.startsWith('91')) {
-          formattedMobile = '91$mobileNumber';
-        }
+      if (selectedMobile.length == 10) {
+        formattedMobile = '91$selectedMobile';
+      } else if (selectedMobile.length == 12 &&
+          !selectedMobile.startsWith('91')) {
+        formattedMobile = '91$selectedMobile';
       }
 
       final message = Uri.encodeComponent(utmLink);
@@ -407,18 +347,15 @@ class BrandListTile<T> extends ConsumerWidget {
 
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Could not launch WhatsApp'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
+      } else if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not launch WhatsApp'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } else {
-      // Fallback to clipboard if no mobile number
       await Clipboard.setData(ClipboardData(text: utmLink));
 
       if (context.mounted) {
@@ -437,5 +374,67 @@ class BrandListTile<T> extends ConsumerWidget {
     final str = value.toString().trim();
     if (str.length != 10) return false;
     return double.tryParse(str) != null;
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  final bool isActive;
+
+  const _StatusPill({required this.isActive});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = isActive ? Colors.green : Colors.orange;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.8), width: 0.8),
+      ),
+      child: Text(
+        isActive ? 'Active' : 'Inactive',
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: isActive ? Colors.green[800] : Colors.orange[800],
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final TextStyle? valueStyle;
+
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.valueStyle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: theme.colorScheme.onSurfaceVariant),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            '$label: $value',
+            style: valueStyle ?? theme.textTheme.bodyMedium,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
   }
 }
