@@ -11,6 +11,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/ag
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_brand_links/retailer_brand_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/user_agency_links/user_agency_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
@@ -48,6 +49,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...RbacPermissionsRoutesJson.routes,
       ...PoCollectionsRoutesJson.routes,
       ...RetailerBrandLinkRoutesJson.routes,
+      ...UserAgencyLinkRoutesJson.routes,
     ],
     initialLocation: AppRoute.welcome,
     redirect: (context, state) async {

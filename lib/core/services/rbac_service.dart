@@ -99,6 +99,11 @@ class RbacService {
           RbacAction.delete: permission.canDelete,
         };
       }
+      debugPrint('--- RBAC Permission Cache Loaded ---');
+      _permissionCache.forEach((key, val) {
+        debugPrint('  Module: $key -> Read: ${val[RbacAction.read]}, Create: ${val[RbacAction.create]}');
+      });
+      debugPrint('------------------------------------');
       /* for (final permData in permissions) {
         final permission = ModelRbacPermission.fromMap(permData);
         final moduleId = permission.moduleId;

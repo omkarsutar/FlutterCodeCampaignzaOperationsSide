@@ -13,6 +13,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_brand_links/retailer_brand_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/user_agency_links/user_agency_link_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/utils/web_utils.dart' as web_utils;
@@ -104,6 +105,7 @@ void main() async {
   await BrandsRoutesJson.initialize();
   await PoCollectionsRoutesJson.initialize();
   await RetailerBrandLinkRoutesJson.initialize();
+  await UserAgencyLinkRoutesJson.initialize();
 
   // Make error messages selectable on web
   ErrorWidget.builder = (FlutterErrorDetails details) {

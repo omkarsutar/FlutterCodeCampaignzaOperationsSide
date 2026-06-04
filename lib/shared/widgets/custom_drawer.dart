@@ -11,6 +11,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/bran
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_brand_links/retailer_brand_link_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/user_agency_links/user_agency_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborations/collaboration_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -191,6 +192,14 @@ class CustomDrawer extends ConsumerWidget {
                 ModelRetailerBrandLinkFields.table, // "retailer_brand_link"
             routeName: RetailerBrandLinkRoutesJson.listRouteName,
             title: 'Retailer Brand Links',
+            icon: Icons.link,
+          ),
+
+          // Retailer Brand Links
+          ReadEntityTile(
+            moduleName: ModelUserAgencyLinkFields.table, // "user_agency_link"
+            routeName: UserAgencyLinkRoutesJson.listRouteName,
+            title: 'User Agency Links',
             icon: Icons.link,
           ),
 

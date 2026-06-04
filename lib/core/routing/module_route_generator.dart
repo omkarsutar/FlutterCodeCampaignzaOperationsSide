@@ -103,7 +103,7 @@ class ModuleRouteGenerator<T> {
       },
       builder: (context, state) {
         // Selection mode parameter is available if needed in future
-        // final isSelectionMode = state.uri.queryParameters['selection'] == 'true';
+        final isSelectionMode = state.uri.queryParameters['selection'] == 'true';
 
         // Use custom List builder if provided
         if (customListBuilder != null) {
@@ -125,6 +125,8 @@ class ModuleRouteGenerator<T> {
           // Search settings
           searchFields: config.listPage?.searchFields,
           initialSorting: config.listPage?.sorting,
+          // Selection Mode
+          isSelectionMode: isSelectionMode,
           // Custom Builder
           customItemBuilder: customItemBuilder,
         );

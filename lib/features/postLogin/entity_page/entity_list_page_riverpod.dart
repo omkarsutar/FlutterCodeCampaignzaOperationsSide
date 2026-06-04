@@ -242,13 +242,18 @@ class _EntityListPageRiverpodState<T>
                       itemCount: filteredEntities.length,
                       itemBuilder: (context, index) {
                         final entity = filteredEntities[index];
+                        // Determine selection mode onTap
+                        final selectOnTap = widget.isSelectionMode
+                            ? () => context.pop(entity)
+                            : null;
+
                         // Use custom builder if provided
                         if (widget.customItemBuilder != null) {
                           return widget.customItemBuilder!(
                             context,
                             entity,
                             entityAdapter,
-                            () => context.pushNamed(
+                            selectOnTap ?? () => context.pushNamed(
                               widget.viewRouteName,
                               pathParameters: {
                                 'id': entityAdapter
@@ -271,6 +276,7 @@ class _EntityListPageRiverpodState<T>
                           entityLabel: widget.entityMeta.entityName,
                           entityLabelLower: widget.entityMeta.entityNameLower,
                           viewRouteName: widget.viewRouteName,
+                          onTap: selectOnTap,
                         );
                       },
                     );

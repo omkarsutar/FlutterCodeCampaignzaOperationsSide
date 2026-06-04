@@ -15,6 +15,7 @@ class EntityCard<T> extends StatelessWidget {
   final String entityLabelLower;
   final String viewRouteName;
   final EntityAdapter<T> adapter;
+  final VoidCallback? onTap;
 
   const EntityCard({
     super.key,
@@ -27,6 +28,7 @@ class EntityCard<T> extends StatelessWidget {
     required this.entityLabelLower,
     required this.viewRouteName,
     required this.entityService,
+    this.onTap,
   });
 
   @override
@@ -47,7 +49,7 @@ class EntityCard<T> extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => context.pushNamed(
+        onTap: onTap ?? () => context.pushNamed(
           viewRouteName,
           pathParameters: {'id': adapter.getId(entity, idField).toString()},
         ),

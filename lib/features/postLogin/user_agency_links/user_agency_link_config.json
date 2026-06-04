@@ -1,0 +1,79 @@
+{
+    "moduleName": "user_agency_link",
+    "entityMeta": {
+        "entityName": "User Agency Link",
+        "entityNameLower": "user agency link",
+        "entityNamePlural": "User Agency Links",
+        "entityNamePluralLower": "user agency links"
+    },
+    "table": {
+        "name": "user_agency_link",
+        "viewName": "view_user_agency_link",
+        "idField": "link_id",
+        "timestampField": "created_at"
+    },
+    "routes": {
+        "basePath": "/user-agency-links",
+        "listRouteName": "userAgencyLinks",
+        "newRouteName": "newUserAgencyLink",
+        "editRouteName": "editUserAgencyLink",
+        "viewRouteName": "viewUserAgencyLink"
+    },
+    "listPage": {
+        "sorting": {
+            "field": "created_at",
+            "sortAscending": false
+        },
+        "searchFields": [
+            "user_id",
+            "agency_id"
+        ]
+    },
+    "fields": [
+        {
+            "name": "user_id",
+            "label": "User",
+            "type": "dropdown",
+            "required": true,
+            "dropdownSource": {
+                "table": "users",
+                "valueKey": "user_id",
+                "labelKey": "full_name"
+            },
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "agency_id",
+            "label": "Agency",
+            "type": "selector",
+            "required": true,
+            "dropdownSource": {
+                "table": "agencies",
+                "valueKey": "agency_id",
+                "labelKey": "agency_name",
+                "routeName": "agencies"
+            },
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "created_at",
+            "label": "Created At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": true,
+            "visibleInForm": false
+        },
+        {
+            "name": "updated_at",
+            "label": "Updated At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        }
+    ]
+}
