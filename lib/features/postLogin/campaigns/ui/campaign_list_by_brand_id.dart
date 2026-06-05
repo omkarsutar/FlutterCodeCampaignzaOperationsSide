@@ -52,6 +52,7 @@ class CampaignListByBrandId extends ConsumerStatefulWidget {
 
 class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _filterScrollController = ScrollController();
 
   @override
   void initState() {
@@ -84,6 +85,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
   @override
   void dispose() {
     _searchController.dispose();
+    _filterScrollController.dispose();
     super.dispose();
   }
 
@@ -119,6 +121,17 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
         : listState.filteredCampaigns;
 
     final queryParams = getBrandQueryParams(context);
+
+    final brandCampaigns = filterBrandId != null
+        ? listState.allCampaigns.where((po) => po.poBrandId == filterBrandId).toList()
+        : listState.allCampaigns;
+
+    final Map<String, int> typeCounts = {
+      'All': brandCampaigns.length,
+      'Paid Ads': brandCampaigns.where((po) => po.effectiveCampaignType == CampaignType.paidAds).length,
+      'Direct': brandCampaigns.where((po) => po.effectiveCampaignType == CampaignType.directBrandPromotions).length,
+      'Collabs': brandCampaigns.where((po) => po.effectiveCampaignType == CampaignType.influencerCollaborations).length,
+    };
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -212,6 +225,9 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
                   onChanged: (val) => _updateSearch(val),
                 ),
               ),
+
+            // Filter Pills
+            _buildFilterPills(theme, listState, typeCounts),
             if (brand != null && isAdmin) ...[
               BrandListTile(
                 entity: brand,
@@ -334,5 +350,99 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
         }
       },
     );
+  }
+
+  Widget _buildFilterPills(
+    ThemeData theme,
+    CampaignListState listState,
+    Map<String, int> typeCounts,
+  ) {
+    final types = ['All', 'Paid Ads', 'Direct', 'Collabs'];
+
+    return SizedBox(
+      height: 50,
+      child: ListView.builder(
+        controller: _filterScrollController,
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        itemCount: types.length,
+        itemBuilder: (context, index) {
+          final typeName = types[index];
+          final isSelected =
+              (typeName == 'All' && listState.selectedStatus == null) ||
+              (typeName.toLowerCase() == listState.selectedStatus?.toLowerCase());
+
+          // Get pre-calculated count
+          final count = typeCounts[typeName] ?? 0;
+
+          Color pillColor;
+          switch (typeName.toLowerCase()) {
+            case 'paid ads':
+              pillColor = Colors.blue;
+              break;
+            case 'direct':
+              pillColor = Colors.green;
+              break;
+            case 'collabs':
+              pillColor = Colors.orange;
+              break;
+            default:
+              pillColor = theme.colorScheme.primary;
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: FilterChip(
+              label: Text(
+                '${typeName.toUpperCase()} ($count)',
+                style: TextStyle(
+                  color: isSelected ? Colors.white : pillColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+              selected: isSelected,
+              onSelected: (selected) {
+                if (!mounted) return;
+                // Scroll into view logic
+                _scrollToTab(index);
+
+                ref
+                    .read(
+                      campaignListControllerProvider('campaignList').notifier,
+                    )
+                    .setStatusFilter(
+                      typeName == 'All' ? null : typeName,
+                      searchFields: widget.searchFields,
+                    );
+              },
+              selectedColor: pillColor,
+              backgroundColor: pillColor.withValues(alpha: 0.1),
+              checkmarkColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: pillColor, width: isSelected ? 0 : 1),
+              ),
+              showCheckmark: false,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _scrollToTab(int index) {
+    const double itemWidth = 100.0; // Estimate
+    final double offset = index * itemWidth;
+    if (_filterScrollController.hasClients) {
+      final double maxScroll = _filterScrollController.position.maxScrollExtent;
+      final double target = offset.clamp(0.0, maxScroll);
+
+      _filterScrollController.animateTo(
+        target,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 }

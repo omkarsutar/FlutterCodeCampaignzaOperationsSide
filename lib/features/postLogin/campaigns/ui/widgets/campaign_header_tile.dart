@@ -54,38 +54,43 @@ class CampaignHeaderTile extends ConsumerWidget {
       }
     }
 
+    final valueStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+    );
+
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
           color: theme.colorScheme.outlineVariant.withValues(alpha: 0.55),
-          width: 1,
+          width: 0.8,
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Column(
           children: [
             agencyNameAsync.when(
               data: (agencyName) => Row(
                 children: [
-                  Icon(Icons.corporate_fare_outlined, color: theme.colorScheme.primary, size: 20),
+                  Icon(Icons.corporate_fare_outlined, color: theme.colorScheme.primary, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Agency: $agencyName',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: valueStyle,
                     ),
                   ),
                   if (agencyId != null && agencyId.isNotEmpty)
                     IconButton(
                       icon: const Icon(Icons.visibility_outlined),
                       tooltip: 'View agency',
-                      iconSize: 20,
+                      iconSize: 18,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                       onPressed: () => context.pushNamed(
                         'viewAgency',
                         pathParameters: {'id': agencyId},
@@ -96,24 +101,24 @@ class CampaignHeaderTile extends ConsumerWidget {
               loading: () => const SizedBox.shrink(),
               error: (_, __) => const SizedBox.shrink(),
             ),
-            const Divider(height: 16),
+            const Divider(height: 8, thickness: 0.5),
             Row(
               children: [
-                Icon(Icons.business_outlined, color: theme.colorScheme.primary, size: 20),
+                Icon(Icons.business_outlined, color: theme.colorScheme.primary, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Brand: ${brandName ?? 'Loading...'}',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: valueStyle,
                   ),
                 ),
                 if (brandId != null && brandId.isNotEmpty)
                   IconButton(
                     icon: const Icon(Icons.visibility_outlined),
                     tooltip: 'View brand',
-                    iconSize: 20,
+                    iconSize: 18,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                     onPressed: () => context.pushNamed(
                       'viewBrand',
                       pathParameters: {'id': brandId!},

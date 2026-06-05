@@ -20,33 +20,32 @@ final campaignViewLogicProvider = Provider.autoDispose<ProcessedCampaignData>((
   final listState = ref.watch(campaignListControllerProvider('campaignList'));
   final allOrders = listState.allCampaigns;
   final filteredOrders = listState.filteredCampaigns;
-  final selectedStatus = listState.selectedStatus?.toLowerCase();
 
-  // 1. Calculate status counts
-  final statuses = ['All', 'pending', 'confirmed', 'delivered', 'cancelled'];
-  final Map<String, int> statusCounts = {};
+  // 1. Calculate campaign type counts
+  final types = ['All', 'Paid Ads', 'Direct', 'Collabs'];
+  final Map<String, int> typeCounts = {};
 
-  for (final status in statuses) {
-    if (status == 'All') {
-      statusCounts[status] = allOrders.length;
-    } else {
-      statusCounts[status] = allOrders
-          .where((po) => po.status?.toLowerCase() == status.toLowerCase())
+  for (final type in types) {
+    if (type == 'All') {
+      typeCounts[type] = allOrders.length;
+    } else if (type == 'Paid Ads') {
+      typeCounts[type] = allOrders
+          .where((po) => po.effectiveCampaignType == CampaignType.paidAds)
+          .length;
+    } else if (type == 'Direct') {
+      typeCounts[type] = allOrders
+          .where((po) => po.effectiveCampaignType == CampaignType.directBrandPromotions)
+          .length;
+    } else if (type == 'Collabs') {
+      typeCounts[type] = allOrders
+          .where((po) => po.effectiveCampaignType == CampaignType.influencerCollaborations)
           .length;
     }
   }
 
-  // 2. Determine FAB type
-  String? activeFabType;
-  if (selectedStatus == 'confirmed') {
-    activeFabType = 'bill';
-  } else if (selectedStatus == 'delivered') {
-    activeFabType = 'delivery';
-  }
-
   return ProcessedCampaignData(
     filteredOrders: filteredOrders,
-    statusCounts: statusCounts,
-    activeFabType: activeFabType,
+    statusCounts: typeCounts,
+    activeFabType: null,
   );
 });

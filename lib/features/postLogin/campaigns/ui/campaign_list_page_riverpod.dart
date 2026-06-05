@@ -12,9 +12,7 @@ import '../providers/campaign_list_controller.dart';
 import '../providers/campaign_providers.dart';
 import '../providers/campaign_view_logic.dart';
 import 'campaign_list_tile.dart';
-import 'campaign_bill_page.dart';
 import '../../cart/providers/cart_controller.dart';
-import 'campaign_delivery_selectable_page.dart';
 import '../../../../core/providers/core_providers.dart';
 import 'widgets/campaign_header_tile.dart';
 
@@ -181,57 +179,7 @@ class _CampaignListPageRiverpodState
           ],
         ),
       ),
-      floatingActionButton: _buildFab(
-        theme,
-        viewData.activeFabType,
-        displayList,
-      ),
     );
-  }
-
-  Widget? _buildFab(
-    ThemeData theme,
-    String? activeFabType,
-    List<ModelCampaign> filteredOrders,
-  ) {
-    if (activeFabType == 'bill') {
-      return FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) =>
-                  const CampaignBillPage(orderStatus: 'confirmed'),
-            ),
-          );
-        },
-        icon: const Icon(Icons.picture_as_pdf),
-        label: const Text('Generate Bill'),
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
-      );
-    }
-
-    if (activeFabType == 'delivery') {
-      return FloatingActionButton.extended(
-        onPressed: () {
-          final adapter = ref.read(campaignAdapterProvider);
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => CampaignDeliverySelectablePage(
-                orders: filteredOrders,
-                adapter: adapter,
-              ),
-            ),
-          );
-        },
-        icon: const Icon(Icons.copy_all),
-        label: const Text('View Selectable Delivery Data'),
-        backgroundColor: theme.colorScheme.secondary,
-        foregroundColor: theme.colorScheme.onSecondary,
-      );
-    }
-
-    return null;
   }
 
   /// Builds the list content based on controller state
@@ -352,7 +300,7 @@ class _CampaignListPageRiverpodState
     CampaignListState listState,
     Map<String, int> statusCounts,
   ) {
-    final statuses = ['All', 'pending', 'confirmed', 'delivered', 'cancelled'];
+    final statuses = ['All', 'Paid Ads', 'Direct', 'Collabs'];
 
     return SizedBox(
       height: 50,
@@ -372,16 +320,13 @@ class _CampaignListPageRiverpodState
 
           Color pillColor;
           switch (status.toLowerCase()) {
-            case 'confirmed':
-              pillColor = Colors.green;
-              break;
-            case 'delivered':
+            case 'paid ads':
               pillColor = Colors.blue;
               break;
-            case 'cancelled':
-              pillColor = Colors.red;
+            case 'direct':
+              pillColor = Colors.green;
               break;
-            case 'pending':
+            case 'collabs':
               pillColor = Colors.orange;
               break;
             default:

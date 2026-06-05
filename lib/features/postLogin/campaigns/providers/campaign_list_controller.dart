@@ -151,10 +151,18 @@ class CampaignListController
   }) {
     var result = pos;
 
-    // 1. Status Filter
+    // 1. Campaign Type Filter
     if (status != null && status.isNotEmpty && status.toLowerCase() != 'all') {
       result = result.where((po) {
-        return po.status?.toLowerCase() == status.toLowerCase();
+        final type = po.effectiveCampaignType;
+        if (status.toLowerCase() == 'paid ads') {
+          return type == CampaignType.paidAds;
+        } else if (status.toLowerCase() == 'direct') {
+          return type == CampaignType.directBrandPromotions;
+        } else if (status.toLowerCase() == 'collabs') {
+          return type == CampaignType.influencerCollaborations;
+        }
+        return true;
       }).toList();
     }
 

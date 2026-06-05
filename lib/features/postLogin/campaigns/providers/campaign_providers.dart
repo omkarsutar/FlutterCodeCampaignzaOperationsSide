@@ -78,7 +78,7 @@ final campaignSearchProvider = StateProvider.family.autoDispose<String, String>(
 
 /// Persistent status filter for PO list
 final campaignStatusFilterProvider = StateProvider.family
-    .autoDispose<String?, String>((ref, key) => 'confirmed');
+    .autoDispose<String?, String>((ref, key) => null);
 
 /// Fetch a single campaign by ID
 
