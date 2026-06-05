@@ -71,6 +71,9 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
         ? formatter.format(widget.entity.validUntil!.toLocal())
         : 'N/A';
 
+    final roleName = ref.watch(roleNameProvider)?.toLowerCase();
+    final isAdmin = roleName == 'admin';
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       elevation: 1,
@@ -150,46 +153,48 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                   color: theme.colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _InfoRow(
-                      icon: Icons.business_outlined,
-                      label: 'Brand',
-                      value: brandName,
-                      valueStyle: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface,
+              if (isAdmin) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _InfoRow(
+                        icon: Icons.business_outlined,
+                        label: 'Brand',
+                        value: brandName,
+                        valueStyle: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
                     ),
-                  ),
-                  if (widget.entity.poBrandId != null)
-                    IconButton(
-                      tooltip: 'View brand',
-                      icon: const Icon(Icons.open_in_new),
-                      iconSize: 18,
-                      constraints: const BoxConstraints(
-                        minWidth: 36,
-                        minHeight: 36,
+                    if (widget.entity.poBrandId != null)
+                      IconButton(
+                        tooltip: 'View brand',
+                        icon: const Icon(Icons.open_in_new),
+                        iconSize: 18,
+                        constraints: const BoxConstraints(
+                          minWidth: 36,
+                          minHeight: 36,
+                        ),
+                        onPressed: () => context.pushNamed(
+                          'viewBrand',
+                          pathParameters: {'id': widget.entity.poBrandId!},
+                        ),
                       ),
-                      onPressed: () => context.pushNamed(
-                        'viewBrand',
-                        pathParameters: {'id': widget.entity.poBrandId!},
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              _InfoRow(
-                icon: Icons.corporate_fare_outlined,
-                label: 'Agency',
-                value: agencyName,
-                valueStyle: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
+                  ],
                 ),
-              ),
+                const SizedBox(height: 8),
+                _InfoRow(
+                  icon: Icons.corporate_fare_outlined,
+                  label: 'Agency',
+                  value: agencyName,
+                  valueStyle: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
               const Divider(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

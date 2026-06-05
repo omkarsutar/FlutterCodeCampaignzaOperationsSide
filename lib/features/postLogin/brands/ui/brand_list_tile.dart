@@ -72,6 +72,9 @@ class BrandListTile<T> extends ConsumerWidget {
         adapter.getFieldValue(entity, ModelBrandFields.websiteUrl)?.toString() ??
         '';
 
+    final roleName = ref.watch(roleNameProvider)?.toLowerCase();
+    final isAdmin = roleName == 'admin';
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       elevation: 1,
@@ -122,16 +125,18 @@ class BrandListTile<T> extends ConsumerWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 8),
-              _InfoRow(
-                icon: Icons.corporate_fare_outlined,
-                label: 'Agency',
-                value: agencyLabel,
-                valueStyle: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
+              if (isAdmin) ...[
+                const SizedBox(height: 8),
+                _InfoRow(
+                  icon: Icons.corporate_fare_outlined,
+                  label: 'Agency',
+                  value: agencyLabel,
+                  valueStyle: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 8),
               Divider(
                 color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),

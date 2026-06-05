@@ -15,6 +15,8 @@ import 'campaign_list_tile.dart';
 import 'campaign_bill_page.dart';
 import '../../cart/providers/cart_controller.dart';
 import 'campaign_delivery_selectable_page.dart';
+import '../../../../core/providers/core_providers.dart';
+import 'widgets/campaign_header_tile.dart';
 
 /// Custom Campaign List Page - Riverpod & JSON based
 ///
@@ -88,6 +90,9 @@ class _CampaignListPageRiverpodState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final roleName = ref.watch(roleNameProvider)?.toLowerCase();
+    final isAdmin = roleName == 'admin';
+
     // Watch the controller state
     final listState = ref.watch(campaignListControllerProvider('campaignList'));
 
@@ -116,7 +121,10 @@ class _CampaignListPageRiverpodState
         ),
         child: Column(
           children: [
-            AgencyLabelWidget(),
+            if (isAdmin)
+              const AgencyLabelWidget()
+            else
+              const CampaignHeaderTile(),
             // Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(

@@ -14,6 +14,8 @@ import 'campaign_list_tile.dart';
 import '../../cart/providers/cart_controller.dart';
 import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/utils/core_utils_barrel.dart';
+import '../../../../core/providers/core_providers.dart';
+import 'widgets/campaign_header_tile.dart';
 
 /// Custom Campaign List Page - Riverpod & JSON based
 ///
@@ -100,6 +102,9 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
     final theme = Theme.of(context);
     final filterBrandId = _getFilterBrandId();
 
+    final roleName = ref.watch(roleNameProvider)?.toLowerCase();
+    final isAdmin = roleName == 'admin';
+
     // Watch the controller state (handles loading, errors, filtering)
     final listState = ref.watch(campaignListControllerProvider('campaignList'));
 
@@ -160,7 +165,13 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
         ),
         child: Column(
           children: [
-            AgencyLabelWidget(),
+            if (isAdmin)
+              const AgencyLabelWidget()
+            else
+              CampaignHeaderTile(
+                filterBrandId: filterBrandId,
+                brandExtra: brand,
+              ),
             // Search Bar
             if (filterBrandId == null)
               Padding(
@@ -201,7 +212,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
                   onChanged: (val) => _updateSearch(val),
                 ),
               ),
-            if (brand != null) ...[
+            if (brand != null && isAdmin) ...[
               BrandListTile(
                 entity: brand,
                 adapter: ref.watch(brandAdapterProvider),
