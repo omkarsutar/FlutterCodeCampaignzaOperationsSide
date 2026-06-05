@@ -9,6 +9,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/entity_page
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/providers/brand_list_view_logic.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/providers/brand_list_page_logic.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/ui/brand_header_tile.dart';
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/shared_widget_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/auth_providers.dart';
@@ -109,9 +110,6 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
 
     final roleName = ref.watch(roleNameProvider)?.toLowerCase();
     final isAdmin = roleName == 'admin';
-    final agencyNameAsync = ref.watch(currentAgencyNameProvider);
-    final userProfile = ref.watch(userProfileProvider).value;
-    final agencyId = userProfile?.preferredAgencyId;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -143,79 +141,45 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
         ),
         child: Column(
           children: [
-            // Search Bar & Route Dropdown
-            Row(
-              children: [
-                Expanded(
-                  child: CollapsibleSearchBar(
-                    dropdown: AgencyDropdown(
-                      initialAgencyId: listState.selectedRouteId,
-                      onAgencySelected: controller.setRouteId,
-                      allowAll: true,
-                    ),
-                    controller: _searchController,
-                    onChanged: controller.setSearchQuery,
-                  ),
-                ),
-                if (viewData.brandCount != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '${viewData.brandCount}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
+            // Search Bar & Route Dropdown (Admin only)
+            if (isAdmin)
+              Row(
+                children: [
+                  Expanded(
+                    child: CollapsibleSearchBar(
+                      dropdown: AgencyDropdown(
+                        initialAgencyId: listState.selectedRouteId,
+                        onAgencySelected: controller.setRouteId,
+                        allowAll: true,
                       ),
+                      controller: _searchController,
+                      onChanged: controller.setSearchQuery,
                     ),
                   ),
-              ],
-            ),
-
-            if (!isAdmin)
-              agencyNameAsync.when(
-                data: (agencyName) {
-                  return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    elevation: 1,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(
-                        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.55),
-                        width: 1,
+                  if (viewData.brandCount != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
                       ),
-                    ),
-                    child: ListTile(
-                      leading: Icon(Icons.corporate_fare_outlined, color: theme.colorScheme.primary),
-                      title: Text(
-                        'Agency: $agencyName',
-                        style: theme.textTheme.titleMedium?.copyWith(
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${viewData.brandCount}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      trailing: (agencyId != null && agencyId.isNotEmpty)
-                          ? IconButton(
-                              icon: const Icon(Icons.visibility_outlined),
-                              tooltip: 'View agency',
-                              onPressed: () => context.pushNamed(
-                                'viewAgency',
-                                pathParameters: {'id': agencyId},
-                              ),
-                            )
-                          : null,
                     ),
-                  );
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                ],
               ),
+
+            if (!isAdmin)
+              const BrandHeaderTile(),
 
             // Entity List
             Expanded(
