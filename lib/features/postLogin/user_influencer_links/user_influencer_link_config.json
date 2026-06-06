@@ -1,0 +1,79 @@
+{
+    "moduleName": "user_influencer_link",
+    "entityMeta": {
+        "entityName": "User Influencer Link",
+        "entityNameLower": "user influencer link",
+        "entityNamePlural": "User Influencer Links",
+        "entityNamePluralLower": "user influencer links"
+    },
+    "table": {
+        "name": "user_influencer_link",
+        "viewName": "view_user_influencer_link",
+        "idField": "link_id",
+        "timestampField": "created_at"
+    },
+    "routes": {
+        "basePath": "/user-influencer-links",
+        "listRouteName": "userInfluencerLinks",
+        "newRouteName": "newUserInfluencerLink",
+        "editRouteName": "editUserInfluencerLink",
+        "viewRouteName": "viewUserInfluencerLink"
+    },
+    "listPage": {
+        "sorting": {
+            "field": "created_at",
+            "sortAscending": false
+        },
+        "searchFields": [
+            "user_id",
+            "influencer_id"
+        ]
+    },
+    "fields": [
+        {
+            "name": "user_id",
+            "label": "User",
+            "type": "dropdown",
+            "required": true,
+            "dropdownSource": {
+                "table": "users",
+                "valueKey": "user_id",
+                "labelKey": "full_name"
+            },
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "influencer_id",
+            "label": "Influencer",
+            "type": "selector",
+            "required": true,
+            "dropdownSource": {
+                "table": "influencers",
+                "valueKey": "influencer_id",
+                "labelKey": "influencer_name",
+                "routeName": "influencers"
+            },
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "created_at",
+            "label": "Created At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": true,
+            "visibleInForm": false
+        },
+        {
+            "name": "updated_at",
+            "label": "Updated At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        }
+    ]
+}

@@ -91,6 +91,7 @@ flutter:
     - lib/features/postLogin/po_collections/po_collection_config.json
     - lib/features/postLogin/retailer_brand_links/retailer_brand_link_config.json
     - lib/features/postLogin/user_agency_links/user_agency_link_config.json
+    - lib/features/postLogin/user_influencer_links/user_influencer_link_config.json
     - assets/images/rasoiaImageUsedOnBill.png
     - assets/images/google_logo.png
     - assets/images/facebook_logo.png
