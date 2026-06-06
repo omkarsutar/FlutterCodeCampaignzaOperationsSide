@@ -106,8 +106,6 @@ class CartOrderService {
       status: 'confirmed',
       userComment: finalUserComment,
       adminComment: finalAdminComment,
-      createdBy: userId,
-      updatedBy: userId,
     );
 
     String finalPoId;
@@ -130,8 +128,6 @@ class CartOrderService {
     for (final processedItem in viewData.items) {
       final item = processedItem.item.copyWith(
         campaignId: finalPoId,
-        createdBy: userId,
-        updatedBy: userId,
       );
       await collaborationService.create(item);
     }

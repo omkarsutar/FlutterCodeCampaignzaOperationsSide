@@ -7,20 +7,20 @@ import '../service/po_collection_service_impl.dart';
 import '../adapter/po_collection_adapter.dart';
 
 /// Mapper provider
-final campaignCollectionMapperProvider = Provider<EntityMapper<ModelPoCollection>>((
-  ref,
-) {
-  return ModelPoCollectionMapper();
-});
+final campaignCollectionMapperProvider =
+    Provider<EntityMapper<ModelPoCollection>>((ref) {
+      return ModelPoCollectionMapper();
+    });
 
 /// Service provider
-final campaignCollectionServiceProvider = Provider<CampaignCollectionServiceImpl>((ref) {
-  return CampaignCollectionServiceImpl(
-    ref.watch(campaignCollectionMapperProvider),
-    ref.watch(supabaseClientProvider),
-    ref.watch(loggerServiceProvider),
-  );
-});
+final campaignCollectionServiceProvider =
+    Provider<CampaignCollectionServiceImpl>((ref) {
+      return CampaignCollectionServiceImpl(
+        ref.watch(campaignCollectionMapperProvider),
+        ref.watch(supabaseClientProvider),
+        ref.watch(loggerServiceProvider),
+      );
+    });
 
 /// Adapter provider
 final campaignCollectionAdapterProvider = Provider<PoCollectionAdapter>((ref) {
@@ -102,10 +102,12 @@ class CampaignCollectionFormState {
 }
 
 /// Notifier for managing Campaign Collection form state
-class CampaignCollectionFormNotifier extends StateNotifier<CampaignCollectionFormState> {
+class CampaignCollectionFormNotifier
+    extends StateNotifier<CampaignCollectionFormState> {
   final Ref ref;
 
-  CampaignCollectionFormNotifier(this.ref) : super(CampaignCollectionFormState());
+  CampaignCollectionFormNotifier(this.ref)
+    : super(CampaignCollectionFormState());
 
   void updateCollectedAmount(double value) {
     state = state.copyWith(collectedAmount: value);
@@ -152,8 +154,6 @@ class CampaignCollectionFormNotifier extends StateNotifier<CampaignCollectionFor
         isSign: state.isSign,
         signAmount: state.signAmount,
         comments: state.comments,
-        createdBy: userId,
-        updatedBy: userId,
       );
 
       if (entityId == null) {

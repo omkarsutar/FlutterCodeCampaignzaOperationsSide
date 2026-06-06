@@ -211,13 +211,8 @@ class CollaborationServiceImpl
     ModelCollaboration entity,
     String selectedPoId,
   ) async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) throw Exception('No signed-in user found');
-
     final data = mapper.toMap(entity);
     data[ModelCollaborationFields.campaignId] = selectedPoId;
-    data[ModelCollaborationFields.createdBy] = user.id;
-    data[ModelCollaborationFields.updatedBy] = user.id;
 
     final inserted = await client
         .from(tableName)
@@ -239,12 +234,7 @@ class CollaborationServiceImpl
 
   @override
   Future<ModelCollaboration> create(ModelCollaboration entity) async {
-    final user = client.auth.currentUser;
-    if (user == null) throw Exception('No signed-in user found');
-
-    final enriched = entity.copyWith(createdBy: user.id, updatedBy: user.id);
-
-    return super.create(enriched);
+    return super.create(entity);
   }
 
   @override
@@ -252,12 +242,7 @@ class CollaborationServiceImpl
     String id,
     ModelCollaboration entity,
   ) async {
-    final user = client.auth.currentUser;
-    if (user == null) throw Exception('No signed-in user found');
-
-    final enriched = entity.copyWith(updatedBy: user.id);
-
-    return super.update(id, enriched);
+    return super.update(id, entity);
   }
 
   /// Fetch purchase count for a promo code via Supabase RPC

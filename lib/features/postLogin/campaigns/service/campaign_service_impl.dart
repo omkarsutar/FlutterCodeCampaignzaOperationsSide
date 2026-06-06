@@ -74,9 +74,6 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     required String poAgencyId,
     required String poBrandId,
   }) async {
-    final userId = _ref.read(userProfileStateProvider).profile?.userId;
-    if (userId == null) throw Exception('No signed-in user found');
-
     final entity = ModelCampaign(
       poTotalAmount: 0.0,
       poLineItemCount: 0,
@@ -87,8 +84,6 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
       poLat: null,
       poLong: null,
       status: null,
-      createdBy: userId,
-      updatedBy: userId,
     );
 
     final enriched = mapper.toMap(entity);
@@ -297,13 +292,8 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
   @override
   Future<ModelCampaign> create(ModelCampaign entity) async {
     try {
-      final userId = _ref.read(userProfileStateProvider).profile?.userId;
-      if (userId == null) throw Exception('No signed-in user found');
-
-      final enriched = entity.copyWith(createdBy: userId, updatedBy: userId);
-
       // Get the map and exclude status field as per Supabase logic
-      final payload = mapper.toMap(enriched);
+      final payload = mapper.toMap(entity);
       payload.remove(ModelCampaignFields.status);
 
       logger.info('Creating new $ModelCampaign in $tableName');
@@ -324,13 +314,8 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
   @override
   Future<ModelCampaign> update(String id, ModelCampaign entity) async {
     try {
-      final userId = _ref.read(userProfileStateProvider).profile?.userId;
-      if (userId == null) throw Exception('No signed-in user found');
-
-      final enriched = entity.copyWith(updatedBy: userId);
-
       // Get the map and exclude status field as per Supabase logic
-      final payload = mapper.toMap(enriched);
+      final payload = mapper.toMap(entity);
       payload.remove(ModelCampaignFields.status);
 
       logger.info('Updating $ModelCampaign with id=$id in $tableName');
@@ -349,15 +334,9 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     }
   }
 
-  // --- Override insertEntity to enrich with createdBy/updatedBy ---
   @override
   Future<void> insertEntity(ModelCampaign entity) async {
-    final userId = _ref.read(userProfileStateProvider).profile?.userId;
-    if (userId == null) throw Exception('No signed-in user found');
-
     final enriched = mapper.toMap(entity);
-    enriched[ModelCampaignFields.createdBy] = userId;
-    enriched[ModelCampaignFields.updatedBy] = userId;
     // Exclude status field as per Supabase logic
     enriched.remove(ModelCampaignFields.status);
 
