@@ -17,6 +17,8 @@ class ModelAgencyFields {
   static const String isActive = 'is_active';
   static const String createdAt = 'created_at';
   static const String updatedAt = 'updated_at';
+  static const String createdBy = 'created_by';
+  static const String updatedBy = 'updated_by';
 }
 
 class ModelAgency {
@@ -26,6 +28,8 @@ class ModelAgency {
   final bool isActive; // default true
   final DateTime? createdAt; // nullable, DB default
   final DateTime? updatedAt; // nullable, DB default
+  final String? createdBy; // nullable
+  final String? updatedBy; // nullable
 
   ModelAgency({
     this.agencyId,
@@ -34,6 +38,8 @@ class ModelAgency {
     this.isActive = true,
     this.createdAt,
     this.updatedAt,
+    this.createdBy,
+    this.updatedBy,
   });
 
   factory ModelAgency.fromMap(Map<String, dynamic> map) {
@@ -48,6 +54,8 @@ class ModelAgency {
       updatedAt: map[ModelAgencyFields.updatedAt] != null
           ? DateTime.tryParse(map[ModelAgencyFields.updatedAt])
           : null,
+      createdBy: map[ModelAgencyFields.createdBy],
+      updatedBy: map[ModelAgencyFields.updatedBy],
     );
   }
 
@@ -61,6 +69,8 @@ class ModelAgency {
         ModelAgencyFields.createdAt: createdAt!.toIso8601String(),
       if (updatedAt != null)
         ModelAgencyFields.updatedAt: updatedAt!.toIso8601String(),
+      if (createdBy != null) ModelAgencyFields.createdBy: createdBy,
+      if (updatedBy != null) ModelAgencyFields.updatedBy: updatedBy,
     };
   }
 
@@ -72,6 +82,8 @@ class ModelAgency {
       'isActive': isActive,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'createdBy': createdBy,
+      'updatedBy': updatedBy,
     };
   }
 
@@ -83,6 +95,8 @@ class ModelAgency {
       isActive: json['isActive'] as bool? ?? true,
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
+      createdBy: json['createdBy'] as String?,
+      updatedBy: json['updatedBy'] as String?,
     );
   }
 }
