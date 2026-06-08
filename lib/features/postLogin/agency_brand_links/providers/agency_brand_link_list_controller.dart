@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/services/entity_service.dart';
+import '../../users/providers/user_providers.dart';
 import '../model/agency_brand_link_model.dart';
 import 'agency_brand_link_providers.dart';
 
@@ -36,9 +36,9 @@ class AgencyBrandLinkListController
     extends AutoDisposeNotifier<AgencyBrandLinkListState> {
   @override
   AgencyBrandLinkListState build() {
-    // Initialize with user's preferred route
-    final profile = ref.watch(userProfileStateProvider).profile;
-    return AgencyBrandLinkListState(selectedAgencyId: profile?.preferredAgencyId);
+    // Initialize with selected agency
+    final selectedAgencyId = ref.watch(selectedAgencyIdProvider);
+    return AgencyBrandLinkListState(selectedAgencyId: selectedAgencyId);
   }
 
   void setSearchQuery(String query) {

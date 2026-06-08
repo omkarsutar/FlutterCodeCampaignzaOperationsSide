@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/providers/user_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
-import '../../core/providers/auth_providers.dart'; // for userProfileProvider
 
 class AgencyDropdown extends ConsumerStatefulWidget {
   final void Function(String?) onAgencySelected;
@@ -25,9 +25,8 @@ class _AgencyDropdownState extends ConsumerState<AgencyDropdown> {
   @override
   void initState() {
     super.initState();
-    // initialAgencyId is passed in OR fallback to profile provider
-    final profile = ref.read(userProfileProvider).value;
-    selectedAgencyId = widget.initialAgencyId ?? profile?.preferredAgencyId;
+    // initialAgencyId is passed in OR fallback to selectedAgencyIdProvider
+    selectedAgencyId = widget.initialAgencyId ?? ref.read(selectedAgencyIdProvider);
   }
 
   @override

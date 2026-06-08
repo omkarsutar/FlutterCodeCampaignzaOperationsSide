@@ -62,12 +62,6 @@ class ModelUserAgencyLink {
         ModelUserAgencyLinkFields.linkId: linkId,
       ModelUserAgencyLinkFields.userId: userId,
       ModelUserAgencyLinkFields.agencyId: agencyId,
-      if (createdAt != null)
-        ModelUserAgencyLinkFields.createdAt: createdAt!.toIso8601String(),
-      if (updatedAt != null)
-        ModelUserAgencyLinkFields.updatedAt: updatedAt!.toIso8601String(),
-      if (createdBy != null) ModelUserAgencyLinkFields.createdBy: createdBy,
-      if (updatedBy != null) ModelUserAgencyLinkFields.updatedBy: updatedBy,
     };
   }
 

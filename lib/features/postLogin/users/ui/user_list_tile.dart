@@ -24,11 +24,6 @@ class UserListTile extends StatelessWidget {
     final role =
         adapter.getLabelValue(entity, ModelUserFields.roleId)?.toString() ??
         'Role not set';
-    final preferredAgency =
-        adapter
-            .getLabelValue(entity, ModelUserFields.preferredAgencyId)
-            ?.toString() ??
-        'Route not set';
 
     // Optional: status badge if you add is_active / is_available fields
     final isActive =
@@ -98,21 +93,21 @@ class UserListTile extends StatelessWidget {
               const SizedBox(height: 8),
 
               // Row 2: Role
-              Text(
-                role,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Row 3: Preferred Agency
-              Text(
-                'Preferred Agency: $preferredAgency',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.work_outline_rounded,
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Role: $role',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

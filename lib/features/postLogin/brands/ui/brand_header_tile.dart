@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
-import 'package:flutter_supabase_order_app_mobile/core/providers/auth_providers.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/providers/user_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/providers/agency_providers.dart';
 
 class BrandHeaderTile extends ConsumerWidget {
@@ -18,8 +18,7 @@ class BrandHeaderTile extends ConsumerWidget {
 
     // Get Agency details
     final agencyNameAsync = ref.watch(currentAgencyNameProvider);
-    final userProfile = ref.watch(userProfileProvider).value;
-    final agencyId = userProfile?.preferredAgencyId;
+    final agencyId = ref.watch(selectedAgencyIdProvider);
 
     final valueStyle = theme.textTheme.bodyMedium?.copyWith(
       fontWeight: FontWeight.bold,

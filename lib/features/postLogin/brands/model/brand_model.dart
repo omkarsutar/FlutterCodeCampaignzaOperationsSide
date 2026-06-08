@@ -24,6 +24,8 @@ class ModelBrandFields {
   static const String websiteUrl = 'website_url';
   static const String createdAt = 'created_at';
   static const String updatedAt = 'updated_at';
+  static const String createdBy = 'created_by';
+  static const String updatedBy = 'updated_by';
   static const String visitOrder = 'visit_order';
 
   static const Map<String, String> labels = {
@@ -47,6 +49,8 @@ class ModelBrandFields {
     websiteUrl: 'Website URL',
     createdAt: 'Created At',
     updatedAt: 'Updated At',
+    createdBy: 'Created By',
+    updatedBy: 'Updated By',
     visitOrder: 'Visit Order',
   };
 
@@ -74,6 +78,8 @@ class ModelBrand {
   final String? websiteUrl;
   final DateTime? createdAt; // nullable, DB default
   final DateTime? updatedAt; // nullable, DB default
+  final String? createdBy;
+  final String? updatedBy;
   final int? visitOrder;
   final Map<String, dynamic> _resolvedLabels;
 
@@ -98,6 +104,8 @@ class ModelBrand {
     this.websiteUrl,
     this.createdAt,
     this.updatedAt,
+    this.createdBy,
+    this.updatedBy,
     this.visitOrder,
     Map<String, dynamic>? resolvedLabels,
   }) : _resolvedLabels = resolvedLabels ?? const {};
@@ -137,6 +145,8 @@ class ModelBrand {
       updatedAt: map[ModelBrandFields.updatedAt] != null
           ? DateTime.tryParse(map[ModelBrandFields.updatedAt])
           : null,
+      createdBy: map[ModelBrandFields.createdBy],
+      updatedBy: map[ModelBrandFields.updatedBy],
       visitOrder: map[ModelBrandFields.visitOrder] as int?,
       resolvedLabels: labelEntries,
     );
@@ -165,10 +175,6 @@ class ModelBrand {
       if (brandLong != null) ModelBrandFields.brandLong: brandLong,
       if (androidAppId != null) ModelBrandFields.androidAppId: androidAppId,
       if (websiteUrl != null) ModelBrandFields.websiteUrl: websiteUrl,
-      if (createdAt != null)
-        ModelBrandFields.createdAt: createdAt!.toIso8601String(),
-      if (updatedAt != null)
-        ModelBrandFields.updatedAt: updatedAt!.toIso8601String(),
       if (visitOrder != null) ModelBrandFields.visitOrder: visitOrder,
     };
   }
@@ -195,6 +201,8 @@ class ModelBrand {
       'websiteUrl': websiteUrl,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'createdBy': createdBy,
+      'updatedBy': updatedBy,
       'visitOrder': visitOrder,
     };
   }

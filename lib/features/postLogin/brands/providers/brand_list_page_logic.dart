@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/services/core_services_barrel.dart';
 import '../../../../core/utils/core_utils_barrel.dart';
+import '../../users/providers/user_providers.dart';
 import '../../campaigns/campaign_barrel.dart';
 import '../model/brand_model.dart';
 
@@ -43,10 +43,7 @@ class BrandListPageLogic {
     required ModelBrand entity,
     required EntityAdapter<ModelBrand> adapter,
   }) async {
-    final agencyId = ref
-        .read(userProfileStateProvider)
-        .profile
-        ?.preferredAgencyId;
+    final agencyId = ref.read(selectedAgencyIdProvider);
     final brandId = adapter.getFieldValue(entity, ModelBrandFields.brandId);
 
     // Validation

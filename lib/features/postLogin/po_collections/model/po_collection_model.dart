@@ -157,8 +157,6 @@ class ModelPoCollection {
       ModelPoCollectionFields.isSign: isSign,
       ModelPoCollectionFields.signAmount: signAmount,
       ModelPoCollectionFields.comments: comments,
-      if (createdBy != null) ModelPoCollectionFields.createdBy: createdBy,
-      if (updatedBy != null) ModelPoCollectionFields.updatedBy: updatedBy,
     };
   }
 }

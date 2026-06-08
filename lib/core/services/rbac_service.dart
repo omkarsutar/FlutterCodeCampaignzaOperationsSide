@@ -44,15 +44,15 @@ class RbacService {
   /// Should be called when user is authenticated
   Future<void> initializeRbac(String userId) async {
     try {
-      // Get user's role
+      // Get user's role using view_users which handles the join correctly
       final userData = await _client
-          .from(ModelUserFields.table)
-          .select('${ModelUserFields.roleId}, rbac_roles(role_name)')
+          .from(ModelUserFields.tableViewWithForeignKeyLabels)
+          .select('${ModelUserFields.roleId}, role_id_label')
           .eq(ModelUserFields.userId, userId)
           .single();
 
       _cachedRoleId = userData[ModelUserFields.roleId] as String?;
-      _cachedRoleName = userData['rbac_roles']?['role_name'] as String?;
+      _cachedRoleName = userData['role_id_label'] as String?;
 
       if (_cachedRoleId == null) {
         throw Exception('User has no assigned role');

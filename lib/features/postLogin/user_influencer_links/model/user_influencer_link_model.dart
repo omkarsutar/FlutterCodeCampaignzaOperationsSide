@@ -63,12 +63,6 @@ class ModelUserInfluencerLink {
         ModelUserInfluencerLinkFields.linkId: linkId,
       ModelUserInfluencerLinkFields.userId: userId,
       ModelUserInfluencerLinkFields.influencerId: influencerId,
-      if (createdAt != null)
-        ModelUserInfluencerLinkFields.createdAt: createdAt!.toIso8601String(),
-      if (updatedAt != null)
-        ModelUserInfluencerLinkFields.updatedAt: updatedAt!.toIso8601String(),
-      if (createdBy != null) ModelUserInfluencerLinkFields.createdBy: createdBy,
-      if (updatedBy != null) ModelUserInfluencerLinkFields.updatedBy: updatedBy,
     };
   }
 

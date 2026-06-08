@@ -52,19 +52,6 @@
             "visibleInForm": true
         },
         {
-            "name": "preferred_agency_id",
-            "label": "Preferred Agency",
-            "type": "dropdown",
-            "required": false,
-            "dropdownSource": {
-                "table": "agencies",
-                "valueKey": "agency_id",
-                "labelKey": "agency_name"
-            },
-            "visibleInList": true,
-            "visibleInForm": true
-        },
-        {
             "name": "created_at",
             "label": "Created At",
             "type": "text",

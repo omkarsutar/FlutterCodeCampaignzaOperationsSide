@@ -27,7 +27,6 @@ final campaignServiceProvider = Provider<CampaignServiceImpl>((ref) {
     ref.watch(campaignMapperProvider),
     ref.watch(supabaseClientProvider),
     ref.watch(loggerServiceProvider),
-    ref,
     initialSorting: initialSorting,
   );
 });

@@ -16,6 +16,8 @@ class ModelRoleFields {
   static const String roleDescription = 'role_description'; // ✅ renamed
   static const String createdAt = 'created_at';
   static const String updatedAt = 'updated_at';
+  static const String createdBy = 'created_by';
+  static const String updatedBy = 'updated_by';
   static const String isActive = 'is_active'; // ✅ new column
 }
 
@@ -25,6 +27,8 @@ class ModelRole {
   final String? roleDescription; // ✅ renamed
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? createdBy;
+  final String? updatedBy;
   final bool isActive; // ✅ new field
 
   ModelRole({
@@ -33,6 +37,8 @@ class ModelRole {
     this.roleDescription,
     this.createdAt,
     this.updatedAt,
+    this.createdBy,
+    this.updatedBy,
     this.isActive = true, // default true
   });
 
@@ -47,6 +53,8 @@ class ModelRole {
       updatedAt: map[ModelRoleFields.updatedAt] != null
           ? DateTime.tryParse(map[ModelRoleFields.updatedAt])
           : null,
+      createdBy: map[ModelRoleFields.createdBy],
+      updatedBy: map[ModelRoleFields.updatedBy],
       isActive: map[ModelRoleFields.isActive] ?? true,
     );
   }
@@ -57,10 +65,6 @@ class ModelRole {
       ModelRoleFields.roleName: roleName,
       if (roleDescription != null)
         ModelRoleFields.roleDescription: roleDescription,
-      if (createdAt != null)
-        ModelRoleFields.createdAt: createdAt!.toIso8601String(),
-      if (updatedAt != null)
-        ModelRoleFields.updatedAt: updatedAt!.toIso8601String(),
       ModelRoleFields.isActive: isActive,
     };
   }
@@ -72,6 +76,8 @@ class ModelRole {
       'roleDescription': roleDescription,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'createdBy': createdBy,
+      'updatedBy': updatedBy,
       'isActive': isActive,
     };
   }
@@ -83,6 +89,8 @@ class ModelRole {
       roleDescription: json['roleDescription'] as String?,
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
+      createdBy: json['createdBy'] as String?,
+      updatedBy: json['updatedBy'] as String?,
       isActive: json['isActive'] as bool? ?? true,
     );
   }

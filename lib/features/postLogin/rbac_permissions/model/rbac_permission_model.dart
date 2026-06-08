@@ -123,10 +123,6 @@ class ModelRbacPermission {
       ModelRbacPermissionFields.canCreate: canCreate,
       ModelRbacPermissionFields.canUpdate: canUpdate,
       ModelRbacPermissionFields.canDelete: canDelete,
-      if (createdAt != null)
-        ModelRbacPermissionFields.createdAt: createdAt!.toIso8601String(),
-      if (updatedAt != null)
-        ModelRbacPermissionFields.updatedAt: updatedAt!.toIso8601String(),
     };
   }
 

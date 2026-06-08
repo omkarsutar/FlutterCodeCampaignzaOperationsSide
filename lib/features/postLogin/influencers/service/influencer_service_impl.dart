@@ -87,16 +87,9 @@ class InfluencerServiceImpl extends SupabaseEntityService<ModelInfluencer> {
 
   @override
   Future<ModelInfluencer> createImpl(ModelInfluencer entity) async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) throw Exception('No signed-in user found');
-
-    final enriched = mapper.toMap(entity);
-    enriched[ModelInfluencerFields.createdBy] = user.id;
-    enriched[ModelInfluencerFields.updatedBy] = user.id;
-
     final inserted = await client
         .from(tableName)
-        .insert(enriched)
+        .insert(mapper.toMap(entity))
         .select()
         .single();
     return mapper.fromMap(inserted);

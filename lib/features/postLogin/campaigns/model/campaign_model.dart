@@ -142,6 +142,15 @@ class ModelCampaign {
   double? get poLat => null;
   double? get poLong => null;
 
+  // Labels from view_campaigns
+  String? get campaignAgencyLabel => _resolvedLabels['campaign_agency_id_label'];
+  String? get campaignBrandLabel => _resolvedLabels['campaign_brand_id_label'];
+  String? get brandAddressLabel => _resolvedLabels['brand_address_label'];
+  String? get brandNoteLabel => _resolvedLabels['brand_note_label'];
+  String? get brandMobileLabel => _resolvedLabels['brand_mobile_label'];
+  String? get createdByLabel => _resolvedLabels['created_by_label'];
+  String? get updatedByLabel => _resolvedLabels['updated_by_label'];
+
   ModelCampaign({
     String? campaignId,
     this.campaignName,
@@ -264,14 +273,6 @@ class ModelCampaign {
     }
     if (validUntil != null) {
       map[ModelCampaignFields.validUntil] = validUntil!.toIso8601String();
-    }
-    if (createdBy != null) map[ModelCampaignFields.createdBy] = createdBy;
-    if (updatedBy != null) map[ModelCampaignFields.updatedBy] = updatedBy;
-    if (createdAt != null) {
-      map[ModelCampaignFields.createdAt] = createdAt!.toIso8601String();
-    }
-    if (updatedAt != null) {
-      map[ModelCampaignFields.updatedAt] = updatedAt!.toIso8601String();
     }
 
     return map;

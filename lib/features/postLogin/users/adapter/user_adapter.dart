@@ -11,8 +11,6 @@ class UserAdapter implements EntityAdapter<ModelUser> {
         return entity.fullName;
       case ModelUserFields.roleId:
         return entity.roleId;
-      case ModelUserFields.preferredAgencyId:
-        return entity.preferredAgencyId;
       case ModelUserFields.createdAt:
         return entity.createdAt;
       case ModelUserFields.updatedAt:
@@ -31,7 +29,6 @@ class UserAdapter implements EntityAdapter<ModelUser> {
   dynamic getLabelValue(ModelUser entity, String fieldName) {
     switch (fieldName) {
       case ModelUserFields.roleId:
-      case ModelUserFields.preferredAgencyId:
         return entity.resolvedLabels['${fieldName}_label'];
       case ModelUserFields.createdAt:
         return _formatDate(entity.createdAt);

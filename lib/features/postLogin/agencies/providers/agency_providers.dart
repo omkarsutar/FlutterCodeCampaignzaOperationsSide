@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/providers/auth_providers.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/services/entity_service.dart';
+import '../../users/providers/user_providers.dart';
 import '../adapter/agency_adapter.dart';
 import '../model/agency_model.dart';
 import '../service/agency_service_impl.dart';
@@ -45,8 +45,7 @@ final agencyByIdProvider = FutureProvider.autoDispose
 final currentAgencyNameProvider = FutureProvider.autoDispose<String>((
   ref,
 ) async {
-  final userProfile = ref.watch(userProfileProvider).value;
-  final agencyId = userProfile?.preferredAgencyId;
+  final agencyId = ref.watch(selectedAgencyIdProvider);
   if (agencyId == null || agencyId.isEmpty) return 'All Agencies';
 
   try {

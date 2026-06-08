@@ -12,9 +12,9 @@ import '../providers/campaign_list_controller.dart';
 import '../providers/campaign_providers.dart';
 import 'campaign_list_tile.dart';
 import '../../cart/providers/cart_controller.dart';
-import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/utils/core_utils_barrel.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../users/providers/user_providers.dart';
 import 'widgets/campaign_header_tile.dart';
 
 /// Custom Campaign List Page - Riverpod & JSON based
@@ -143,10 +143,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
       floatingActionButton: (filterBrandId != null && brand != null)
           ? FloatingActionButton.extended(
               onPressed: () {
-                final agencyId = ref
-                    .read(userProfileStateProvider)
-                    .profile
-                    ?.preferredAgencyId;
+                final agencyId = ref.read(selectedAgencyIdProvider);
 
                 if (agencyId == null) {
                   SnackbarUtils.showError('Missing agency ID');

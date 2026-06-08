@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_supabase_order_app_mobile/core/config/module_config.dart';
 import 'package:flutter_supabase_order_app_mobile/core/config/field_config.dart';
 import 'package:flutter_supabase_order_app_mobile/core/models/entity_meta.dart';
@@ -11,9 +10,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/prov
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/ui/brand_header_tile.dart';
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/shared_widget_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
-import 'package:flutter_supabase_order_app_mobile/core/providers/auth_providers.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/providers/agency_providers.dart';
+import '../../../../core/providers/core_providers.dart';
 
 /// Generic Riverpod version of Entity List Page
 /// Can be used for any entity type (Role, Note, etc.)
@@ -114,7 +111,7 @@ class _BrandListPageRiverpodState extends ConsumerState<BrandListPageRiverpod> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: CustomAppBar(
-        title: getAppBarTitle(),
+        title: widget.entityMeta.entityNamePlural,
         showBack: false,
       ),
       drawer: const CustomDrawer(),

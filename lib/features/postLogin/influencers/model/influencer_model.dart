@@ -112,12 +112,6 @@ class ModelInfluencer {
       ModelInfluencerFields.isAvailable: isAvailable,
       if (influencerImageUrl != null)
         ModelInfluencerFields.influencerImageUrl: influencerImageUrl,
-      if (createdBy != null) ModelInfluencerFields.createdBy: createdBy,
-      if (updatedBy != null) ModelInfluencerFields.updatedBy: updatedBy,
-      if (createdAt != null)
-        ModelInfluencerFields.createdAt: createdAt!.toIso8601String(),
-      if (updatedAt != null)
-        ModelInfluencerFields.updatedAt: updatedAt!.toIso8601String(),
     };
   }
 

@@ -65,12 +65,6 @@ class ModelAgency {
       ModelAgencyFields.agencyName: agencyName,
       if (agencyNote != null) ModelAgencyFields.agencyNote: agencyNote,
       ModelAgencyFields.isActive: isActive,
-      if (createdAt != null)
-        ModelAgencyFields.createdAt: createdAt!.toIso8601String(),
-      if (updatedAt != null)
-        ModelAgencyFields.updatedAt: updatedAt!.toIso8601String(),
-      if (createdBy != null) ModelAgencyFields.createdBy: createdBy,
-      if (updatedBy != null) ModelAgencyFields.updatedBy: updatedBy,
     };
   }
 

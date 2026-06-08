@@ -63,12 +63,6 @@ class ModelRetailerBrandLink {
         ModelRetailerBrandLinkFields.linkId: linkId,
       ModelRetailerBrandLinkFields.userId: userId,
       ModelRetailerBrandLinkFields.brandId: brandId,
-      if (createdAt != null)
-        ModelRetailerBrandLinkFields.createdAt: createdAt!.toIso8601String(),
-      if (updatedAt != null)
-        ModelRetailerBrandLinkFields.updatedAt: updatedAt!.toIso8601String(),
-      if (createdBy != null) ModelRetailerBrandLinkFields.createdBy: createdBy,
-      if (updatedBy != null) ModelRetailerBrandLinkFields.updatedBy: updatedBy,
     };
   }
 

@@ -324,14 +324,6 @@ class ModelCollaboration {
       map[ModelCollaborationFields.discountPercentage] = discountPercentage;
     }
     map[ModelCollaborationFields.isActive] = isActive;
-    if (createdBy != null) map[ModelCollaborationFields.createdBy] = createdBy;
-    if (updatedBy != null) map[ModelCollaborationFields.updatedBy] = updatedBy;
-    if (createdAt != null) {
-      map[ModelCollaborationFields.createdAt] = createdAt!.toIso8601String();
-    }
-    if (updatedAt != null) {
-      map[ModelCollaborationFields.updatedAt] = updatedAt!.toIso8601String();
-    }
 
     return map;
   }

@@ -31,7 +31,6 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
     if (_formKey.currentState!.validate()) {
       final updatedData = {
         ModelUserFields.fullName: _nameController.text,
-        ModelUserFields.preferredAgencyId: _routeController.text,
       };
 
       await Supabase.instance.client
@@ -58,7 +57,6 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
         // Initialize controllers once
         if (!_initialized) {
           _nameController.text = profile.fullName ?? '';
-          _routeController.text = profile.preferredAgencyId ?? '';
           _initialized = true;
         }
 
@@ -148,16 +146,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                                   message: 'Enter your name',
                                 ),
                               ),
-                              const SizedBox(height: 20),
-                              AgencyDropdown(
-                                initialAgencyId: profile.preferredAgencyId,
-                                onAgencySelected: (selectedRouteId) {
-                                  if (selectedRouteId != null) {
-                                    _routeController.text = selectedRouteId;
-                                  }
-                                },
-                              ),
-                              const SizedBox(height: 32),
+                              const SizedBox(height: 24),
                               SizedBox(
                                 height: 50,
                                 child: ElevatedButton(

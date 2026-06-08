@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/config/module_config.dart';
+import '../../users/providers/user_providers.dart';
 import 'brand_providers.dart';
 import 'brands_by_po_status_provider.dart';
 
@@ -31,12 +31,12 @@ class BrandListState {
 class BrandListController extends AutoDisposeNotifier<BrandListState> {
   @override
   BrandListState build() {
-    // Initialize with user's preferred route
-    final profile = ref.watch(userProfileStateProvider).profile;
+    // Initialize with selected agency
+    final selectedAgencyId = ref.watch(selectedAgencyIdProvider);
     final service = ref.read(brandServiceProvider);
 
     return BrandListState(
-      selectedRouteId: profile?.preferredAgencyId,
+      selectedRouteId: selectedAgencyId,
       currentSorting: service.sortField != null
           ? SortingConfig(
               field: service.sortField!,

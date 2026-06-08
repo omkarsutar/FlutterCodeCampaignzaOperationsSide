@@ -4,6 +4,8 @@ import '../../../../core/services/entity_service.dart';
 import '../adapter/user_adapter.dart';
 import '../model/user_model.dart';
 import '../service/user_service_impl.dart';
+import '../../agencies/agency_barrel.dart';
+import '../../../../core/providers/auth_providers.dart';
 
 /// Mapper provider
 final userMapperProvider = Provider<EntityMapper<ModelUser>>((ref) {
@@ -22,6 +24,36 @@ final userServiceProvider = Provider<UserServiceImpl>((ref) {
 /// Adapter provider
 final userAdapterProvider = Provider<UserAdapter>((ref) {
   return UserAdapter();
+});
+
+/// Fetches all agencies for the current user
+final userAgenciesProvider = FutureProvider.autoDispose<List<ModelAgency>>((ref) async {
+  final user = ref.watch(userProfileProvider).value;
+  if (user == null) return [];
+
+  final client = ref.watch(supabaseClientProvider);
+  // Use view_user_agency_link to avoid join ambiguity and get labels directly
+  final response = await client
+      .from('view_user_agency_link')
+      .select('agency_id, agency_id_label')
+      .eq('user_id', user.userId);
+
+  return (response as List)
+      .map((e) => ModelAgency(
+            agencyId: e['agency_id'],
+            agencyName: e['agency_id_label'] ?? 'Unknown',
+          ))
+      .toList();
+});
+
+/// Provider for the currently selected agency ID
+/// Defaults to the first agency in userAgenciesProvider if not set
+final selectedAgencyIdProvider = StateProvider<String?>((ref) {
+  final userAgencies = ref.watch(userAgenciesProvider).value;
+  if (userAgencies != null && userAgencies.isNotEmpty) {
+    return userAgencies.first.agencyId;
+  }
+  return null;
 });
 
 /// Fetches all Users with automatic disposal
@@ -50,14 +82,12 @@ final userFormProvider =
 class UserFormState {
   final String fullName;
   final String? roleId;
-  final String? preferredAgencyId;
   final bool isLoading;
   final String? error;
 
   UserFormState({
     this.fullName = '',
     this.roleId,
-    this.preferredAgencyId,
     this.isLoading = false,
     this.error,
   });
@@ -65,14 +95,12 @@ class UserFormState {
   UserFormState copyWith({
     String? fullName,
     String? roleId,
-    String? preferredAgencyId,
     bool? isLoading,
     String? error,
   }) {
     return UserFormState(
       fullName: fullName ?? this.fullName,
       roleId: roleId ?? this.roleId,
-      preferredAgencyId: preferredAgencyId ?? this.preferredAgencyId,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -103,11 +131,6 @@ class UserFormNotifier extends StateNotifier<UserFormState> {
     state = state.copyWith(roleId: roleId, error: null);
   }
 
-  void updatePreferredAgencyId(String? agencyId) {
-    if (!_mounted) return;
-    state = state.copyWith(preferredAgencyId: agencyId, error: null);
-  }
-
   /// Generic update method for ModuleRouteGenerator
   void updateField(String field, dynamic value) {
     if (!_mounted) return;
@@ -117,9 +140,6 @@ class UserFormNotifier extends StateNotifier<UserFormState> {
         break;
       case ModelUserFields.roleId:
         updateRoleId(value as String?);
-        break;
-      case ModelUserFields.preferredAgencyId:
-        updatePreferredAgencyId(value as String?);
         break;
     }
   }
@@ -137,7 +157,6 @@ class UserFormNotifier extends StateNotifier<UserFormState> {
             entityId ?? '', // entityId ignored on create usually, or generated
         fullName: state.fullName,
         roleId: state.roleId,
-        preferredAgencyId: state.preferredAgencyId,
       );
 
       if (entityId == null) {

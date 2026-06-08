@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
-import 'package:flutter_supabase_order_app_mobile/core/providers/auth_providers.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/providers/user_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/providers/agency_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/providers/brand_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/model/brand_model.dart';
@@ -30,8 +30,7 @@ class CampaignHeaderTile extends ConsumerWidget {
 
     // 1. Get Agency details
     final agencyNameAsync = ref.watch(currentAgencyNameProvider);
-    final userProfile = ref.watch(userProfileProvider).value;
-    final agencyId = userProfile?.preferredAgencyId;
+    final agencyId = ref.watch(selectedAgencyIdProvider);
 
     // 2. Get Brand details
     String? brandId = filterBrandId ?? brandExtra?.brandId;

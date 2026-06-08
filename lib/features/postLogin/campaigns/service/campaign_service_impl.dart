@@ -4,8 +4,6 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/bran
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/config/field_config.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/providers/user_profile_state_provider.dart';
 import '../../../../core/services/logger_service.dart';
 import '../../../../core/services/entity_service.dart';
 import '../model/campaign_model.dart';
@@ -14,13 +12,11 @@ import '../../../../core/config/module_config.dart';
 
 class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
   final EntityMapper<ModelCampaign> _mapper;
-  final Ref _ref;
 
   CampaignServiceImpl(
     this._mapper,
     SupabaseClient client,
-    LoggerService logger,
-    this._ref, {
+    LoggerService logger, {
     SortingConfig? initialSorting,
   }) : super(client, logger) {
     if (initialSorting != null) {

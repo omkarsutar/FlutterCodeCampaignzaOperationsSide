@@ -40,16 +40,16 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
   /// Fetch all brands linked to a user's preferred agency
   Future<List<ModelBrand>> fetchAllBrandsForPreferredAgency(
-    String? preferredAgencyId,
+    String? agencyId,
   ) async {
-    if (preferredAgencyId == null || preferredAgencyId.isEmpty) {
+    if (agencyId == null || agencyId.isEmpty) {
       throw Exception('Preferred agency not set for user');
     }
 
     final linkData = await client
         .from(ModelAgencyBrandLinkFields.table)
         .select(idColumn)
-        .eq(ModelAgencyBrandLinkFields.agencyId, preferredAgencyId);
+        .eq(ModelAgencyBrandLinkFields.agencyId, agencyId);
 
     final brandIds = List<String>.from(linkData.map((e) => e[idColumn]));
     if (brandIds.isEmpty) return [];
@@ -67,13 +67,13 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
   // In your service:
   Stream<Map<String, List<ModelBrand>>> streamBrandsByCollaborationStatus(
-    String preferredAgencyId,
+    String agencyId,
   ) async* {
     // Supabase live streams
     final poStream = client
         .from(ModelCampaignFields.table)
         .stream(primaryKey: [ModelCampaignFields.poId])
-        .eq(ModelCampaignFields.poAgencyId, preferredAgencyId);
+        .eq(ModelCampaignFields.poAgencyId, agencyId);
 
     final collaborationStream = client
         .from(ModelCollaborationFields.table)
@@ -84,7 +84,7 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
     await for (final _ in merged) {
       final result = await fetchBrandsByCollaborationStatus(
-        preferredAgencyId: preferredAgencyId,
+        agencyId: agencyId,
       );
       yield result;
     }
@@ -92,17 +92,17 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
   /// Classify brands by campaign item status for today
   Future<Map<String, List<ModelBrand>>> fetchBrandsByCollaborationStatus({
-    required String? preferredAgencyId,
+    required String? agencyId,
   }) async {
-    if (preferredAgencyId == null || preferredAgencyId.isEmpty) {
+    if (agencyId == null || agencyId.isEmpty) {
       throw Exception('Preferred agency not set for user');
     }
 
-    // Step 1: Get brand_ids linked to preferred_agency_id in agency order
+    // Step 1: Get brand_ids linked to agency_id in agency order
     final linkData = await client
         .from(ModelAgencyBrandLinkFields.table)
         .select(ModelAgencyBrandLinkFields.brandId)
-        .eq(ModelAgencyBrandLinkFields.agencyId, preferredAgencyId)
+        .eq(ModelAgencyBrandLinkFields.agencyId, agencyId)
         .order(ModelAgencyBrandLinkFields.visitOrder, ascending: true);
 
     final brandIdsInAgencyOrder = List<String>.from(
@@ -252,18 +252,18 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
   /// Fetch brands for preferred agency filtered by whether they have POs today
   Future<List<Map<String, dynamic>>> fetchBrandsForPreferredAgencyByPOStatus({
-    required String? preferredAgencyId,
+    required String? agencyId,
     required bool hasPOsToday,
   }) async {
-    if (preferredAgencyId == null || preferredAgencyId.isEmpty) {
+    if (agencyId == null || agencyId.isEmpty) {
       throw Exception('Preferred agency not set for user');
     }
 
-    // Step 1: Get brand_ids linked to preferred_agency_id
+    // Step 1: Get brand_ids linked to agency_id
     final linkData = await client
         .from(ModelAgencyBrandLinkFields.table)
         .select(idColumn)
-        .eq(ModelAgencyBrandLinkFields.agencyId, preferredAgencyId);
+        .eq(ModelAgencyBrandLinkFields.agencyId, agencyId);
 
     final brandIds = List<String>.from(linkData.map((e) => e[idColumn]));
 
