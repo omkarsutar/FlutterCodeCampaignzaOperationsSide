@@ -283,7 +283,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
               onPressed: () {
                 ref
                     .read(
-                      campaignListControllerProvider('campaignList').notifier,
+                      campaignListControllerProvider(_controllerKey).notifier,
                     )
                     .refreshData();
               },
@@ -402,7 +402,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
 
                 ref
                     .read(
-                      campaignListControllerProvider('campaignList').notifier,
+                      campaignListControllerProvider(_controllerKey).notifier,
                     )
                     .setStatusFilter(
                       typeName == 'All' ? null : typeName,
