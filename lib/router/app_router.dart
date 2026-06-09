@@ -19,7 +19,6 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/providers/core_providers.dart';
-import '../core/providers/user_profile_state_provider.dart';
 
 import '../features/postLogin/loading_page/loading_page.dart';
 import '../features/preLogin/welcome_page.dart';
@@ -30,9 +29,7 @@ import '../core/routing/module_route_generator.dart';
 import '../core/services/rbac_service.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  ref.watch(userProfileStateProvider);
   final rbacService = ref.watch(rbacServiceProvider);
-  final isRbacInitialized = ref.watch(rbacInitializationProvider);
 
   return GoRouter(
     routes: [
@@ -54,6 +51,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...UserInfluencerLinkRoutesJson.routes,
     ],
     initialLocation: AppRoute.welcome,
+    refreshListenable: rbacService.initializationNotifier,
     redirect: (context, state) async {
       final session = Supabase.instance.client.auth.currentSession;
       final isLoggedIn = session != null;
@@ -70,6 +68,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       );
 
       final hasRole = roleName != null && roleName.isNotEmpty;
+      final isRbacInitialized = rbacService.isInitialized;
 
       final isPublicRoute =
           state.uri.path.startsWith('/influencers') ||

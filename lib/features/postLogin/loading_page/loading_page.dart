@@ -4,6 +4,7 @@ import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/influencers/influencer_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
 
 class LoadingPage extends ConsumerWidget {
@@ -21,6 +22,11 @@ class LoadingPage extends ConsumerWidget {
     if (isRbacInitialized && hasRole) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
+
+        // Only redirect if we are actually on the loading page
+        // This prevents accidental redirects if the widget is still in the tree
+        final state = GoRouterState.of(context);
+        if (state.uri.path != AppRoute.loading) return;
 
         final rbacService = ref.read(rbacServiceProvider);
         final roleName = rbacService.roleName?.toLowerCase();
