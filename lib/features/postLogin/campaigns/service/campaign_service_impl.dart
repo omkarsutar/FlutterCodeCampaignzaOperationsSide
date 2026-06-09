@@ -229,16 +229,29 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
   // --- Override generic methods to use view ---
 
   @override
-  Stream<List<ModelCampaign>> streamEntities() {
+  Stream<List<ModelCampaign>> streamEntities({
+    String? agencyId,
+    String? brandId,
+  }) {
     final controller = StreamController<List<ModelCampaign>>();
     RealtimeChannel? channel;
 
     Future<void> fetch() async {
       try {
-        final List<dynamic> data = await client
-            .from(ModelCampaignFields.tableViewWithForeignKeyLabels)
-            .select()
-            .order(sortField ?? createdAt, ascending: sortAscending);
+        var query = client.from(ModelCampaignFields.tableViewWithForeignKeyLabels).select();
+
+        if (agencyId != null && agencyId.isNotEmpty) {
+          query = query.eq(ModelCampaignFields.poAgencyId, agencyId);
+        }
+
+        if (brandId != null && brandId.isNotEmpty) {
+          query = query.eq(ModelCampaignFields.poBrandId, brandId);
+        }
+
+        final List<dynamic> data = await query.order(
+          sortField ?? createdAt,
+          ascending: sortAscending,
+        );
 
         if (!controller.isClosed) {
           controller.add(data.map((e) => mapper.fromMap(e)).toList());
@@ -250,7 +263,11 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
 
     void startSubscription() {
       fetch();
-      channel = client.channel('public:$tableName')
+      final channelName = 'public:$tableName'
+          '${agencyId != null ? ":$agencyId" : ""}'
+          '${brandId != null ? ":$brandId" : ""}';
+
+      channel = client.channel(channelName)
         ..onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',

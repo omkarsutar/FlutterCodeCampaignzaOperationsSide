@@ -3,6 +3,7 @@ import '../../../../core/providers/core_providers.dart';
 import '../../../../core/services/entity_service.dart';
 import 'package:collection/collection.dart';
 import '../../../../core/config/module_config.dart';
+import '../../users/providers/user_providers.dart';
 
 import '../adapter/campaign_adapter.dart';
 import '../model/campaign_model.dart';
@@ -36,16 +37,24 @@ final campaignAdapterProvider = Provider<CampaignAdapter>((ref) {
   return CampaignAdapter();
 });
 
-/// Real-time stream of all campaigns
-/// Uses StreamProvider.autoDispose for automatic cleanup when page is unmounted
-/// Strategy: Listen to campaign table, read from view_campaigns
-/// The stream automatically updates when any campaign is created, updated, or deleted
-final campaignsStreamProvider = StreamProvider.autoDispose<List<ModelCampaign>>(
-  (ref) {
-    final service = ref.read(campaignServiceProvider);
-    return service.streamEntities();
-  },
-);
+/// Real-time stream of all campaigns (unfiltered for generic module registry)
+final allCampaignsStreamProvider =
+    StreamProvider.autoDispose<List<ModelCampaign>>((ref) {
+  final service = ref.read(campaignServiceProvider);
+  return service.streamEntities();
+});
+
+/// Real-time stream of campaigns with optional filters
+final campaignsStreamProvider =
+    StreamProvider.autoDispose.family<List<ModelCampaign>, String?>((
+  ref,
+  brandId,
+) {
+  final service = ref.read(campaignServiceProvider);
+  final agencyId = ref.watch(selectedAgencyIdProvider);
+
+  return service.streamEntities(agencyId: agencyId, brandId: brandId);
+});
 
 /// Fetch a single campaign by ID
 /// Uses FutureProvider.autoDispose.family for efficient caching and cleanup
@@ -64,8 +73,8 @@ final campaignFormProvider =
 
 final campaignStreamByIdProvider =
     StreamProvider.family<ModelCampaign?, String>((ref, poId) {
-      return ref
-          .watch(campaignServiceProvider)
+      final service = ref.read(campaignServiceProvider);
+      return service
           .streamEntities()
           .map((orders) => orders.firstWhereOrNull((o) => o.poId == poId));
     });

@@ -38,7 +38,7 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
 
   // --- Custom helpers ---
 
-  /// Fetch all brands linked to a user's preferred agency
+  /// Fetch all brands linked to an agency (either as primary or via agency_brand_link)
   Future<List<ModelBrand>> fetchAllBrandsForPreferredAgency(
     String? agencyId,
   ) async {
@@ -46,19 +46,36 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
       throw Exception('Preferred agency not set for user');
     }
 
+    // 1. Get brand IDs from agency_brand_links
     final linkData = await client
         .from(ModelAgencyBrandLinkFields.table)
-        .select(idColumn)
+        .select(ModelAgencyBrandLinkFields.brandId)
         .eq(ModelAgencyBrandLinkFields.agencyId, agencyId);
 
-    final brandIds = List<String>.from(linkData.map((e) => e[idColumn]));
-    if (brandIds.isEmpty) return [];
+    final linkedBrandIds = List<String>.from(
+      linkData.map((e) => e[ModelAgencyBrandLinkFields.brandId]),
+    );
 
-    // Use view_brands instead of manual relational query
+    // 2. Get brand IDs where this agency is primary
+    final primaryData = await client
+        .from(ModelBrandFields.table)
+        .select(ModelBrandFields.brandId)
+        .eq(ModelBrandFields.brandsPrimaryAgency, agencyId);
+
+    final primaryBrandIds = List<String>.from(
+      primaryData.map((e) => e[ModelBrandFields.brandId]),
+    );
+
+    // 3. Combine and remove duplicates
+    final allBrandIds = {...linkedBrandIds, ...primaryBrandIds}.toList();
+
+    if (allBrandIds.isEmpty) return [];
+
+    // 4. Fetch brand details from view
     final brands = await client
         .from(ModelBrandFields.tableViewWithForeignKeyLabels)
         .select('*')
-        .inFilter(idColumn, brandIds);
+        .inFilter(ModelBrandFields.brandId, allBrandIds);
 
     return List<Map<String, dynamic>>.from(
       brands,
@@ -98,16 +115,8 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
       throw Exception('Preferred agency not set for user');
     }
 
-    // Step 1: Get brand_ids linked to agency_id in agency order
-    final linkData = await client
-        .from(ModelAgencyBrandLinkFields.table)
-        .select(ModelAgencyBrandLinkFields.brandId)
-        .eq(ModelAgencyBrandLinkFields.agencyId, agencyId)
-        .order(ModelAgencyBrandLinkFields.visitOrder, ascending: true);
-
-    final brandIdsInAgencyOrder = List<String>.from(
-      linkData.map((e) => e[ModelAgencyBrandLinkFields.brandId]),
-    );
+    // Step 1: Get all brand_ids for this agency (linked + primary)
+    final brandIdsInAgencyOrder = await fetchAgencyBrandIds(agencyId);
 
     if (brandIdsInAgencyOrder.isEmpty) {
       return {'noPOs': [], 'emptyPOs': [], 'filledPOs': []};
@@ -193,15 +202,29 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
   }
 
   Future<List<String>> fetchAgencyBrandIds(String agencyId) async {
+    // 1. Get brand IDs from agency_brand_links in visit order
     final linkData = await client
         .from(ModelAgencyBrandLinkFields.table)
         .select(ModelAgencyBrandLinkFields.brandId)
         .eq(ModelAgencyBrandLinkFields.agencyId, agencyId)
         .order(ModelAgencyBrandLinkFields.visitOrder, ascending: true);
 
-    return List<String>.from(
+    final linkedBrandIds = List<String>.from(
       linkData.map((e) => e[ModelAgencyBrandLinkFields.brandId]),
     );
+
+    // 2. Get brand IDs where this agency is primary
+    final primaryData = await client
+        .from(ModelBrandFields.table)
+        .select(ModelBrandFields.brandId)
+        .eq(ModelBrandFields.brandsPrimaryAgency, agencyId);
+
+    final primaryBrandIds = List<String>.from(
+      primaryData.map((e) => e[ModelBrandFields.brandId]),
+    );
+
+    // 3. Combine and remove duplicates (linked ones come first due to visit order)
+    return {...linkedBrandIds, ...primaryBrandIds}.toList();
   }
 
   /// Sort brands according to the agency order defined in ModelAgencyBrandLinkFields
@@ -220,16 +243,8 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
   }
 
   Future<List<ModelBrand>> fetchAllBrandsForAgency(String agencyId) async {
-    // 1) Get agency-linked brand IDs in visit order
-    final linkData = await client
-        .from(ModelAgencyBrandLinkFields.table)
-        .select(ModelAgencyBrandLinkFields.brandId)
-        .eq(ModelAgencyBrandLinkFields.agencyId, agencyId)
-        .order(ModelAgencyBrandLinkFields.visitOrder, ascending: true);
-
-    final brandIdsInAgencyOrder = List<String>.from(
-      linkData.map((e) => e[ModelAgencyBrandLinkFields.brandId]),
-    );
+    // 1) Get all agency-linked brand IDs (linked + primary)
+    final brandIdsInAgencyOrder = await fetchAgencyBrandIds(agencyId);
 
     if (brandIdsInAgencyOrder.isEmpty) return [];
 
@@ -259,13 +274,8 @@ class BrandServiceImpl extends ForeignKeyAwareService<ModelBrand> {
       throw Exception('Preferred agency not set for user');
     }
 
-    // Step 1: Get brand_ids linked to agency_id
-    final linkData = await client
-        .from(ModelAgencyBrandLinkFields.table)
-        .select(idColumn)
-        .eq(ModelAgencyBrandLinkFields.agencyId, agencyId);
-
-    final brandIds = List<String>.from(linkData.map((e) => e[idColumn]));
+    // Step 1: Get all brand_ids for this agency (linked + primary)
+    final brandIds = await fetchAgencyBrandIds(agencyId);
 
     if (brandIds.isEmpty) return [];
 

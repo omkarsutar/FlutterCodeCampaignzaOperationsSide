@@ -51,9 +51,15 @@ class CampaignListState {
 
 class CampaignListController
     extends AutoDisposeFamilyNotifier<CampaignListState, String> {
+  String? get brandId {
+    // Check if arg is a brand ID (e.g. from CampaignListByBrandId)
+    // In this app, arg is often 'campaignList' or a specific brand ID
+    return arg == 'campaignList' ? null : arg;
+  }
+
   @override
   CampaignListState build(String arg) {
-    final posAsync = ref.watch(campaignsStreamProvider);
+    final posAsync = ref.watch(campaignsStreamProvider(brandId));
     final service = ref.read(campaignServiceProvider);
     final searchQuery = ref.watch(campaignSearchProvider(arg));
     final statusFilter = ref.watch(campaignStatusFilterProvider(arg));
@@ -219,8 +225,8 @@ class CampaignListController
 
   /// Refreshes the campaigns data
   Future<void> refreshData() async {
-    ref.invalidate(campaignsStreamProvider);
-    await ref.read(campaignsStreamProvider.future);
+    ref.invalidate(campaignsStreamProvider(brandId));
+    await ref.read(campaignsStreamProvider(brandId).future);
   }
 
   /// Clears the search query

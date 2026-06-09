@@ -11,7 +11,6 @@ import '../../../core/services/entity_service.dart';
 import 'model/campaign_model.dart';
 import 'providers/campaign_providers.dart';
 import 'ui/campaign_list_tile.dart';
-import 'ui/campaign_list_page_riverpod.dart';
 
 /// JSON-based route generation for Campaigns module
 /// Fully migrated to Riverpod - no GetIt dependency
@@ -50,30 +49,14 @@ class CampaignsRoutesJson {
       config: _config,
       serviceProvider: entityServiceProvider,
       adapterProvider: entityAdapterProvider,
-      streamProvider: campaignsStreamProvider,
+      streamProvider: allCampaignsStreamProvider,
       entityByIdProvider: campaignByIdProvider,
       formProvider: campaignFormProvider,
       customItemBuilder: (context, entity, adapter, onTap) {
         return CampaignListTile(entity: entity, adapter: adapter, onTap: onTap);
       },
       customListBuilder: (context, state) {
-        final filterBrandId = state.uri.queryParameters['filterBrandId'];
-
-        if (filterBrandId != null) {
-          return CampaignListByBrandId(
-            entityMeta: _config.entityMeta,
-            idField: _config.table.idField,
-            fieldConfigs: _config.fields,
-            timestampField: _config.table.timestampField,
-            viewRouteName: _config.routes.viewRouteName,
-            newRouteName: _config.routes.newRouteName,
-            rbacModule: _config.table.name,
-            searchFields: _config.listPage?.searchFields,
-            initialSorting: _config.listPage?.sorting,
-          );
-        }
-
-        return CampaignListPageRiverpod(
+        return CampaignListByBrandId(
           entityMeta: _config.entityMeta,
           idField: _config.table.idField,
           fieldConfigs: _config.fields,

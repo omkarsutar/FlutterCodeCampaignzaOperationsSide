@@ -23,21 +23,12 @@ final brandListViewLogicProvider = Provider.autoDispose<ProcessedBrandListData>(
   final adapter = ref.watch(brandAdapterProvider);
 
   // Configuration (matching BrandRoutesJson)
-  const agencyIdField = 'brands_primary_agency';
   const searchFields = ['brand_name', 'brand_person_name'];
 
   List<ModelBrand> filterAndSort(List<ModelBrand> entities) {
     var result = entities;
 
-    // 1. Route Filter
-    if (listState.selectedRouteId != null) {
-      result = result.where((entity) {
-        final routeVal = adapter.getFieldValue(entity, agencyIdField);
-        return routeVal.toString() == listState.selectedRouteId;
-      }).toList();
-    }
-
-    // 2. Search Filter
+    // 1. Search Filter
     if (listState.searchQuery.isNotEmpty) {
       final query = listState.searchQuery.toLowerCase();
       result = result.where((entity) {

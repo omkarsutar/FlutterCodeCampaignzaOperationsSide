@@ -54,6 +54,8 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _filterScrollController = ScrollController();
 
+  String get _controllerKey => _getFilterBrandId() ?? 'campaignList';
+
   @override
   void initState() {
     super.initState();
@@ -69,14 +71,14 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
 
         // Reset filters when entering this specialized view
         ref
-            .read(campaignListControllerProvider('campaignList').notifier)
+            .read(campaignListControllerProvider(_controllerKey).notifier)
             .resetFilters(searchFields: widget.searchFields);
       });
     } else {
       // Even if no initial sorting, reset filters to ensure a clean state
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref
-            .read(campaignListControllerProvider('campaignList').notifier)
+            .read(campaignListControllerProvider(_controllerKey).notifier)
             .resetFilters(searchFields: widget.searchFields);
       });
     }
@@ -91,7 +93,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
 
   void _updateSearch(String query) {
     ref
-        .read(campaignListControllerProvider('campaignList').notifier)
+        .read(campaignListControllerProvider(_controllerKey).notifier)
         .setSearchQuery(query, searchFields: widget.searchFields);
   }
 
@@ -108,23 +110,17 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
     final isAdmin = roleName == 'admin';
 
     // Watch the controller state (handles loading, errors, filtering)
-    final listState = ref.watch(campaignListControllerProvider('campaignList'));
+    final listState = ref.watch(campaignListControllerProvider(_controllerKey));
 
     final extra = GoRouterState.of(context).extra;
     final brand = extra is ModelBrand ? extra : null;
     prettyPrint(brand);
 
-    final displayList = filterBrandId != null
-        ? listState.filteredCampaigns
-              .where((po) => po.poBrandId == filterBrandId)
-              .toList()
-        : listState.filteredCampaigns;
+    final displayList = listState.filteredCampaigns;
 
     final queryParams = getBrandQueryParams(context);
 
-    final brandCampaigns = filterBrandId != null
-        ? listState.allCampaigns.where((po) => po.poBrandId == filterBrandId).toList()
-        : listState.allCampaigns;
+    final brandCampaigns = listState.allCampaigns;
 
     final Map<String, int> typeCounts = {
       'All': brandCampaigns.length,
@@ -203,7 +199,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
                               ref
                                   .read(
                                     campaignListControllerProvider(
-                                      'campaignList',
+                                      _controllerKey,
                                     ).notifier,
                                   )
                                   .clearSearch(

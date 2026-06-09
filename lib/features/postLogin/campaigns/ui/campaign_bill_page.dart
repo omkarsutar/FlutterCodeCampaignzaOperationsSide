@@ -17,7 +17,8 @@ class CampaignBillPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final ordersAsync = ref.watch(campaignsStreamProvider);
+    // Since this is a general billing page, we don't filter by brandId here
+    final ordersAsync = ref.watch(campaignsStreamProvider(null));
     final adapter = ref.watch(campaignAdapterProvider);
     final billState = ref.watch(campaignBillControllerProvider);
     final controller = ref.read(campaignBillControllerProvider.notifier);
