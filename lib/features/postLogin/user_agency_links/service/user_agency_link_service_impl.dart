@@ -46,4 +46,32 @@ class UserAgencyLinkServiceImpl
       labelColumn: ModelAgencyFields.agencyName,
     ),
   };
+
+  @override
+  Future<ModelUserAgencyLink> create(ModelUserAgencyLink entity) async {
+    try {
+      logger.info(
+        'Upserting $ModelUserAgencyLink in $tableName for user ${entity.userId}',
+      );
+      final payload = mapper.toMap(entity);
+
+      // Remove linkId if it's empty to let database handle it
+      if (entity.linkId.isEmpty) {
+        payload.remove(ModelUserAgencyLinkFields.linkId);
+      }
+
+      // Use upsert on user_id to ensure only one agency per user
+      final response = await client
+          .from(tableName)
+          .upsert(payload, onConflict: ModelUserAgencyLinkFields.userId)
+          .select()
+          .single();
+
+      final resolved = await resolveForeignLabelsForSingle(response);
+      return mapper.fromMap(resolved);
+    } catch (e, st) {
+      logger.error('Failed to upsert $ModelUserAgencyLink', st);
+      rethrow;
+    }
+  }
 }

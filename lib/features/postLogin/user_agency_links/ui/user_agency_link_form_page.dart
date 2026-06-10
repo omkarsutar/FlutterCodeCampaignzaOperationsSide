@@ -250,6 +250,67 @@ class _UserAgencyLinkFormPageState<T>
       }
     }
 
+    // --- Custom Check: Existing Link Confirmation ---
+    final selectedUserId = fieldValues['user_id'] as String?;
+    final selectedAgencyId = fieldValues['agency_id'] as String?;
+
+    if (selectedUserId != null && selectedAgencyId != null) {
+      try {
+        final client = Supabase.instance.client;
+        
+        // Query for existing link for this user
+        final existingLink = await client
+            .from('view_user_agency_link')
+            .select('link_id, agency_id, agency_id_label, user_id_label')
+            .eq('user_id', selectedUserId)
+            .maybeSingle();
+
+        if (existingLink != null) {
+          final existingLinkId = existingLink['link_id']?.toString();
+          final existingAgencyId = existingLink['agency_id']?.toString();
+          final existingAgencyName = existingLink['agency_id_label']?.toString() ?? 'Unknown';
+          final userFullName = existingLink['user_id_label']?.toString() ?? 'the user';
+
+          // If we are creating a NEW link OR editing a different link, and the agency is different
+          if ((widget.entityId == null || widget.entityId != existingLinkId) && 
+              selectedAgencyId != existingAgencyId) {
+            
+            if (!mounted) return;
+            
+            final proceed = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('User Already Linked'),
+                content: Text(
+                  '$userFullName is already connected with the "$existingAgencyName" agency.\n\n'
+                  'Do you want to move them to the new agency?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('No, Keep Current'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Yes, Move User'),
+                  ),
+                ],
+              ),
+            );
+
+            if (proceed != true) return;
+          }
+        }
+      } catch (e) {
+        debugPrint('Error checking for existing user link: $e');
+        // We continue with save if check fails, to avoid blocking the admin
+      }
+    }
+
     controller.saveEntity(
       onSave: widget.onSave,
       fieldValues: fieldValues,
