@@ -40,21 +40,24 @@ final campaignAdapterProvider = Provider<CampaignAdapter>((ref) {
 /// Real-time stream of all campaigns (unfiltered for generic module registry)
 final allCampaignsStreamProvider =
     StreamProvider.autoDispose<List<ModelCampaign>>((ref) {
-  final service = ref.read(campaignServiceProvider);
-  return service.streamEntities();
-});
+      final service = ref.read(campaignServiceProvider);
+      return service.streamEntities();
+    });
 
 /// Real-time stream of campaigns with optional filters
-final campaignsStreamProvider =
-    StreamProvider.autoDispose.family<List<ModelCampaign>, String?>((
-  ref,
-  brandId,
-) {
-  final service = ref.read(campaignServiceProvider);
-  final agencyId = ref.watch(selectedAgencyIdProvider);
+final campaignsStreamProvider = StreamProvider.autoDispose
+    .family<List<ModelCampaign>, String?>((ref, brandId) {
+      final service = ref.read(campaignServiceProvider);
+      final roleName = ref.watch(roleNameProvider);
+      final isAdmin =
+          roleName?.toLowerCase() == 'admin' ||
+          roleName?.toLowerCase() == 'administrator';
 
-  return service.streamEntities(agencyId: agencyId, brandId: brandId);
-});
+      // If admin, don't filter by agencyId to show all campaigns
+      final agencyId = isAdmin ? null : ref.watch(selectedAgencyIdProvider);
+
+      return service.streamEntities(agencyId: agencyId, brandId: brandId);
+    });
 
 /// Fetch a single campaign by ID
 /// Uses FutureProvider.autoDispose.family for efficient caching and cleanup
@@ -74,9 +77,9 @@ final campaignFormProvider =
 final campaignStreamByIdProvider =
     StreamProvider.family<ModelCampaign?, String>((ref, poId) {
       final service = ref.read(campaignServiceProvider);
-      return service
-          .streamEntities()
-          .map((orders) => orders.firstWhereOrNull((o) => o.poId == poId));
+      return service.streamEntities().map(
+        (orders) => orders.firstWhereOrNull((o) => o.poId == poId),
+      );
     });
 
 /// Persistent search query for PO list
@@ -201,7 +204,9 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
         break;
       case ModelCampaignFields.validUntil:
         state = state.copyWith(
-          validUntil: value != null ? DateTime.tryParse(value.toString()) : null,
+          validUntil: value != null
+              ? DateTime.tryParse(value.toString())
+              : null,
           error: null,
         );
         break;

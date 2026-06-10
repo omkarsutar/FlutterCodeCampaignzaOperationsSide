@@ -27,11 +27,39 @@ final userAdapterProvider = Provider<UserAdapter>((ref) {
 });
 
 /// Fetches all agencies for the current user
-final userAgenciesProvider = FutureProvider.autoDispose<List<ModelAgency>>((ref) async {
+final userAgenciesProvider = FutureProvider.autoDispose<List<ModelAgency>>((
+  ref,
+) async {
   final user = ref.watch(userProfileProvider).value;
   if (user == null) return [];
 
+  final roleName = ref.watch(roleNameProvider);
+  final isAdmin =
+      roleName?.toLowerCase() == 'admin' ||
+      roleName?.toLowerCase() == 'administrator';
+
   final client = ref.watch(supabaseClientProvider);
+
+  if (isAdmin) {
+    // Admins see all agencies in the dropdown/list
+    final response = await client
+        .from(ModelAgencyFields.table)
+        .select(
+          '${ModelAgencyFields.agencyId}, ${ModelAgencyFields.agencyName}',
+        )
+        .eq(ModelAgencyFields.isActive, true)
+        .order(ModelAgencyFields.agencyName, ascending: true);
+
+    return (response as List)
+        .map(
+          (e) => ModelAgency(
+            agencyId: e[ModelAgencyFields.agencyId],
+            agencyName: e[ModelAgencyFields.agencyName] ?? 'Unknown',
+          ),
+        )
+        .toList();
+  }
+
   // Use view_user_agency_link to avoid join ambiguity and get labels directly
   final response = await client
       .from('view_user_agency_link')
@@ -39,16 +67,25 @@ final userAgenciesProvider = FutureProvider.autoDispose<List<ModelAgency>>((ref)
       .eq('user_id', user.userId);
 
   return (response as List)
-      .map((e) => ModelAgency(
-            agencyId: e['agency_id'],
-            agencyName: e['agency_id_label'] ?? 'Unknown',
-          ))
+      .map(
+        (e) => ModelAgency(
+          agencyId: e['agency_id'],
+          agencyName: e['agency_id_label'] ?? 'Unknown',
+        ),
+      )
       .toList();
 });
 
 /// Provider for the currently selected agency ID
 /// Defaults to the first agency in userAgenciesProvider if not set
 final selectedAgencyIdProvider = StateProvider<String?>((ref) {
+  // If user is admin, default to null (All Agencies)
+  final roleName = ref.watch(roleNameProvider);
+  final isAdmin =
+      roleName?.toLowerCase() == 'admin' ||
+      roleName?.toLowerCase() == 'administrator';
+  if (isAdmin) return null;
+
   final userAgencies = ref.watch(userAgenciesProvider).value;
   if (userAgencies != null && userAgencies.isNotEmpty) {
     return userAgencies.first.agencyId;
