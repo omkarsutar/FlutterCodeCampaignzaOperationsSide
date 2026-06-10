@@ -33,12 +33,13 @@
         {
             "name": "user_id",
             "label": "User",
-            "type": "dropdown",
+            "type": "selector",
             "required": true,
             "dropdownSource": {
                 "table": "users",
                 "valueKey": "user_id",
-                "labelKey": "full_name"
+                "labelKey": "full_name",
+                "routeName": "users"
             },
             "visibleInList": true,
             "visibleInForm": true
