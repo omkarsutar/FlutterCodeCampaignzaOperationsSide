@@ -8,14 +8,12 @@ import '../../../collaborations/providers/collaboration_providers.dart';
 
 class ReferrerLinkTile extends ConsumerWidget {
   final String link;
-  final int index;
   final Future<void> Function(String existingLink)? onEdit;
   final Future<void> Function(String existingLink)? onDelete;
 
   const ReferrerLinkTile({
     super.key,
     required this.link,
-    required this.index,
     this.onEdit,
     this.onDelete,
   });
@@ -58,56 +56,124 @@ class ReferrerLinkTile extends ConsumerWidget {
     SnackbarUtils.showSuccess('Link copied to clipboard');
   }
 
+  TextSpan _buildHighlightedLinkSpan(ThemeData theme) {
+    final uri = _uri;
+    final baseStyle = theme.textTheme.bodySmall?.copyWith(
+          fontFamily: 'monospace',
+          color: theme.colorScheme.onSurfaceVariant,
+        ) ??
+        const TextStyle(fontFamily: 'monospace');
+    final highlightStyle = baseStyle.copyWith(
+      color: theme.colorScheme.primary,
+      fontWeight: FontWeight.w700,
+      backgroundColor: theme.colorScheme.primaryContainer.withValues(
+        alpha: 0.45,
+      ),
+    );
+
+    if (uri == null) {
+      return TextSpan(text: link, style: baseStyle);
+    }
+
+    final appId = uri.queryParameters['id']?.trim();
+    final referrer = uri.queryParameters['referrer'];
+    if (appId == null || appId.isEmpty || referrer == null || referrer.isEmpty) {
+      return TextSpan(text: link, style: baseStyle);
+    }
+
+    Map<String, String> parts;
+    try {
+      parts = Uri.splitQueryString(referrer);
+    } catch (_) {
+      return TextSpan(text: link, style: baseStyle);
+    }
+
+    return TextSpan(
+      style: baseStyle,
+      children: [
+        const TextSpan(
+          text: 'https://play.google.com/store/apps/details?id=',
+        ),
+        TextSpan(text: appId, style: highlightStyle),
+        const TextSpan(text: '&referrer='),
+        const TextSpan(text: 'utm_source='),
+        TextSpan(
+          text: parts['utm_source']?.trim().isNotEmpty == true
+              ? parts['utm_source']!.trim()
+              : 'N/A',
+          style: highlightStyle,
+        ),
+        const TextSpan(text: '&utm_campaign='),
+        TextSpan(
+          text: parts['utm_campaign']?.trim().isNotEmpty == true
+              ? parts['utm_campaign']!.trim()
+              : 'N/A',
+          style: highlightStyle,
+        ),
+        const TextSpan(text: '&utm_medium='),
+        TextSpan(
+          text: parts['utm_medium']?.trim().isNotEmpty == true
+              ? parts['utm_medium']!.trim()
+              : 'N/A',
+          style: highlightStyle,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final installCountAsync = link.isEmpty
-        ? null
-        : ref.watch(installCountProvider(link));
+    final installCountAsync =
+        link.isEmpty ? null : ref.watch(installCountProvider(link));
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      elevation: 1,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         side: BorderSide(
           color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 1,
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: theme.colorScheme.primaryContainer,
-                  child: Text(
-                    '${index + 1}',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: theme.colorScheme.onPrimaryContainer,
-                      fontWeight: FontWeight.bold,
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer.withValues(
+                      alpha: 0.8,
                     ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.link_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onPrimaryContainer,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      _buildInfoChip(theme, 'utm_source', _utm('utm_source')),
-                      _buildInfoChip(
-                        theme,
-                        'utm_campaign',
-                        _utm('utm_campaign'),
+                      Expanded(
+                        child: Text(
+                          'Referrer Link',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
-                      _buildInfoChip(theme, 'utm_medium', _utm('utm_medium')),
-                      if (installCountAsync != null)
+                      if (installCountAsync != null) ...[
                         installCountAsync.when(
                           data: (count) => _buildCountChip(
                             theme,
@@ -115,8 +181,8 @@ class ReferrerLinkTile extends ConsumerWidget {
                             theme.colorScheme.tertiary,
                           ),
                           loading: () => const SizedBox(
-                            width: 24,
-                            height: 24,
+                            width: 18,
+                            height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
                           error: (_, __) => _buildCountChip(
@@ -125,45 +191,76 @@ class ReferrerLinkTile extends ConsumerWidget {
                             theme.colorScheme.error,
                           ),
                         ),
+                        IconButton(
+                          tooltip: 'Refresh installs',
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints.tightFor(
+                            width: 32,
+                            height: 32,
+                          ),
+                          icon: Icon(
+                            Icons.refresh_rounded,
+                            size: 18,
+                            color: theme.colorScheme.primary,
+                          ),
+                          onPressed: () {
+                            ref.refresh(installCountProvider(link));
+                            SnackbarUtils.showSuccess(
+                              'Refreshing install count...',
+                            );
+                          },
+                        ),
+                      ],
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Column(
-                  children: [
-                    IconButton(
-                      tooltip: 'Open link',
-                      icon: const Icon(Icons.open_in_new),
-                      onPressed: () => _openLink(context),
-                    ),
-                    IconButton(
-                      tooltip: 'Copy link',
-                      icon: const Icon(Icons.copy),
-                      onPressed: () => _copyLink(context),
-                    ),
-                    IconButton(
-                      tooltip: 'Edit link',
-                      icon: const Icon(Icons.edit_outlined),
-                      onPressed: onEdit == null
-                          ? null
-                          : () => onEdit!(link),
-                    ),
-                    IconButton(
-                      tooltip: 'Delete link',
-                      icon: const Icon(Icons.delete_outline),
-                      color: theme.colorScheme.error,
-                      onPressed: onDelete == null
-                          ? null
-                          : () => onDelete!(link),
-                    ),
-                  ],
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                _buildInfoChip(theme, 'utm_source', _utm('utm_source')),
+                _buildInfoChip(theme, 'utm_campaign', _utm('utm_campaign')),
+                _buildInfoChip(theme, 'utm_medium', _utm('utm_medium')),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                IconButton(
+                  tooltip: 'Open link',
+                  visualDensity: VisualDensity.compact,
+                  icon: const Icon(Icons.open_in_new, size: 20),
+                  onPressed: () => _openLink(context),
+                ),
+                IconButton(
+                  tooltip: 'Copy link',
+                  visualDensity: VisualDensity.compact,
+                  icon: const Icon(Icons.copy, size: 20),
+                  onPressed: () => _copyLink(context),
+                ),
+                IconButton(
+                  tooltip: 'Edit link',
+                  visualDensity: VisualDensity.compact,
+                  icon: const Icon(Icons.edit_outlined, size: 20),
+                  onPressed: onEdit == null ? null : () => onEdit!(link),
+                ),
+                IconButton(
+                  tooltip: 'Delete link',
+                  visualDensity: VisualDensity.compact,
+                  icon: const Icon(Icons.delete_outline, size: 20),
+                  color: theme.colorScheme.error,
+                  onPressed: onDelete == null ? null : () => onDelete!(link),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            SelectableText(
-              link,
-              style: theme.textTheme.bodyMedium?.copyWith(
+            const SizedBox(height: 4),
+            SelectableText.rich(
+              _buildHighlightedLinkSpan(theme),
+              style: theme.textTheme.bodySmall?.copyWith(
                 fontFamily: 'monospace',
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -176,10 +273,10 @@ class ReferrerLinkTile extends ConsumerWidget {
 
   Widget _buildInfoChip(ThemeData theme, String label, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         '$label: $value',
@@ -193,10 +290,10 @@ class ReferrerLinkTile extends ConsumerWidget {
 
   Widget _buildCountChip(ThemeData theme, String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         label,

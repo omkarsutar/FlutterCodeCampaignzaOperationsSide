@@ -9,6 +9,7 @@ import '../providers/collaboration_list_controller.dart';
 import 'collaboration_add_card.dart';
 import '../../cart/ui/cart_item_card.dart';
 import '../../campaigns/ui/widgets/referrer_link_tile.dart';
+import 'referrer_link_form_page.dart';
 
 class CollaborationListPageRiverpod extends ConsumerStatefulWidget {
   final String poId;
@@ -57,7 +58,7 @@ class _CollaborationListPageRiverpodState
     super.dispose();
   }
 
-  Future<void> _showReferrerLinkDialog(
+  Future<void> _showReferrerLinkPage(
     BuildContext context,
     WidgetRef ref,
     ModelCampaign campaign,
@@ -79,118 +80,16 @@ class _CollaborationListPageRiverpodState
         (campaign.campaignNameString ?? campaign.campaignName ?? campaign.poId ?? '')
             .trim();
 
-    final sourceController = TextEditingController();
-    final mediumController = TextEditingController();
-
-    if (existingLink != null) {
-      final existingUri = Uri.tryParse(existingLink);
-      final existingReferrer = existingUri?.queryParameters['referrer'];
-      if (existingReferrer != null && existingReferrer.isNotEmpty) {
-        try {
-          final parts = Uri.splitQueryString(existingReferrer);
-          sourceController.text = parts['utm_source'] ?? '';
-          mediumController.text = parts['utm_medium'] ?? '';
-        } catch (_) {}
-      }
-    }
-
-    String buildPreviewUrl() {
-      final source = sourceController.text.trim().isEmpty
-          ? '<>'
-          : sourceController.text.trim();
-      final medium = mediumController.text.trim().isEmpty
-          ? '<>'
-          : mediumController.text.trim();
-      final referrer = Uri.encodeComponent(
-        'utm_source=$source&utm_campaign=$campaignNameString&utm_medium=$medium',
-      );
-      return 'https://play.google.com/store/apps/details?id=$resolvedAppId&referrer=$referrer';
-    }
-
-    final result = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            final previewUrl = buildPreviewUrl();
-
-            return AlertDialog(
-              title: Text(
-                existingLink == null ? 'Add Referrer Link' : 'Edit Referrer Link',
-              ),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Generated link preview',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    SelectableText(
-                      previewUrl,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Campaign: $campaignNameString',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: sourceController,
-                      autofocus: true,
-                      decoration: const InputDecoration(
-                        labelText: 'utm_source',
-                        hintText: 'instagram',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (_) => setDialogState(() {}),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: mediumController,
-                      decoration: const InputDecoration(
-                        labelText: 'utm_medium',
-                        hintText: 'bio',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (_) => setDialogState(() {}),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    final source = sourceController.text.trim();
-                    final medium = mediumController.text.trim();
-                    if (source.isEmpty || medium.isEmpty) return;
-                    Navigator.pop(dialogContext, previewUrl);
-                  },
-                  child: Text(existingLink == null ? 'Save' : 'Update'),
-                ),
-              ],
-            );
-          },
-        );
-      },
+    final link = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => ReferrerLinkFormPage(
+          appId: resolvedAppId,
+          campaignNameString: campaignNameString,
+          existingLink: existingLink,
+        ),
+      ),
     );
 
-    sourceController.dispose();
-    mediumController.dispose();
-
-    final link = result?.trim();
     if (link == null || link.isEmpty) return;
 
     final uri = Uri.tryParse(link);
@@ -269,7 +168,7 @@ class _CollaborationListPageRiverpodState
     }
   }
 
-  Widget _buildCampaignHeader(ModelCampaign campaign) {
+  Widget _buildCampaignHeader(BuildContext context, ModelCampaign campaign) {
     return CampaignListTile(
       entity: campaign,
       adapter: ref.read(campaignAdapterProvider),
@@ -288,7 +187,7 @@ class _CollaborationListPageRiverpodState
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              SliverToBoxAdapter(child: _buildCampaignHeader(campaign)),
+              SliverToBoxAdapter(child: _buildCampaignHeader(context, campaign)),
               const SliverToBoxAdapter(child: Divider()),
               asyncState.when(
                 loading: () => const SliverFillRemaining(
@@ -360,7 +259,7 @@ class _CollaborationListPageRiverpodState
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              SliverToBoxAdapter(child: _buildCampaignHeader(campaign)),
+              SliverToBoxAdapter(child: _buildCampaignHeader(context, campaign)),
               const SliverToBoxAdapter(child: Divider()),
               if (referrerLinks.isEmpty)
                 const SliverFillRemaining(
@@ -374,10 +273,9 @@ class _CollaborationListPageRiverpodState
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final link = referrerLinks[index];
-                      return ReferrerLinkTile(
+                        return ReferrerLinkTile(
                         link: link,
-                        index: index,
-                        onEdit: (existingLink) => _showReferrerLinkDialog(
+                        onEdit: (existingLink) => _showReferrerLinkPage(
                           context,
                           ref,
                           campaign,
@@ -400,8 +298,12 @@ class _CollaborationListPageRiverpodState
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
           child: SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => _showReferrerLinkDialog(context, ref, campaign),
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                textStyle: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              onPressed: () => _showReferrerLinkPage(context, ref, campaign),
               icon: const Icon(Icons.link),
               label: const Text('Add Referrer Link'),
             ),

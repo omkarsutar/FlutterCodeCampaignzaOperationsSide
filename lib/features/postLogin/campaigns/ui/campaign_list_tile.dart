@@ -73,14 +73,21 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
 
     final roleName = ref.watch(roleNameProvider)?.toLowerCase();
     final isAdmin = roleName == 'admin';
+    final isCollaborationTile = widget.collaborationTile == true;
+    final cardColor = isCollaborationTile
+        ? Colors.white
+        : theme.colorScheme.surfaceContainerLowest;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       elevation: 1,
+      color: cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+          color: isCollaborationTile
+              ? theme.colorScheme.primary.withValues(alpha: 0.18)
+              : theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 1,
         ),
       ),
@@ -101,13 +108,13 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
             children: [
               Align(
                 alignment: Alignment.centerRight,
-                child: Wrap(
-                  alignment: WrapAlignment.end,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 6,
-                  runSpacing: 4,
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    _TypePill(label: campaignType.displayName),
+                    Expanded(
+                      child: _TypePill(label: campaignType.displayName),
+                    ),
+                    const SizedBox(width: 6),
                     if (_isUpdating)
                       const SizedBox(
                         width: 36,
@@ -148,6 +155,8 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                 icon: Icons.campaign_outlined,
                 label: 'Campaign',
                 value: campaignName,
+                maxLines: null,
+                overflow: TextOverflow.visible,
                 valueStyle: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: theme.colorScheme.onSurface,
@@ -295,12 +304,16 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
   final TextStyle? valueStyle;
+  final int? maxLines;
+  final TextOverflow? overflow;
 
   const _InfoRow({
     required this.icon,
     required this.label,
     required this.value,
     this.valueStyle,
+    this.maxLines = 1,
+    this.overflow = TextOverflow.ellipsis,
   });
 
   @override
@@ -315,8 +328,8 @@ class _InfoRow extends StatelessWidget {
           child: Text(
             '$label: $value',
             style: valueStyle ?? theme.textTheme.bodyMedium,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            maxLines: maxLines,
+            overflow: overflow,
           ),
         ),
       ],
