@@ -60,9 +60,7 @@ class CampaignActions extends ConsumerWidget {
           ),
 
         // Delete Button
-        if (canDelete &&
-            status.toLowerCase() == 'cancelled' &&
-            entity.poId != null)
+        if (canDelete && entity.poId != null)
           _IconButton(
             icon: Icons.delete_forever,
             color: Colors.red,
