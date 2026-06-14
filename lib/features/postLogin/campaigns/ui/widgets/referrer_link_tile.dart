@@ -13,6 +13,7 @@ class ReferrerLinkTile extends ConsumerWidget {
   final Future<void> Function(String existingLink)? onDelete;
   final EdgeInsetsGeometry margin;
   final Widget? leadingWidget;
+  final Widget? belowLinkWidget;
 
   const ReferrerLinkTile({
     super.key,
@@ -22,6 +23,7 @@ class ReferrerLinkTile extends ConsumerWidget {
     this.onDelete,
     this.margin = const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     this.leadingWidget,
+    this.belowLinkWidget,
   });
 
   Uri? get _uri => Uri.tryParse(link);
@@ -274,6 +276,10 @@ class ReferrerLinkTile extends ConsumerWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
+            if (belowLinkWidget != null) ...[
+              const SizedBox(height: 12),
+              Center(child: belowLinkWidget!),
+            ],
           ],
         ),
       ),

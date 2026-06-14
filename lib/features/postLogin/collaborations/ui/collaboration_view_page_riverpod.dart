@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../core/providers/core_providers.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
@@ -567,6 +568,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                       theme,
                       linkItem,
                     ),
+                    belowLinkWidget: _buildReferrerLinkQrWidget(linkItem),
                     onEdit: (_) => _addReferrerLinkForCollaboration(
                       context,
                       ref,
@@ -775,6 +777,32 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
             color: theme.colorScheme.onPrimaryContainer,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget? _buildReferrerLinkQrWidget(ModelReferrerLink linkItem) {
+    if (linkItem.referrerLinkType.trim().toLowerCase() != 'qrcode') {
+      return null;
+    }
+
+    final link = linkItem.referrerLinkString.trim();
+    if (link.isEmpty) return null;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: QrImageView(
+        data: link,
+        version: QrVersions.auto,
+        size: 180,
+        backgroundColor: Colors.white,
+        gapless: false,
+        errorCorrectionLevel: QrErrorCorrectLevel.M,
       ),
     );
   }
