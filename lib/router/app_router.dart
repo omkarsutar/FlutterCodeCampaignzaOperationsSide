@@ -4,6 +4,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/collaborati
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/influencers/influencer_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/referrer_links/referrer_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agency_brand_links/agency_brand_link_barrel.dart';
@@ -44,6 +45,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...CollaborationsRoutesJson.routes,
       ...InfluencerRoutesJson.routes,
       ...RbacModulesRoutesJson.routes,
+      ...ReferrerLinksRoutesJson.routes,
       ...RbacPermissionsRoutesJson.routes,
       ...PoCollectionsRoutesJson.routes,
       ...RetailerBrandLinkRoutesJson.routes,

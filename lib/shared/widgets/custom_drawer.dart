@@ -3,6 +3,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/notes/note_
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/influencers/influencer_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_modules/rbac_module_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/referrer_links/referrer_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/rbac_permissions/rbac_permission_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agency_brand_links/agency_brand_link_barrel.dart';
@@ -167,6 +168,14 @@ class CustomDrawer extends ConsumerWidget {
             moduleName: ModelRbacModuleFields.table, // "rbac_modules"
             routeName: RbacModulesRoutesJson.listRouteName,
             title: 'RbacModules',
+            icon: Icons.extension,
+          ),
+
+          // ReferrerLinks
+          ReadEntityTile(
+            moduleName: ModelReferrerLinkFields.table, // "referrer_links"
+            routeName: ReferrerLinksRoutesJson.listRouteName,
+            title: 'ReferrerLinks',
             icon: Icons.extension,
           ),
 

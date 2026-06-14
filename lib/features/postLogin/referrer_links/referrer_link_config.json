@@ -1,0 +1,77 @@
+{
+    "moduleName": "referrer_links",
+    "entityMeta": {
+        "entityName": "Referrer Link",
+        "entityNameLower": "referrer link",
+        "entityNamePlural": "Referrer Links",
+        "entityNamePluralLower": "referrer links"
+    },
+    "table": {
+        "name": "referrer_links",
+        "viewName": "view_referrer_links",
+        "idField": "module_id",
+        "timestampField": "created_at"
+    },
+    "routes": {
+        "basePath": "/modules",
+        "listRouteName": "modules",
+        "newRouteName": "newModule",
+        "editRouteName": "editModule",
+        "viewRouteName": "viewModule"
+    },
+    "listPage": {
+        "sorting": {
+            "field": "created_at",
+            "sortAscending": true
+        },
+        "searchFields": [
+            "module_name"
+        ]
+    },
+    "fields": [
+        {
+            "name": "module_name",
+            "label": "Module Name",
+            "type": "text",
+            "required": true,
+            "maxLength": 100,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "module_description",
+            "label": "Description",
+            "type": "textarea",
+            "required": false,
+            "maxLength": 500,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "is_active",
+            "label": "Active",
+            "type": "switchField",
+            "required": true,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "created_at",
+            "label": "Created At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        },
+        {
+            "name": "updated_at",
+            "label": "Updated At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        }
+    ]
+}

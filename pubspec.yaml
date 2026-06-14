@@ -81,6 +81,7 @@ flutter:
     - lib/features/postLogin/roles/role_config.json
     - lib/features/postLogin/agencies/agency_config.json
     - lib/features/postLogin/rbac_modules/rbac_module_config.json
+    - lib/features/postLogin/referrer_links/referrer_link_config.json
     - lib/features/postLogin/users/user_config.json
     - lib/features/postLogin/influencers/influencer_config.json
     - lib/features/postLogin/agency_brand_links/agency_brand_link_config.json
