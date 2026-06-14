@@ -26,8 +26,21 @@ final referrerLinkAdapterProvider = Provider<ReferrerLinkAdapter>((ref) {
   return ReferrerLinkAdapter();
 });
 
+/// Streams referrer links for a campaign (campaign-level/direct/paid links)
+final referrerLinksForCampaignProvider =
+    StreamProvider.autoDispose.family<List<ModelReferrerLink>, String>((ref, campaignId) {
+      final service = ref.read(referrerLinkServiceProvider);
+      return service.streamLinksForCampaign(campaignId);
+    });
+
+/// Streams referrer links for a collaboration
+final referrerLinksForCollaborationProvider =
+    StreamProvider.autoDispose.family<List<ModelReferrerLink>, String>((ref, collaborationId) {
+      final service = ref.read(referrerLinkServiceProvider);
+      return service.streamLinksForCollaboration(collaborationId);
+    });
+
 /// Fetches all Referrer Links with automatic disposal
-/// Uses StreamProvider for real-time updates
 final referrerLinksStreamProvider =
     StreamProvider.autoDispose<List<ModelReferrerLink>>((ref) {
       final service = ref.read(referrerLinkServiceProvider);
@@ -36,9 +49,9 @@ final referrerLinksStreamProvider =
 
 /// Fetches a single Referrer Link by ID
 final referrerLinkByIdProvider = FutureProvider.autoDispose
-    .family<ModelReferrerLink?, String>((ref, moduleId) async {
+    .family<ModelReferrerLink?, String>((ref, referrerLinkId) async {
       final service = ref.read(referrerLinkServiceProvider);
-      return await service.fetchById(moduleId);
+      return await service.fetchById(referrerLinkId);
     });
 
 /// State provider for managing Referrer Link creation/editing
@@ -50,31 +63,43 @@ final referrerLinkFormProvider =
 
 /// Form state for Referrer Link
 class ReferrerLinkFormState {
-  final String moduleName;
-  final String moduleDescription;
-  final bool isActive;
+  final String referrerLinkString;
+  final String referrerLinkType;
+  final String campaignId;
+  final String campaignType;
+  final String collaborationId;
+  final String referrerLinkSource;
   final bool isLoading;
   final String? error;
 
   ReferrerLinkFormState({
-    this.moduleName = '',
-    this.moduleDescription = '',
-    this.isActive = true,
+    this.referrerLinkString = '',
+    this.referrerLinkType = 'plain',
+    this.campaignId = '',
+    this.campaignType = '',
+    this.collaborationId = '',
+    this.referrerLinkSource = '',
     this.isLoading = false,
     this.error,
   });
 
   ReferrerLinkFormState copyWith({
-    String? moduleName,
-    String? moduleDescription,
-    bool? isActive,
+    String? referrerLinkString,
+    String? referrerLinkType,
+    String? campaignId,
+    String? campaignType,
+    String? collaborationId,
+    String? referrerLinkSource,
     bool? isLoading,
     String? error,
   }) {
     return ReferrerLinkFormState(
-      moduleName: moduleName ?? this.moduleName,
-      moduleDescription: moduleDescription ?? this.moduleDescription,
-      isActive: isActive ?? this.isActive,
+      referrerLinkString: referrerLinkString ?? this.referrerLinkString,
+      referrerLinkType: referrerLinkType ?? this.referrerLinkType,
+      campaignId: campaignId ?? this.campaignId,
+      campaignType: campaignType ?? this.campaignType,
+      collaborationId: collaborationId ?? this.collaborationId,
+      referrerLinkSource: referrerLinkSource ?? this.referrerLinkSource,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -95,27 +120,45 @@ class ReferrerLinkFormNotifier extends StateNotifier<ReferrerLinkFormState> {
 
   bool _mounted = true;
 
-  void updateModuleName(String name) {
+  void updateReferrerLinkString(String value) {
     if (!_mounted) return;
-    state = state.copyWith(moduleName: name, error: null);
+    state = state.copyWith(referrerLinkString: value, error: null);
   }
 
-  void updateModuleDescription(String description) {
+  void updateReferrerLinkType(String value) {
     if (!_mounted) return;
-    state = state.copyWith(moduleDescription: description, error: null);
+    state = state.copyWith(referrerLinkType: value, error: null);
   }
 
-  void updateIsActive(bool isActive) {
+  void updateCampaignId(String value) {
     if (!_mounted) return;
-    state = state.copyWith(isActive: isActive, error: null);
+    state = state.copyWith(campaignId: value, error: null);
+  }
+
+  void updateCampaignType(String value) {
+    if (!_mounted) return;
+    state = state.copyWith(campaignType: value, error: null);
+  }
+
+  void updateCollaborationId(String value) {
+    if (!_mounted) return;
+    state = state.copyWith(collaborationId: value, error: null);
+  }
+
+  void updateReferrerLinkSource(String value) {
+    if (!_mounted) return;
+    state = state.copyWith(referrerLinkSource: value, error: null);
   }
 
   void loadEntity(ModelReferrerLink entity) {
     if (!_mounted) return;
     state = ReferrerLinkFormState(
-      moduleName: entity.moduleName,
-      moduleDescription: entity.moduleDescription ?? '',
-      isActive: entity.isActive,
+      referrerLinkString: entity.referrerLinkString,
+      referrerLinkType: entity.referrerLinkType,
+      campaignId: entity.campaignId ?? '',
+      campaignType: entity.campaignType,
+      collaborationId: entity.collaborationId ?? '',
+      referrerLinkSource: entity.referrerLinkSource,
     );
   }
 
@@ -128,19 +171,18 @@ class ReferrerLinkFormNotifier extends StateNotifier<ReferrerLinkFormState> {
       final service = ref.read(referrerLinkServiceProvider);
 
       final entity = ModelReferrerLink(
-        moduleId: entityId,
-        moduleName: state.moduleName,
-        moduleDescription: state.moduleDescription.isEmpty
-            ? null
-            : state.moduleDescription,
-        isActive: state.isActive,
+        referrerLinkId: entityId,
+        referrerLinkString: state.referrerLinkString,
+        referrerLinkType: state.referrerLinkType,
+        campaignId: state.campaignId.isEmpty ? null : state.campaignId,
+        campaignType: state.campaignType,
+        collaborationId: state.collaborationId.isEmpty ? null : state.collaborationId,
+        referrerLinkSource: state.referrerLinkSource,
       );
 
       if (entityId == null) {
-        // Create new
         await service.create(entity);
       } else {
-        // Update existing
         await service.update(entityId, entity);
       }
 
@@ -181,14 +223,23 @@ class ReferrerLinkFormNotifier extends StateNotifier<ReferrerLinkFormState> {
   void updateField(String field, dynamic value) {
     if (!_mounted) return;
     switch (field) {
-      case ModelReferrerLinkFields.moduleName:
-        updateModuleName(value as String);
+      case ModelReferrerLinkFields.referrerLinkString:
+        updateReferrerLinkString(value as String);
         break;
-      case ModelReferrerLinkFields.moduleDescription:
-        updateModuleDescription(value as String);
+      case ModelReferrerLinkFields.referrerLinkType:
+        updateReferrerLinkType(value as String);
         break;
-      case ModelReferrerLinkFields.isActive:
-        updateIsActive(value as bool);
+      case ModelReferrerLinkFields.campaignId:
+        updateCampaignId(value as String);
+        break;
+      case ModelReferrerLinkFields.campaignType:
+        updateCampaignType(value as String);
+        break;
+      case ModelReferrerLinkFields.collaborationId:
+        updateCollaborationId(value as String);
+        break;
+      case ModelReferrerLinkFields.referrerLinkSource:
+        updateReferrerLinkSource(value as String);
         break;
     }
   }

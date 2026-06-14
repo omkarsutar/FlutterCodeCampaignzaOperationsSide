@@ -93,55 +93,60 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     return response;
   }
 
-  /// Append a referrer link to an existing campaign, keeping newest links first.
+  /// Append a referrer link to an existing campaign in the dedicated table.
   Future<ModelCampaign> addReferrerLink({
     required String campaignId,
     required String referrerLink,
   }) async {
     final campaign = await fetchById(campaignId);
-    final existingLinks = List<String>.from(campaign.referrerLinks);
-    existingLinks.removeWhere(
-      (link) => link.trim().toLowerCase() == referrerLink.trim().toLowerCase(),
-    );
-    existingLinks.insert(0, referrerLink.trim());
+    final uri = Uri.tryParse(referrerLink);
+    final source = uri?.queryParameters['utm_source'] ?? 'direct';
 
-    final updatedCampaign = campaign.copyWith(referrerLinks: existingLinks);
-    return update(campaignId, updatedCampaign);
+    await client.from('referrer_links').insert({
+      'referrer_link_string': referrerLink.trim(),
+      'referrer_link_type': 'plain',
+      'campaign_id': campaignId,
+      'campaign_type': campaign.campaignType?.toDbValue() ?? 'direct_brand_promotions',
+      'referrer_link_source': source,
+    });
+
+    return fetchById(campaignId);
   }
 
-  /// Update an existing referrer link by replacing the old URL with a new one.
+  /// Update an existing referrer link by replacing the old URL in the dedicated table.
   Future<ModelCampaign> updateReferrerLink({
     required String campaignId,
     required String oldReferrerLink,
     required String newReferrerLink,
   }) async {
-    final campaign = await fetchById(campaignId);
-    final existingLinks = List<String>.from(campaign.referrerLinks);
-    final oldIndex = existingLinks.indexWhere(
-      (link) => link.trim() == oldReferrerLink.trim(),
-    );
+    final uri = Uri.tryParse(newReferrerLink);
+    final source = uri?.queryParameters['utm_source'] ?? 'direct';
 
-    if (oldIndex == -1) {
-      throw Exception('Referrer link not found');
-    }
+    await client
+        .from('referrer_links')
+        .update({
+          'referrer_link_string': newReferrerLink.trim(),
+          'referrer_link_source': source,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .eq('campaign_id', campaignId)
+        .eq('referrer_link_string', oldReferrerLink.trim());
 
-    existingLinks[oldIndex] = newReferrerLink.trim();
-
-    final updatedCampaign = campaign.copyWith(referrerLinks: existingLinks);
-    return update(campaignId, updatedCampaign);
+    return fetchById(campaignId);
   }
 
-  /// Remove a referrer link from an existing campaign.
+  /// Remove a referrer link from the dedicated table.
   Future<ModelCampaign> deleteReferrerLink({
     required String campaignId,
     required String referrerLink,
   }) async {
-    final campaign = await fetchById(campaignId);
-    final existingLinks = List<String>.from(campaign.referrerLinks);
-    existingLinks.removeWhere((link) => link.trim() == referrerLink.trim());
+    await client
+        .from('referrer_links')
+        .delete()
+        .eq('campaign_id', campaignId)
+        .eq('referrer_link_string', referrerLink.trim());
 
-    final updatedCampaign = campaign.copyWith(referrerLinks: existingLinks);
-    return update(campaignId, updatedCampaign);
+    return fetchById(campaignId);
   }
 
   /// Fetch all campaigns for a given brand

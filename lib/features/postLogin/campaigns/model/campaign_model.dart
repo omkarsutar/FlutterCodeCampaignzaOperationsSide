@@ -209,9 +209,7 @@ class ModelCampaign {
       collaborationCount: map[ModelCampaignFields.collaborationCount] != null
           ? int.tryParse(map[ModelCampaignFields.collaborationCount].toString())
           : null,
-      referrerLinks: (map[ModelCampaignFields.referrerLinks] as List?)
-          ?.map((e) => e.toString())
-          .toList(),
+      referrerLinks: const [],
       campaignAgencyId: map[ModelCampaignFields.campaignAgencyId] as String?,
       campaignBrandId: map[ModelCampaignFields.campaignBrandId] as String?,
       userComment: map[ModelCampaignFields.userComment] as String?,
@@ -251,9 +249,6 @@ class ModelCampaign {
     }
     if (collaborationCount != null) {
       map[ModelCampaignFields.collaborationCount] = collaborationCount;
-    }
-    if (referrerLinks.isNotEmpty) {
-      map[ModelCampaignFields.referrerLinks] = referrerLinks;
     }
     if (campaignAgencyId != null) {
       map[ModelCampaignFields.campaignAgencyId] = campaignAgencyId;

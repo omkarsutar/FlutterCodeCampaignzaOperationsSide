@@ -10,6 +10,7 @@ import 'collaboration_add_card.dart';
 import '../../cart/ui/cart_item_card.dart';
 import '../../campaigns/ui/widgets/referrer_link_tile.dart';
 import 'referrer_link_form_page.dart';
+import '../../referrer_links/providers/referrer_link_providers.dart';
 
 class CollaborationListPageRiverpod extends ConsumerStatefulWidget {
   final String poId;
@@ -114,6 +115,7 @@ class _CollaborationListPageRiverpodState
       }
       ref.invalidate(campaignByIdProvider(campaign.poId!));
       ref.invalidate(campaignStreamByIdProvider(campaign.poId!));
+      ref.invalidate(referrerLinksForCampaignProvider(campaign.poId!));
       SnackbarUtils.showSuccess(
         existingLink == null
             ? 'Referrer link added successfully!'
@@ -162,6 +164,7 @@ class _CollaborationListPageRiverpodState
           );
       ref.invalidate(campaignByIdProvider(campaign.poId!));
       ref.invalidate(campaignStreamByIdProvider(campaign.poId!));
+      ref.invalidate(referrerLinksForCampaignProvider(campaign.poId!));
       SnackbarUtils.showSuccess('Referrer link deleted successfully!');
     } catch (e) {
       SnackbarUtils.showError('Failed to delete referrer link: $e');
@@ -251,7 +254,7 @@ class _CollaborationListPageRiverpodState
   }
 
   Widget _buildReferrerLinksBody(ModelCampaign campaign) {
-    final referrerLinks = campaign.referrerLinks;
+    final linksAsync = ref.watch(referrerLinksForCampaignProvider(campaign.poId!));
 
     return Column(
       children: [
@@ -261,36 +264,46 @@ class _CollaborationListPageRiverpodState
             slivers: [
               SliverToBoxAdapter(child: _buildCampaignHeader(context, campaign)),
               const SliverToBoxAdapter(child: Divider()),
-              if (referrerLinks.isEmpty)
-                const SliverFillRemaining(
-                  child: Center(
-                    child: Text('No referrer links yet. Add one below.'),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final link = referrerLinks[index];
-                        return ReferrerLinkTile(
-                        link: link,
-                        onEdit: (existingLink) => _showReferrerLinkPage(
-                          context,
-                          ref,
-                          campaign,
-                          existingLink: existingLink,
-                        ),
-                        onDelete: (existingLink) => _deleteReferrerLink(
-                          context,
-                          ref,
-                          campaign,
-                          existingLink,
-                        ),
-                      );
-                    }, childCount: referrerLinks.length),
-                  ),
+              linksAsync.when(
+                loading: () => const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
                 ),
+                error: (err, stack) => SliverFillRemaining(
+                  child: Center(child: Text('Error loading links: $err')),
+                ),
+                data: (links) {
+                  if (links.isEmpty) {
+                    return const SliverFillRemaining(
+                      child: Center(
+                        child: Text('No referrer links yet. Add one below.'),
+                      ),
+                    );
+                  }
+                  return SliverPadding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final link = links[index].referrerLinkString;
+                        return ReferrerLinkTile(
+                          link: link,
+                          onEdit: (existingLink) => _showReferrerLinkPage(
+                            context,
+                            ref,
+                            campaign,
+                            existingLink: existingLink,
+                          ),
+                          onDelete: (existingLink) => _deleteReferrerLink(
+                            context,
+                            ref,
+                            campaign,
+                            existingLink,
+                          ),
+                        );
+                      }, childCount: links.length),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
