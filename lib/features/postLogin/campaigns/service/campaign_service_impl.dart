@@ -97,14 +97,19 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
   Future<ModelCampaign> addReferrerLink({
     required String campaignId,
     required String referrerLink,
+    String referrerLinkType = 'plain',
+    String? referrerLinkSource,
   }) async {
     final campaign = await fetchById(campaignId);
     final uri = Uri.tryParse(referrerLink);
-    final source = uri?.queryParameters['utm_source'] ?? 'direct';
+    final source =
+        referrerLinkSource?.trim().isNotEmpty == true
+            ? referrerLinkSource!.trim()
+            : uri?.queryParameters['utm_source'] ?? 'direct';
 
     await client.from('referrer_links').insert({
       'referrer_link_string': referrerLink.trim(),
-      'referrer_link_type': 'plain',
+      'referrer_link_type': referrerLinkType,
       'campaign_id': campaignId,
       'campaign_type': campaign.campaignType?.toDbValue() ?? 'direct_brand_promotions',
       'referrer_link_source': source,
@@ -118,14 +123,20 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     required String campaignId,
     required String oldReferrerLink,
     required String newReferrerLink,
+    String referrerLinkType = 'plain',
+    String? referrerLinkSource,
   }) async {
     final uri = Uri.tryParse(newReferrerLink);
-    final source = uri?.queryParameters['utm_source'] ?? 'direct';
+    final source =
+        referrerLinkSource?.trim().isNotEmpty == true
+            ? referrerLinkSource!.trim()
+            : uri?.queryParameters['utm_source'] ?? 'direct';
 
     await client
         .from('referrer_links')
         .update({
           'referrer_link_string': newReferrerLink.trim(),
+          'referrer_link_type': referrerLinkType,
           'referrer_link_source': source,
           'updated_at': DateTime.now().toIso8601String(),
         })

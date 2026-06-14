@@ -81,7 +81,7 @@ class _CollaborationListPageRiverpodState
         (campaign.campaignNameString ?? campaign.campaignName ?? campaign.poId ?? '')
             .trim();
 
-    final link = await Navigator.of(context).push<String>(
+    final result = await Navigator.of(context).push<ReferrerLinkFormResult>(
       MaterialPageRoute(
         builder: (_) => ReferrerLinkFormPage(
           appId: resolvedAppId,
@@ -91,9 +91,9 @@ class _CollaborationListPageRiverpodState
       ),
     );
 
-    if (link == null || link.isEmpty) return;
+    if (result == null || result.link.isEmpty) return;
 
-    final uri = Uri.tryParse(link);
+    final uri = Uri.tryParse(result.link);
     if (uri == null || !(uri.hasScheme && uri.host.isNotEmpty)) {
       SnackbarUtils.showError('Please enter a valid URL');
       return;
@@ -104,13 +104,17 @@ class _CollaborationListPageRiverpodState
       if (existingLink == null) {
         await service.addReferrerLink(
           campaignId: campaign.poId!,
-          referrerLink: link,
+          referrerLink: result.link,
+          referrerLinkType: result.referrerLinkType,
+          referrerLinkSource: result.referrerLinkSource,
         );
       } else {
         await service.updateReferrerLink(
           campaignId: campaign.poId!,
           oldReferrerLink: existingLink,
-          newReferrerLink: link,
+          newReferrerLink: result.link,
+          referrerLinkType: result.referrerLinkType,
+          referrerLinkSource: result.referrerLinkSource,
         );
       }
       ref.invalidate(campaignByIdProvider(campaign.poId!));

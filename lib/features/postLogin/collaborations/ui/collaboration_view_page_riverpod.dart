@@ -654,18 +654,19 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
         (campaign.campaignNameString ?? campaign.campaignName ?? campaign.poId ?? '')
             .trim();
 
-    final link = await Navigator.of(context).push<String>(
+    final result = await Navigator.of(context).push<ReferrerLinkFormResult>(
       MaterialPageRoute(
         builder: (_) => ReferrerLinkFormPage(
           appId: resolvedAppId,
           campaignNameString: campaignNameString,
+          promoCode: collaboration.promoCode,
         ),
       ),
     );
 
-    if (link == null || link.isEmpty) return;
+    if (result == null || result.link.isEmpty) return;
 
-    final uri = Uri.tryParse(link);
+    final uri = Uri.tryParse(result.link);
     if (uri == null || !(uri.hasScheme && uri.host.isNotEmpty)) {
       SnackbarUtils.showError('Please enter a valid URL');
       return;
@@ -673,15 +674,13 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
 
     try {
       final service = ref.read(referrerLinkServiceProvider);
-      final source = uri.queryParameters['utm_source'] ?? 'direct';
-
       await service.create(ModelReferrerLink(
-        referrerLinkString: link,
-        referrerLinkType: 'plain',
+        referrerLinkString: result.link,
+        referrerLinkType: result.referrerLinkType,
         campaignId: campaign.campaignId,
         campaignType: campaign.campaignType?.toDbValue() ?? 'influencer_collaborations',
         collaborationId: collaboration.collaborationId,
-        referrerLinkSource: source,
+        referrerLinkSource: result.referrerLinkSource,
       ));
 
       ref.invalidate(referrerLinksForCollaborationProvider(collaboration.collaborationId ?? ''));

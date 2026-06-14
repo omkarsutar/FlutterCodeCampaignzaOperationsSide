@@ -50,10 +50,14 @@
         {
             "name": "referrer_link_type",
             "label": "Link Type",
-            "type": "text",
+            "type": "dropdown",
             "required": true,
             "visibleInList": true,
-            "visibleInForm": true
+            "visibleInForm": true,
+            "dropdownOptions": [
+                "plain",
+                "qrcode"
+            ]
         },
         {
             "name": "campaign_id",
@@ -82,10 +86,20 @@
         {
             "name": "referrer_link_source",
             "label": "Source",
-            "type": "text",
+            "type": "dropdown",
             "required": true,
             "visibleInList": true,
-            "visibleInForm": true
+            "visibleInForm": true,
+            "dropdownOptions": [
+                "facebook",
+                "instagram",
+                "youtube",
+                "tiktok",
+                "twitter",
+                "linkedin",
+                "whatsapp",
+                "direct"
+            ]
         }
     ]
 }

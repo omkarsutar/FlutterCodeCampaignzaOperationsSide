@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
 
+class ReferrerLinkFormResult {
+  final String link;
+  final String referrerLinkType;
+  final String referrerLinkSource;
+
+  const ReferrerLinkFormResult({
+    required this.link,
+    required this.referrerLinkType,
+    required this.referrerLinkSource,
+  });
+}
+
 class ReferrerLinkFormPage extends StatefulWidget {
   final String appId;
   final String campaignNameString;
+  final String? promoCode;
   final String? existingLink;
 
   const ReferrerLinkFormPage({
     super.key,
     required this.appId,
     required this.campaignNameString,
+    this.promoCode,
     this.existingLink,
   });
 
@@ -17,9 +31,24 @@ class ReferrerLinkFormPage extends StatefulWidget {
 }
 
 class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
+  static const List<String> _referrerLinkTypeOptions = ['plain', 'qrcode'];
+  static const List<String> _referrerLinkSourceOptions = [
+    'facebook',
+    'instagram',
+    'youtube',
+    'tiktok',
+    'twitter',
+    'linkedin',
+    'whatsapp',
+    'direct',
+  ];
+
   final _formKey = GlobalKey<FormState>();
   final _sourceController = TextEditingController();
   final _mediumController = TextEditingController();
+
+  String _referrerLinkType = 'plain';
+  String _referrerLinkSource = 'facebook';
 
   @override
   void initState() {
@@ -36,6 +65,11 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
   void _populateFromExistingLink() {
     final existingLink = widget.existingLink;
+    final promoCode = widget.promoCode?.trim();
+    if (promoCode != null && promoCode.isNotEmpty) {
+      _mediumController.text = promoCode;
+    }
+
     if (existingLink == null || existingLink.isEmpty) return;
 
     final existingUri = Uri.tryParse(existingLink);
@@ -45,7 +79,13 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     try {
       final parts = Uri.splitQueryString(existingReferrer);
       _sourceController.text = parts['utm_source'] ?? '';
-      _mediumController.text = parts['utm_medium'] ?? '';
+      final utmSource = _sourceController.text.trim().toLowerCase();
+      if (_referrerLinkSourceOptions.contains(utmSource)) {
+        _referrerLinkSource = utmSource;
+      }
+      if (promoCode == null || promoCode.isEmpty) {
+        _mediumController.text = parts['utm_medium'] ?? '';
+      }
     } catch (_) {}
   }
 
@@ -53,9 +93,10 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     final source = _sourceController.text.trim().isEmpty
         ? '<>'
         : _sourceController.text.trim();
-    final medium = _mediumController.text.trim().isEmpty
-        ? '<>'
+    final mediumValue = widget.promoCode?.trim().isNotEmpty == true
+        ? widget.promoCode!.trim()
         : _mediumController.text.trim();
+    final medium = mediumValue.isEmpty ? '<>' : mediumValue;
     final referrer = Uri.encodeComponent(
       'utm_source=$source&utm_campaign=${widget.campaignNameString}&utm_medium=$medium',
     );
@@ -125,13 +166,22 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     final previewUrl = _buildPreviewUrl();
-    Navigator.pop(context, previewUrl);
+    Navigator.pop(
+      context,
+      ReferrerLinkFormResult(
+        link: previewUrl,
+        referrerLinkType: _referrerLinkType,
+        referrerLinkSource: _referrerLinkSource,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isEditing = widget.existingLink != null;
+    final isMediumLocked =
+        widget.promoCode != null && widget.promoCode!.trim().isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -184,15 +234,25 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                     }
                     return null;
                   },
-                  onChanged: (_) => setState(() {}),
+                  onChanged: (value) {
+                    final normalized = value.trim().toLowerCase();
+                    if (_referrerLinkSourceOptions.contains(normalized)) {
+                      _referrerLinkSource = normalized;
+                    }
+                    setState(() {});
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _mediumController,
-                  decoration: const InputDecoration(
+                  readOnly: isMediumLocked,
+                  decoration: InputDecoration(
                     labelText: 'utm_medium',
                     hintText: 'bio',
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
+                    helperText: isMediumLocked
+                        ? 'Locked to collaboration promo code'
+                        : null,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -200,7 +260,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                     }
                     return null;
                   },
-                  onChanged: (_) => setState(() {}),
+                  onChanged: isMediumLocked ? null : (_) => setState(() {}),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -208,6 +268,46 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
+                ),
+                const SizedBox(height: 20),
+                DropdownButtonFormField<String>(
+                  value: _referrerLinkType,
+                  decoration: const InputDecoration(
+                    labelText: 'referrer_link_type',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _referrerLinkTypeOptions
+                      .map(
+                        (value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => _referrerLinkType = value);
+                  },
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: _referrerLinkSource,
+                  decoration: const InputDecoration(
+                    labelText: 'referrer_link_source',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _referrerLinkSourceOptions
+                      .map(
+                        (value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => _referrerLinkSource = value);
+                  },
                 ),
                 const SizedBox(height: 24),
                 Row(
