@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,6 +10,7 @@ import '../model/collaboration_model.dart';
 import '../providers/collaboration_providers.dart';
 import '../../referrer_links/providers/referrer_link_providers.dart';
 import '../../referrer_links/model/referrer_link_model.dart';
+import '../../campaigns/ui/widgets/referrer_link_tile.dart';
 import 'referrer_link_form_page.dart';
 
 class CollaborationViewPageRiverpod extends ConsumerWidget {
@@ -106,8 +106,16 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                       ),
                       const SizedBox(height: 24),
 
-                      // Promo Code & Link Section with counts
+                      // Promo Code section
                       _buildPromoCodeSection(
+                        theme,
+                        collaboration,
+                        ref,
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Referrer Links section
+                      _buildReferrerLinksSection(
                         context,
                         theme,
                         collaboration,
@@ -363,21 +371,11 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
   }
 
   Widget _buildPromoCodeSection(
-    BuildContext context,
     ThemeData theme,
     ModelCollaboration collaboration,
     WidgetRef ref,
   ) {
     final promoCode = collaboration.promoCode;
-    final linksAsync = ref.watch(referrerLinksForCollaborationProvider(collaboration.collaborationId ?? ''));
-
-    // Watch parent campaign and brand data
-    final parentCampaignAsync = ref.watch(
-      collaborationParentCampaignProvider(collaboration.collaborationId ?? ''),
-    );
-    final parentBrandAsync = ref.watch(
-      collaborationParentBrandProvider(collaboration.collaborationId ?? ''),
-    );
 
     // Watch analytics counts
     final purchaseCountAsync = (promoCode != null && promoCode.isNotEmpty)
@@ -398,12 +396,11 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section header with refresh button
           Row(
             children: [
               Expanded(
                 child: Text(
-                  'Promo Code & Referrer Links',
+                  'Promo Code',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary,
@@ -411,7 +408,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                 ),
               ),
               Tooltip(
-                message: 'Refresh links and counts',
+                message: 'Refresh purchase count',
                 child: IconButton(
                   icon: Icon(
                     Icons.refresh,
@@ -422,8 +419,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                     if (promoCode != null && promoCode.isNotEmpty) {
                       ref.invalidate(purchaseCountProvider(promoCode));
                     }
-                    ref.invalidate(referrerLinksForCollaborationProvider(collaboration.collaborationId ?? ''));
-                    SnackbarUtils.showSuccess('Refreshing data...');
+                    SnackbarUtils.showSuccess('Refreshing purchase count...');
                   },
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -432,30 +428,114 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 12),
-
-          if (promoCode != null && promoCode.isNotEmpty) ...[
-            _buildCopyableTile(
-              context,
-              theme,
-              title: 'Promo Code',
-              text: promoCode,
-              snackbarLabel: 'Promo Code',
-              countLabel: 'Purchase Count',
-              countAsync: purchaseCountAsync,
-              icon: Icons.local_offer_outlined,
-              color: Colors.deepPurple,
+          if (promoCode != null && promoCode.isNotEmpty)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer.withValues(
+                      alpha: 0.7,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.local_offer_outlined,
+                    color: theme.colorScheme.onPrimaryContainer,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SelectableText(
+                        promoCode,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                purchaseCountAsync.when(
+                  data: (count) => _buildCountPill(
+                    theme,
+                    'Purchases: $count',
+                    theme.colorScheme.secondary,
+                  ),
+                  loading: () => const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  error: (_, __) => _buildCountPill(
+                    theme,
+                    'Purchases: Error',
+                    theme.colorScheme.error,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-          ],
+        ],
+      ),
+    );
+  }
 
-          Text(
-            'Referrer Links',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+  Widget _buildReferrerLinksSection(
+    BuildContext context,
+    ThemeData theme,
+    ModelCollaboration collaboration,
+    WidgetRef ref,
+  ) {
+    final linksAsync = ref.watch(
+      referrerLinksForCollaborationProvider(collaboration.collaborationId ?? ''),
+    );
+
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Referrer Links',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
+              Tooltip(
+                message: 'Refresh links',
+                child: IconButton(
+                  icon: Icon(
+                    Icons.refresh,
+                    color: theme.colorScheme.primary,
+                    size: 22,
+                  ),
+                  onPressed: () {
+                    ref.invalidate(
+                      referrerLinksForCollaborationProvider(
+                        collaboration.collaborationId ?? '',
+                      ),
+                    );
+                    SnackbarUtils.showSuccess('Refreshing links...');
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-
+          const SizedBox(height: 12),
           linksAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => Text('Error loading links: $err'),
@@ -479,172 +559,72 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final linkItem = links[index];
-                  final installCountAsync = ref.watch(
-                    installCountProvider(linkItem.referrerLinkString),
-                  );
-
-                  return _buildDynamicLinkTile(
-                    context,
-                    theme,
-                    ref,
-                    linkItem,
-                    installCountAsync,
+                  return ReferrerLinkTile(
+                    link: linkItem.referrerLinkString,
+                    title: _buildReferrerLinkTitle(linkItem),
+                    margin: EdgeInsets.zero,
+                    leadingWidget: _buildReferrerLinkLeadingWidget(
+                      theme,
+                      linkItem,
+                    ),
+                    onEdit: (_) => _addReferrerLinkForCollaboration(
+                      context,
+                      ref,
+                      collaboration,
+                      existingLinkItem: linkItem,
+                    ),
+                    onDelete: (_) => _deleteReferrerLinkForCollaboration(
+                      context,
+                      ref,
+                      linkItem,
+                    ),
                   );
                 },
               );
             },
           ),
-
           const SizedBox(height: 16),
-          parentCampaignAsync.when(
-            data: (campaign) => parentBrandAsync.when(
-              data: (brand) {
-                if (campaign == null) return const SizedBox.shrink();
-                return SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => _addReferrerLinkForCollaboration(
-                      context,
-                      ref,
-                      campaign,
-                      brand,
-                      collaboration,
-                    ),
-                    icon: const Icon(Icons.add_link),
-                    label: const Text('Add Referrer Link'),
-                  ),
-                );
-              },
-              error: (_, __) => const SizedBox.shrink(),
-              loading: () => const SizedBox.shrink(),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _addReferrerLinkForCollaboration(
+                context,
+                ref,
+                collaboration,
+              ),
+              icon: const Icon(Icons.add_link),
+              label: const Text('Add Referrer Link'),
             ),
-            error: (_, __) => const SizedBox.shrink(),
-            loading: () => const SizedBox.shrink(),
           ),
         ],
       ),
     );
-  }
-
-  Widget _buildDynamicLinkTile(
-    BuildContext context,
-    ThemeData theme,
-    WidgetRef ref,
-    ModelReferrerLink linkItem,
-    AsyncValue<int> countAsync,
-  ) {
-    final String source = linkItem.referrerLinkSource;
-    final Color color = _getSourceColor(source);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.8),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: _getSourceIcon(source, color),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${source.toUpperCase()} (${linkItem.referrerLinkType})',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    _buildInlineCount(theme, 'Installs', countAsync, color),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                SelectableText(
-                  linkItem.referrerLinkString,
-                  maxLines: 2,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontFamily: 'monospace',
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            tooltip: 'Copy Link',
-            icon: const Icon(Icons.copy, size: 18),
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: linkItem.referrerLinkString));
-              SnackbarUtils.showSuccess('Link copied to clipboard!');
-            },
-            color: theme.colorScheme.primary,
-          ),
-          const SizedBox(width: 4),
-          IconButton(
-            tooltip: 'Delete Link',
-            icon: const Icon(Icons.delete_outline, size: 18),
-            onPressed: () => _deleteReferrerLinkForCollaboration(
-              context,
-              ref,
-              linkItem,
-            ),
-            color: theme.colorScheme.error,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _getSourceColor(String source) {
-    switch (source.toLowerCase()) {
-      case 'instagram':
-        return Colors.pink;
-      case 'facebook':
-        return Colors.blue;
-      case 'youtube':
-        return Colors.red;
-      case 'tiktok':
-        return Colors.black;
-      case 'twitter':
-        return Colors.lightBlue;
-      default:
-        return Colors.teal;
-    }
-  }
-
-  Widget _getSourceIcon(String source, Color color) {
-    return Icon(Icons.link, color: color, size: 20);
   }
 
   Future<void> _addReferrerLinkForCollaboration(
     BuildContext context,
     WidgetRef ref,
-    dynamic campaign,
-    dynamic brand,
-    ModelCollaboration collaboration,
-  ) async {
+    ModelCollaboration collaboration, {
+    ModelReferrerLink? existingLinkItem,
+  }) async {
+    final campaign = await ref.read(
+      collaborationParentCampaignProvider(
+        collaboration.collaborationId ?? '',
+      ).future,
+    );
+    final brand = await ref.read(
+      collaborationParentBrandProvider(
+        collaboration.collaborationId ?? '',
+      ).future,
+    );
+
+    if (campaign == null || brand == null) {
+      SnackbarUtils.showError('Unable to load campaign brand details');
+      return;
+    }
+
+    if (!context.mounted) return;
+
     final appId = brand.androidAppId?.toString().trim();
     final resolvedAppId =
         (appId != null && appId.isNotEmpty)
@@ -660,6 +640,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
           appId: resolvedAppId,
           campaignNameString: campaignNameString,
           promoCode: collaboration.promoCode,
+          existingLink: existingLinkItem?.referrerLinkString,
         ),
       ),
     );
@@ -674,17 +655,33 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
 
     try {
       final service = ref.read(referrerLinkServiceProvider);
-      await service.create(ModelReferrerLink(
+      final entity = ModelReferrerLink(
         referrerLinkString: result.link,
         referrerLinkType: result.referrerLinkType,
         campaignId: campaign.campaignId,
-        campaignType: campaign.campaignType?.toDbValue() ?? 'influencer_collaborations',
+        campaignType:
+            campaign.campaignType?.toDbValue() ??
+            'influencer_collaborations',
         collaborationId: collaboration.collaborationId,
         referrerLinkSource: result.referrerLinkSource,
-      ));
+      );
 
-      ref.invalidate(referrerLinksForCollaborationProvider(collaboration.collaborationId ?? ''));
-      SnackbarUtils.showSuccess('Referrer link added successfully!');
+      if (existingLinkItem == null) {
+        await service.create(entity);
+      } else {
+        await service.update(existingLinkItem.referrerLinkId!, entity);
+      }
+
+      ref.invalidate(
+        referrerLinksForCollaborationProvider(
+          collaboration.collaborationId ?? '',
+        ),
+      );
+      SnackbarUtils.showSuccess(
+        existingLinkItem == null
+            ? 'Referrer link added successfully!'
+            : 'Referrer link updated successfully!',
+      );
     } catch (e) {
       SnackbarUtils.showError('Failed to save referrer link: $e');
     }
@@ -731,121 +728,85 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     }
   }
 
-  Widget _buildCopyableTile(
-    BuildContext context,
-    ThemeData theme, {
-    required String title,
-    required String text,
-    required String snackbarLabel,
-    required String countLabel,
-    required AsyncValue<int> countAsync,
-    required Color color,
-    IconData? icon,
-    Widget? logoWidget,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.8),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: logoWidget ?? Icon(icon, color: color, size: 22),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 6,
-                  children: [
-                    Text(
-                      title,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    _buildInlineCount(theme, countLabel, countAsync, color),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                SelectableText(
-                  text,
-                  maxLines: 2,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontFamily: 'monospace',
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            tooltip: 'Copy $title',
-            icon: const Icon(Icons.copy, size: 20),
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: text));
-              SnackbarUtils.showSuccess('$snackbarLabel copied to clipboard!');
-            },
-            color: theme.colorScheme.primary,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInlineCount(
+  Widget _buildCountPill(
     ThemeData theme,
     String label,
-    AsyncValue<int> countAsync,
     Color color,
   ) {
-    return countAsync.when(
-      data: (count) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          '$label: $count',
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: color,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
       ),
-      loading: () => const SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      ),
-      error: (err, _) => Text(
-        '$label: Error',
+      child: Text(
+        label,
         style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.error,
+          color: color,
           fontWeight: FontWeight.w700,
         ),
       ),
     );
+  }
+
+  String _buildReferrerLinkTitle(ModelReferrerLink linkItem) {
+    final source = linkItem.referrerLinkSource.trim();
+    if (source.isEmpty) return 'Bio Link';
+    return '${_capitalize(source)} Bio Link';
+  }
+
+  Widget _buildReferrerLinkLeadingWidget(
+    ThemeData theme,
+    ModelReferrerLink linkItem,
+  ) {
+    final assetPath = _referrerLinkAssetFor(linkItem);
+
+    return Padding(
+      padding: const EdgeInsets.all(6),
+      child: SizedBox(
+        width: 18,
+        height: 18,
+        child: Image.asset(
+          assetPath,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => Icon(
+            Icons.link_rounded,
+            size: 18,
+            color: theme.colorScheme.onPrimaryContainer,
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _referrerLinkAssetFor(ModelReferrerLink linkItem) {
+    final type = linkItem.referrerLinkType.trim().toLowerCase();
+    if (type == 'qrcode') {
+      return 'assets/images/qr_code.png';
+    }
+
+    switch (linkItem.referrerLinkSource.trim().toLowerCase()) {
+      case 'facebook':
+        return 'assets/images/facebook_logo.png';
+      case 'instagram':
+        return 'assets/images/instagram_logo.png';
+      case 'youtube':
+      case 'google':
+      case 'direct':
+      case 'tiktok':
+      case 'twitter':
+      case 'linkedin':
+      case 'whatsapp':
+        return 'assets/images/google_logo.png';
+      default:
+        return 'assets/images/google_logo.png';
+    }
+  }
+
+  String _capitalize(String value) {
+    if (value.isEmpty) return value;
+    if (value.length == 1) return value.toUpperCase();
+    return value[0].toUpperCase() + value.substring(1);
   }
 
   Future<void> _showDeleteDialog(BuildContext context, WidgetRef ref) async {

@@ -8,14 +8,20 @@ import '../../../collaborations/providers/collaboration_providers.dart';
 
 class ReferrerLinkTile extends ConsumerWidget {
   final String link;
+  final String title;
   final Future<void> Function(String existingLink)? onEdit;
   final Future<void> Function(String existingLink)? onDelete;
+  final EdgeInsetsGeometry margin;
+  final Widget? leadingWidget;
 
   const ReferrerLinkTile({
     super.key,
     required this.link,
+    this.title = 'Referrer Link',
     this.onEdit,
     this.onDelete,
+    this.margin = const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    this.leadingWidget,
   });
 
   Uri? get _uri => Uri.tryParse(link);
@@ -128,7 +134,7 @@ class ReferrerLinkTile extends ConsumerWidget {
         link.isEmpty ? null : ref.watch(installCountProvider(link));
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: margin,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
@@ -154,10 +160,13 @@ class ReferrerLinkTile extends ConsumerWidget {
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
-                    Icons.link_rounded,
-                    size: 20,
-                    color: theme.colorScheme.onPrimaryContainer,
+                  child: Center(
+                    child: leadingWidget ??
+                        Icon(
+                          Icons.link_rounded,
+                          size: 20,
+                          color: theme.colorScheme.onPrimaryContainer,
+                        ),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -167,7 +176,7 @@ class ReferrerLinkTile extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'Referrer Link',
+                          title,
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
@@ -205,7 +214,7 @@ class ReferrerLinkTile extends ConsumerWidget {
                             color: theme.colorScheme.primary,
                           ),
                           onPressed: () {
-                            ref.refresh(installCountProvider(link));
+                            ref.invalidate(installCountProvider(link));
                             SnackbarUtils.showSuccess(
                               'Refreshing install count...',
                             );

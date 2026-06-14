@@ -167,15 +167,15 @@ class CustomDrawer extends ConsumerWidget {
           ReadEntityTile(
             moduleName: ModelRbacModuleFields.table, // "rbac_modules"
             routeName: RbacModulesRoutesJson.listRouteName,
-            title: 'RbacModules',
+            title: 'Rbac Modules',
             icon: Icons.extension,
           ),
 
-          // ReferrerLinks
+          // Referrer Links
           ReadEntityTile(
             moduleName: ModelReferrerLinkFields.table, // "referrer_links"
             routeName: ReferrerLinksRoutesJson.listRouteName,
-            title: 'ReferrerLinks',
+            title: 'Referrer Links',
             icon: Icons.extension,
           ),
 
@@ -183,7 +183,7 @@ class CustomDrawer extends ConsumerWidget {
           ReadEntityTile(
             moduleName: ModelRbacPermissionFields.table, // "rbac_permissions"
             routeName: RbacPermissionsRoutesJson.listRouteName,
-            title: 'RbacPermissions',
+            title: 'Rbac Permissions',
             icon: Icons.lock_open,
           ),
 
