@@ -13,11 +13,11 @@
         "timestampField": "created_at"
     },
     "routes": {
-        "basePath": "/modules",
-        "listRouteName": "modules",
-        "newRouteName": "newModule",
-        "editRouteName": "editModule",
-        "viewRouteName": "viewModule"
+        "basePath": "/referrer-links",
+        "listRouteName": "referrerLinks",
+        "newRouteName": "newReferrerLink",
+        "editRouteName": "editReferrerLink",
+        "viewRouteName": "viewReferrerLink"
     },
     "listPage": {
         "sorting": {

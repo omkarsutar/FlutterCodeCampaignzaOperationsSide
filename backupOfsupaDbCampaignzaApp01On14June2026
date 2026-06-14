@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict i4azsNVnu36sGi5xYt2JyzQK7ivodglNh6qZiJ1aoCIuuBOQ804tVrqitViEbaR
+\restrict 3EF1n56c1A17bPGTrYb3x23ge0f1uBdnl6kt5r4WJRjJASYT1QU4Wv7ScRLgasc
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 18.3
 
--- Started on 2026-06-10 12:29:12
+-- Started on 2026-06-14 16:48:18
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -804,7 +804,7 @@ CREATE TABLE public.collaborations (
 ALTER TABLE public.collaborations OWNER TO postgres;
 
 --
--- TOC entry 412 (class 1259 OID 26454)
+-- TOC entry 408 (class 1259 OID 26454)
 -- Name: guest_role_id; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -868,7 +868,7 @@ CREATE TABLE public.po_collections (
 ALTER TABLE public.po_collections OWNER TO postgres;
 
 --
--- TOC entry 424 (class 1259 OID 26922)
+-- TOC entry 419 (class 1259 OID 26922)
 -- Name: public_agency_labels; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -892,20 +892,22 @@ CREATE TABLE public.users (
     role_id uuid,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
-    user_language text DEFAULT 'hi'::text
+    user_language text DEFAULT 'hi'::text,
+    user_photo_url text
 );
 
 
 ALTER TABLE public.users OWNER TO postgres;
 
 --
--- TOC entry 425 (class 1259 OID 26926)
+-- TOC entry 420 (class 1259 OID 26926)
 -- Name: public_user_labels; Type: VIEW; Schema: public; Owner: postgres
 --
 
 CREATE VIEW public.public_user_labels AS
  SELECT user_id,
-    full_name
+    full_name,
+    user_photo_url
    FROM public.users;
 
 
@@ -1007,7 +1009,7 @@ CREATE TABLE public.tbl_notes (
 ALTER TABLE public.tbl_notes OWNER TO postgres;
 
 --
--- TOC entry 407 (class 1259 OID 25576)
+-- TOC entry 406 (class 1259 OID 25576)
 -- Name: user_agency_link; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1025,7 +1027,16 @@ CREATE TABLE public.user_agency_link (
 ALTER TABLE public.user_agency_link OWNER TO postgres;
 
 --
--- TOC entry 410 (class 1259 OID 25841)
+-- TOC entry 4370 (class 0 OID 0)
+-- Dependencies: 406
+-- Name: TABLE user_agency_link; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.user_agency_link IS 'Links users to agencies. Enforces a single agency assignment per user.';
+
+
+--
+-- TOC entry 407 (class 1259 OID 25841)
 -- Name: user_influencer_link; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1043,7 +1054,7 @@ CREATE TABLE public.user_influencer_link (
 ALTER TABLE public.user_influencer_link OWNER TO postgres;
 
 --
--- TOC entry 426 (class 1259 OID 26930)
+-- TOC entry 421 (class 1259 OID 26930)
 -- Name: view_agency_brand_links; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1074,7 +1085,7 @@ CREATE VIEW public.view_agency_brand_links WITH (security_invoker='true') AS
 ALTER VIEW public.view_agency_brand_links OWNER TO postgres;
 
 --
--- TOC entry 416 (class 1259 OID 26771)
+-- TOC entry 411 (class 1259 OID 26771)
 -- Name: view_brand_dropdown; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1089,7 +1100,7 @@ CREATE VIEW public.view_brand_dropdown WITH (security_invoker='true') AS
 ALTER VIEW public.view_brand_dropdown OWNER TO postgres;
 
 --
--- TOC entry 427 (class 1259 OID 26935)
+-- TOC entry 422 (class 1259 OID 26935)
 -- Name: view_brands; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1131,7 +1142,7 @@ CREATE VIEW public.view_brands WITH (security_invoker='true') AS
 ALTER VIEW public.view_brands OWNER TO postgres;
 
 --
--- TOC entry 428 (class 1259 OID 26940)
+-- TOC entry 423 (class 1259 OID 26940)
 -- Name: view_campaigns; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1172,7 +1183,7 @@ CREATE VIEW public.view_campaigns WITH (security_invoker='true') AS
 ALTER VIEW public.view_campaigns OWNER TO postgres;
 
 --
--- TOC entry 417 (class 1259 OID 26780)
+-- TOC entry 412 (class 1259 OID 26780)
 -- Name: view_collaborations; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1222,7 +1233,7 @@ CREATE VIEW public.view_collaborations WITH (security_invoker='true') AS
 ALTER VIEW public.view_collaborations OWNER TO postgres;
 
 --
--- TOC entry 418 (class 1259 OID 26785)
+-- TOC entry 413 (class 1259 OID 26785)
 -- Name: view_po_collections; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1258,7 +1269,7 @@ CREATE VIEW public.view_po_collections AS
 ALTER VIEW public.view_po_collections OWNER TO postgres;
 
 --
--- TOC entry 419 (class 1259 OID 26790)
+-- TOC entry 414 (class 1259 OID 26790)
 -- Name: view_products; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1286,7 +1297,7 @@ CREATE VIEW public.view_products AS
 ALTER VIEW public.view_products OWNER TO postgres;
 
 --
--- TOC entry 415 (class 1259 OID 26766)
+-- TOC entry 410 (class 1259 OID 26766)
 -- Name: view_rbac_permissions; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1316,7 +1327,7 @@ CREATE VIEW public.view_rbac_permissions AS
 ALTER VIEW public.view_rbac_permissions OWNER TO postgres;
 
 --
--- TOC entry 420 (class 1259 OID 26795)
+-- TOC entry 415 (class 1259 OID 26795)
 -- Name: view_retailer_brand_link; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1342,7 +1353,7 @@ CREATE VIEW public.view_retailer_brand_link AS
 ALTER VIEW public.view_retailer_brand_link OWNER TO postgres;
 
 --
--- TOC entry 421 (class 1259 OID 26800)
+-- TOC entry 416 (class 1259 OID 26800)
 -- Name: view_user_agency_link; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1366,7 +1377,7 @@ CREATE VIEW public.view_user_agency_link WITH (security_invoker='true') AS
 ALTER VIEW public.view_user_agency_link OWNER TO postgres;
 
 --
--- TOC entry 422 (class 1259 OID 26805)
+-- TOC entry 417 (class 1259 OID 26805)
 -- Name: view_user_influencer_link; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1390,7 +1401,7 @@ CREATE VIEW public.view_user_influencer_link WITH (security_invoker='true') AS
 ALTER VIEW public.view_user_influencer_link OWNER TO postgres;
 
 --
--- TOC entry 414 (class 1259 OID 26752)
+-- TOC entry 425 (class 1259 OID 27017)
 -- Name: view_users; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1399,11 +1410,14 @@ CREATE VIEW public.view_users AS
     u.full_name,
     u.role_id,
     u.user_language,
+    u.user_photo_url,
     u.created_at,
     u.updated_at,
-    r.role_name AS role_id_label
-   FROM (public.users u
-     LEFT JOIN public.rbac_roles r ON ((u.role_id = r.role_id)));
+    r.role_name AS role_id_label,
+    au.email
+   FROM ((public.users u
+     LEFT JOIN public.rbac_roles r ON ((u.role_id = r.role_id)))
+     LEFT JOIN auth.users au ON ((u.user_id = au.id)));
 
 
 ALTER VIEW public.view_users OWNER TO postgres;
@@ -1670,12 +1684,12 @@ ALTER TABLE ONLY public.user_agency_link
 
 
 --
--- TOC entry 3978 (class 2606 OID 26040)
--- Name: user_agency_link user_agency_unique_pair; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 3978 (class 2606 OID 27011)
+-- Name: user_agency_link user_agency_single_link; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_agency_link
-    ADD CONSTRAINT user_agency_unique_pair UNIQUE (user_id, agency_id);
+    ADD CONSTRAINT user_agency_single_link UNIQUE (user_id);
 
 
 --
@@ -2850,7 +2864,7 @@ CREATE POLICY collaborations_update_policy ON public.collaborations FOR UPDATE T
 
 --
 -- TOC entry 4261 (class 0 OID 26454)
--- Dependencies: 412
+-- Dependencies: 408
 -- Name: guest_role_id; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
@@ -3052,7 +3066,7 @@ CREATE POLICY tbl_notes_user_policy ON public.tbl_notes TO authenticated USING (
 
 --
 -- TOC entry 4259 (class 0 OID 25576)
--- Dependencies: 407
+-- Dependencies: 406
 -- Name: user_agency_link; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
@@ -3092,7 +3106,7 @@ CREATE POLICY user_agency_link_update_policy ON public.user_agency_link FOR UPDA
 
 --
 -- TOC entry 4260 (class 0 OID 25841)
--- Dependencies: 410
+-- Dependencies: 407
 -- Name: user_influencer_link; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
@@ -3462,7 +3476,7 @@ GRANT ALL ON TABLE public.collaborations TO service_role;
 
 --
 -- TOC entry 4359 (class 0 OID 0)
--- Dependencies: 412
+-- Dependencies: 408
 -- Name: TABLE guest_role_id; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3495,7 +3509,7 @@ GRANT ALL ON TABLE public.po_collections TO service_role;
 
 --
 -- TOC entry 4362 (class 0 OID 0)
--- Dependencies: 424
+-- Dependencies: 419
 -- Name: TABLE public_agency_labels; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3517,7 +3531,7 @@ GRANT ALL ON TABLE public.users TO service_role;
 
 --
 -- TOC entry 4364 (class 0 OID 0)
--- Dependencies: 425
+-- Dependencies: 420
 -- Name: TABLE public_user_labels; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3582,8 +3596,8 @@ GRANT ALL ON TABLE public.tbl_notes TO service_role;
 
 
 --
--- TOC entry 4370 (class 0 OID 0)
--- Dependencies: 407
+-- TOC entry 4371 (class 0 OID 0)
+-- Dependencies: 406
 -- Name: TABLE user_agency_link; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3593,8 +3607,8 @@ GRANT ALL ON TABLE public.user_agency_link TO service_role;
 
 
 --
--- TOC entry 4371 (class 0 OID 0)
--- Dependencies: 410
+-- TOC entry 4372 (class 0 OID 0)
+-- Dependencies: 407
 -- Name: TABLE user_influencer_link; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3604,8 +3618,8 @@ GRANT ALL ON TABLE public.user_influencer_link TO service_role;
 
 
 --
--- TOC entry 4372 (class 0 OID 0)
--- Dependencies: 426
+-- TOC entry 4373 (class 0 OID 0)
+-- Dependencies: 421
 -- Name: TABLE view_agency_brand_links; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3615,8 +3629,8 @@ GRANT ALL ON TABLE public.view_agency_brand_links TO service_role;
 
 
 --
--- TOC entry 4373 (class 0 OID 0)
--- Dependencies: 416
+-- TOC entry 4374 (class 0 OID 0)
+-- Dependencies: 411
 -- Name: TABLE view_brand_dropdown; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3626,8 +3640,8 @@ GRANT ALL ON TABLE public.view_brand_dropdown TO service_role;
 
 
 --
--- TOC entry 4374 (class 0 OID 0)
--- Dependencies: 427
+-- TOC entry 4375 (class 0 OID 0)
+-- Dependencies: 422
 -- Name: TABLE view_brands; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3637,8 +3651,8 @@ GRANT ALL ON TABLE public.view_brands TO service_role;
 
 
 --
--- TOC entry 4375 (class 0 OID 0)
--- Dependencies: 428
+-- TOC entry 4376 (class 0 OID 0)
+-- Dependencies: 423
 -- Name: TABLE view_campaigns; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3648,8 +3662,8 @@ GRANT ALL ON TABLE public.view_campaigns TO service_role;
 
 
 --
--- TOC entry 4376 (class 0 OID 0)
--- Dependencies: 417
+-- TOC entry 4377 (class 0 OID 0)
+-- Dependencies: 412
 -- Name: TABLE view_collaborations; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3659,8 +3673,8 @@ GRANT ALL ON TABLE public.view_collaborations TO service_role;
 
 
 --
--- TOC entry 4377 (class 0 OID 0)
--- Dependencies: 418
+-- TOC entry 4378 (class 0 OID 0)
+-- Dependencies: 413
 -- Name: TABLE view_po_collections; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3670,8 +3684,8 @@ GRANT ALL ON TABLE public.view_po_collections TO service_role;
 
 
 --
--- TOC entry 4378 (class 0 OID 0)
--- Dependencies: 419
+-- TOC entry 4379 (class 0 OID 0)
+-- Dependencies: 414
 -- Name: TABLE view_products; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3681,8 +3695,8 @@ GRANT ALL ON TABLE public.view_products TO service_role;
 
 
 --
--- TOC entry 4379 (class 0 OID 0)
--- Dependencies: 415
+-- TOC entry 4380 (class 0 OID 0)
+-- Dependencies: 410
 -- Name: TABLE view_rbac_permissions; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3692,8 +3706,8 @@ GRANT ALL ON TABLE public.view_rbac_permissions TO service_role;
 
 
 --
--- TOC entry 4380 (class 0 OID 0)
--- Dependencies: 420
+-- TOC entry 4381 (class 0 OID 0)
+-- Dependencies: 415
 -- Name: TABLE view_retailer_brand_link; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3703,8 +3717,8 @@ GRANT ALL ON TABLE public.view_retailer_brand_link TO service_role;
 
 
 --
--- TOC entry 4381 (class 0 OID 0)
--- Dependencies: 421
+-- TOC entry 4382 (class 0 OID 0)
+-- Dependencies: 416
 -- Name: TABLE view_user_agency_link; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3714,8 +3728,8 @@ GRANT ALL ON TABLE public.view_user_agency_link TO service_role;
 
 
 --
--- TOC entry 4382 (class 0 OID 0)
--- Dependencies: 422
+-- TOC entry 4383 (class 0 OID 0)
+-- Dependencies: 417
 -- Name: TABLE view_user_influencer_link; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3725,8 +3739,8 @@ GRANT ALL ON TABLE public.view_user_influencer_link TO service_role;
 
 
 --
--- TOC entry 4383 (class 0 OID 0)
--- Dependencies: 414
+-- TOC entry 4384 (class 0 OID 0)
+-- Dependencies: 425
 -- Name: TABLE view_users; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3801,11 +3815,11 @@ ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON T
 ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO service_role;
 
 
--- Completed on 2026-06-10 12:29:20
+-- Completed on 2026-06-14 16:48:25
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict i4azsNVnu36sGi5xYt2JyzQK7ivodglNh6qZiJ1aoCIuuBOQ804tVrqitViEbaR
+\unrestrict 3EF1n56c1A17bPGTrYb3x23ge0f1uBdnl6kt5r4WJRjJASYT1QU4Wv7ScRLgasc
 
