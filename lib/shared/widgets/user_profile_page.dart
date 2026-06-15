@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/providers/auth_providers.dart';
 import '../../core/utils/snackbar_utils.dart';
 import '../../core/validators/form_validators.dart';
+import '../../features/postLogin/agencies/agency_barrel.dart';
+import '../../core/providers/core_providers.dart';
 import 'shared_widget_barrel.dart';
 import '../../features/postLogin/users/user_barrel.dart';
 
@@ -47,6 +49,8 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(enrichedUserProfileProvider);
     final theme = Theme.of(context);
+    final roleName = ref.watch(roleNameProvider);
+    final agencyNameAsync = ref.watch(currentAgencyNameProvider);
 
     return profileAsync.when(
       data: (profile) {
@@ -97,13 +101,23 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      profile.resolvedLabels['role_id_label'] ??
-                          profile.roleId ??
-                          'Unknown Role',
+                      'Role : ${roleName ?? profile.resolvedLabels['role_id_label'] ?? profile.roleId ?? 'Unknown Role'}',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    agencyNameAsync.when(
+                      data: (agencyName) => Text(
+                        'Agency : $agencyName',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
                     ),
                     const SizedBox(height: 32),
                     // Form Card

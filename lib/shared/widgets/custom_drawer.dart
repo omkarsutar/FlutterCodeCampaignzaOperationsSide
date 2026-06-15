@@ -47,10 +47,11 @@ class CustomDrawer extends ConsumerWidget {
     ref.watch(rbacInitializationProvider);
 
     final authService = ref.watch(authServiceProvider);
-    final rbacService = ref.watch(rbacServiceProvider);
     final displayName = _userDisplayName(ref);
     final theme = Theme.of(context);
     final isLoggedIn = Supabase.instance.client.auth.currentSession != null;
+    final roleName = ref.watch(roleNameProvider);
+    final agencyNameAsync = ref.watch(currentAgencyNameProvider);
 
     return Drawer(
       child: ListView(
@@ -76,15 +77,27 @@ class CustomDrawer extends ConsumerWidget {
                     color: theme.colorScheme.onPrimary,
                   ),
                 ),
-                if (rbacService.roleName != null)
+                if (roleName != null)
                   Text(
-                    'Role: ${rbacService.roleName!}',
+                    'Role : $roleName',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w300,
                       color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
                     ),
                   ),
+                agencyNameAsync.when(
+                  data: (agencyName) => Text(
+                    'Agency : $agencyName',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w300,
+                      color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
               ],
             ),
           ),
