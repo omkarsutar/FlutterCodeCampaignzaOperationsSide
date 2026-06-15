@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:flutter_supabase_order_app_mobile/core/services/entity_service.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/model/campaign_model.dart';
@@ -45,17 +44,6 @@ class CampaignActions extends ConsumerWidget {
               useSafeArea: false,
               builder: (context) =>
                   CampaignSharePreviewPage(entity: entity, adapter: adapter),
-            ),
-          ),
-
-        // Payment Collection Button
-        if (status.toLowerCase() == 'delivered')
-          _IconButton(
-            icon: Icons.payment,
-            color: Colors.green,
-            onPressed: () => context.pushNamed(
-              'campaign_collection',
-              pathParameters: {'poId': entity.poId!},
             ),
           ),
 

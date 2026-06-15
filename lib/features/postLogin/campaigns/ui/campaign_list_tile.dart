@@ -15,7 +15,6 @@ class CampaignListTile extends ConsumerStatefulWidget {
   final VoidCallback? onTap;
   final bool? collaborationTile;
   final bool showShare;
-  final void Function(String oldStatus, String newStatus)? onStatusChanged;
 
   const CampaignListTile({
     super.key,
@@ -24,7 +23,6 @@ class CampaignListTile extends ConsumerStatefulWidget {
     this.onTap,
     this.collaborationTile,
     this.showShare = false,
-    this.onStatusChanged,
   });
 
   @override
@@ -55,7 +53,6 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
             .getLabelValue(widget.entity, ModelCampaignFields.poAgencyId)
             ?.toString() ??
         'Unknown Agency';
-    final workflowStatus = widget.entity.derivedWorkflowStatus;
     final campaignType = widget.entity.effectiveCampaignType;
     final collabsCount = widget.entity.effectiveLinkCount;
     final countLabel = campaignType.isInfluencerCollaboration
@@ -105,19 +102,27 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
           padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      child: _TypePill(label: campaignType.displayName),
-                    ),
-                    const SizedBox(width: 6),
-                    if (_isUpdating)
-                      const SizedBox(
-                        width: 36,
+              children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: _TypePill(label: campaignType.displayName),
+                      ),
+                      if (collabsCount > 0) ...[
+                        const SizedBox(width: 8),
+                        _MetricPill(
+                          label: '$countLabel: $collabsCount',
+                          background: theme.colorScheme.secondaryContainer,
+                          foreground: theme.colorScheme.onSecondaryContainer,
+                        ),
+                      ],
+                      const SizedBox(width: 6),
+                      if (_isUpdating)
+                        const SizedBox(
+                          width: 36,
                         height: 36,
                         child: Center(
                           child: SizedBox(
@@ -232,20 +237,6 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                   ),
                 ],
               ),
-              if (collabsCount > 0) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _MetricPill(
-                      label: '$countLabel: $collabsCount',
-                      background: theme.colorScheme.secondaryContainer,
-                      foreground: theme.colorScheme.onSecondaryContainer,
-                    ),
-                  ],
-                ),
-              ],
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -254,7 +245,7 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                     adapter: widget.adapter,
                     showShare: widget.showShare,
                     canDelete: canDelete,
-                    status: workflowStatus,
+                    status: widget.entity.derivedWorkflowStatus,
                     isUpdating: _isUpdating,
                     onUpdating: (val) {
                       if (mounted) setState(() => _isUpdating = val);

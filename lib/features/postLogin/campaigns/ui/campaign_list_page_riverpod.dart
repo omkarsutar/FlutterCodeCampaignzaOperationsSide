@@ -276,16 +276,6 @@ class _CampaignListPageRiverpodState
                 .read(cartControllerProvider)
                 .editCampaign(context, displayListItem),
             showShare: displayListItem.derivedWorkflowStatus == 'delivered',
-            onStatusChanged: (oldStatus, newStatus) {
-              if (oldStatus == 'confirmed' &&
-                  newStatus == 'delivered' &&
-                  displayListItem.poId != null) {
-                context.pushNamed(
-                  'campaign_collection',
-                  pathParameters: {'poId': displayListItem.poId!},
-                );
-              }
-            },
           );
         } else {
           // Bottom padding for FAB
