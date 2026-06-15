@@ -52,7 +52,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...UserAgencyLinkRoutesJson.routes,
       ...UserInfluencerLinkRoutesJson.routes,
     ],
-    initialLocation: AppRoute.welcome,
+    initialLocation: BrandsRoutesJson.brands,
     refreshListenable: rbacService.initializationNotifier,
     redirect: (context, state) async {
       final session = Supabase.instance.client.auth.currentSession;
@@ -71,7 +71,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final hasRole = roleName != null && roleName.isNotEmpty;
       final isRbacInitialized = rbacService.isInitialized;
-
       final isPublicRoute =
           state.uri.path.startsWith('/influencers') ||
           state.uri.path.startsWith('/cart');
@@ -95,20 +94,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           return AppRoute.loading; // Wait for RBAC at minimum
         }
 
-        debugPrint('AppRouter: User role is $roleName');
-
-        // Redirect guest to Products
-        if (roleName == 'guest') {
-          debugPrint('AppRouter: Guest user -> Redirecting to Products');
-          return state.namedLocation(InfluencerRoutesJson.listRouteName);
-        }
-
-        // Redirect salesperson to All Brands
-        if (roleName == 'salesperson') {
-          return state.namedLocation(BrandsRoutesJson.listRouteName);
-        }
-
-        return state.namedLocation(CampaignsRoutesJson.listRouteName);
+        debugPrint(
+          'AppRouter: User role is $roleName -> Redirecting to Brands list',
+        );
+        return state.namedLocation(BrandsRoutesJson.listRouteName);
       }
 
       // --- RBAC Route Protection ---

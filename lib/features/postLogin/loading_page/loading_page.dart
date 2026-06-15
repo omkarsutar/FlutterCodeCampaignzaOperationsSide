@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/influencers/influencer_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
 
@@ -28,16 +26,7 @@ class LoadingPage extends ConsumerWidget {
         final state = GoRouterState.of(context);
         if (state.uri.path != AppRoute.loading) return;
 
-        final rbacService = ref.read(rbacServiceProvider);
-        final roleName = rbacService.roleName?.toLowerCase();
-
-        if (roleName == 'guest') {
-          context.goNamed(InfluencerRoutesJson.listRouteName);
-        } else if (roleName == 'salesperson') {
-          context.goNamed(BrandsRoutesJson.listRouteName);
-        } else {
-          context.goNamed(CampaignsRoutesJson.listRouteName);
-        }
+        context.goNamed(BrandsRoutesJson.listRouteName);
       });
     }
 
