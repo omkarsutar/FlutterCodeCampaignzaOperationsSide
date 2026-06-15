@@ -85,6 +85,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     final enriched = mapper.toMap(entity);
     // Exclude status field as per Supabase logic
     enriched.remove(ModelCampaignFields.status);
+    enriched.remove(ModelCampaignFields.collaborationCount);
     final response = await client
         .from(tableName)
         .insert(enriched)
@@ -324,6 +325,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
       // Get the map and exclude status field as per Supabase logic
       final payload = mapper.toMap(entity);
       payload.remove(ModelCampaignFields.status);
+      payload.remove(ModelCampaignFields.collaborationCount);
 
       logger.info('Creating new $ModelCampaign in $tableName');
       final inserted = await client
@@ -346,6 +348,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
       // Get the map and exclude status field as per Supabase logic
       final payload = mapper.toMap(entity);
       payload.remove(ModelCampaignFields.status);
+      payload.remove(ModelCampaignFields.collaborationCount);
 
       logger.info('Updating $ModelCampaign with id=$id in $tableName');
       final updated = await client
@@ -368,6 +371,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     final enriched = mapper.toMap(entity);
     // Exclude status field as per Supabase logic
     enriched.remove(ModelCampaignFields.status);
+    enriched.remove(ModelCampaignFields.collaborationCount);
 
     await client.from(tableName).insert(enriched);
   }
