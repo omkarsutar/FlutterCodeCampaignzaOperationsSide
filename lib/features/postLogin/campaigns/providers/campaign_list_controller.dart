@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/providers/core_providers.dart';
 import '../../../../core/services/entity_service.dart';
 import '../../../../core/config/module_config.dart';
 import '../model/campaign_model.dart';
 import '../providers/campaign_providers.dart';
+import '../../users/providers/user_providers.dart';
 
 /// State for Campaign List
 class CampaignListState {
@@ -237,7 +239,10 @@ class CampaignListController
   /// Resets all filters (search and status)
   void resetFilters({List<String>? searchFields}) {
     ref.read(campaignSearchProvider(arg).notifier).state = '';
-    ref.read(campaignStatusFilterProvider(arg).notifier).state = null;
+    final roleName = ref.read(roleNameProvider)?.toLowerCase();
+    final isAdmin = roleName == 'admin' || roleName == 'administrator';
+    ref.read(campaignStatusFilterProvider(arg).notifier).state =
+        isAdmin ? null : 'Paid Ads';
   }
 }
 

@@ -113,12 +113,17 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
     final listState = ref.watch(campaignListControllerProvider(_controllerKey));
 
     final extra = GoRouterState.of(context).extra;
-    final brand = extra is ModelBrand ? extra : null;
+    ModelBrand? brand = extra is ModelBrand ? extra : null;
+    if (brand == null && filterBrandId != null) {
+      final brandAsync = ref.watch(brandByIdProvider(filterBrandId));
+      brand = brandAsync.value;
+    }
     prettyPrint(brand);
 
     final displayList = listState.filteredCampaigns;
 
     final queryParams = getBrandQueryParams(context);
+    final selectedBrand = brand;
 
     final brandCampaigns = listState.allCampaigns;
 
@@ -220,10 +225,16 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
               ),
 
             // Filter Pills
-            _buildFilterPills(theme, listState, typeCounts),
-            if (brand != null && isAdmin) ...[
+            _buildFilterPills(
+              theme,
+              listState,
+              typeCounts,
+              isAdmin,
+              brand,
+            ),
+            if (selectedBrand != null && isAdmin) ...[
               BrandListTile(
-                entity: brand,
+                entity: selectedBrand,
                 adapter: ref.watch(brandAdapterProvider),
                 idField: ModelBrandFields.brandId,
                 entityLabel: 'Brand',
@@ -233,7 +244,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
                 onTap: () {
                   GoRouter.of(context).pushNamed(
                     BrandsRoutesJson.viewRouteName,
-                    queryParameters: {'brand_id': brand.brandId!},
+                    queryParameters: {'brand_id': selectedBrand.brandId},
                   );
                 },
               ),
@@ -349,8 +360,25 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
     ThemeData theme,
     CampaignListState listState,
     Map<String, int> typeCounts,
+    bool isAdmin,
+    ModelBrand? brand,
   ) {
-    final types = ['All', 'Paid Ads', 'Direct', 'Collabs'];
+    final selectedAgencyId = ref.watch(selectedAgencyIdProvider);
+    final primaryAgencyId = brand?.brandsPrimaryAgency;
+    final hideDirectForBrand =
+        !isAdmin &&
+        primaryAgencyId != null &&
+        primaryAgencyId.isNotEmpty &&
+        selectedAgencyId != null &&
+        selectedAgencyId.isNotEmpty &&
+        selectedAgencyId != primaryAgencyId;
+
+    final types = <String>[
+      if (isAdmin) 'All',
+      'Paid Ads',
+      if (!hideDirectForBrand) 'Direct',
+      'Collabs',
+    ];
 
     return SizedBox(
       height: 50,

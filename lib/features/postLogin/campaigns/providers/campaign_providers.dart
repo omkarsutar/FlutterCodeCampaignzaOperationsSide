@@ -87,9 +87,17 @@ final campaignSearchProvider = StateProvider.family.autoDispose<String, String>(
   (ref, key) => '',
 );
 
+String? _defaultCampaignStatusFilter(Ref ref) {
+  final roleName = ref.watch(roleNameProvider)?.toLowerCase();
+  final isAdmin = roleName == 'admin' || roleName == 'administrator';
+  return isAdmin ? null : 'Paid Ads';
+}
+
 /// Persistent status filter for PO list
 final campaignStatusFilterProvider = StateProvider.family
-    .autoDispose<String?, String>((ref, key) => null);
+    .autoDispose<String?, String>(
+      (ref, key) => _defaultCampaignStatusFilter(ref),
+    );
 
 /// Fetch a single campaign by ID
 

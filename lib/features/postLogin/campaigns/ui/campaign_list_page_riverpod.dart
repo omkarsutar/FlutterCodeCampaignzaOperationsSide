@@ -163,7 +163,12 @@ class _CampaignListPageRiverpodState
             ),
 
             // Filter Pills
-            _buildFilterPills(theme, listState, viewData.statusCounts),
+            _buildFilterPills(
+              theme,
+              listState,
+              viewData.statusCounts,
+              isAdmin,
+            ),
 
             // Campaigns List
             Expanded(
@@ -287,8 +292,14 @@ class _CampaignListPageRiverpodState
     ThemeData theme,
     CampaignListState listState,
     Map<String, int> statusCounts,
+    bool isAdmin,
   ) {
-    final statuses = ['All', 'Paid Ads', 'Direct', 'Collabs'];
+    final statuses = <String>[
+      if (isAdmin) 'All',
+      'Paid Ads',
+      'Direct',
+      'Collabs',
+    ];
 
     return SizedBox(
       height: 50,
