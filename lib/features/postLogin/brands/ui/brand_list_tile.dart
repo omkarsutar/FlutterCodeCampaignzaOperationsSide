@@ -8,6 +8,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/services/entity_service.dart';
 import '../../../../core/utils/snackbar_utils.dart';
+import '../../users/providers/user_providers.dart';
 import '../brand_barrel.dart';
 
 class BrandListTile<T> extends ConsumerWidget {
@@ -52,6 +53,26 @@ class BrandListTile<T> extends ConsumerWidget {
             .getLabelValue(entity, ModelBrandFields.brandsPrimaryAgency)
             ?.toString() ??
         'Unknown Agency';
+    final roleName = ref.watch(roleNameProvider)?.toLowerCase();
+    final isAdmin = roleName == 'admin';
+    final selectedAgencyId = ref.watch(selectedAgencyIdProvider);
+    final brandPrimaryAgencyId =
+        adapter
+            .getFieldValue(entity, ModelBrandFields.brandsPrimaryAgency)
+            ?.toString();
+    final showPrimaryAgencyNote =
+        !isAdmin &&
+        selectedAgencyId != null &&
+        selectedAgencyId.isNotEmpty &&
+        brandPrimaryAgencyId != null &&
+        brandPrimaryAgencyId.isNotEmpty &&
+        selectedAgencyId != brandPrimaryAgencyId;
+    final brandPrimaryAgencyLabel =
+        adapter
+            .getLabelValue(entity, ModelBrandFields.brandsPrimaryAgency)
+            ?.toString() ??
+        brandPrimaryAgencyId ??
+        '';
     final isActive =
         adapter.getFieldValue(entity, ModelBrandFields.isActive) as bool? ??
         false;
@@ -71,9 +92,6 @@ class BrandListTile<T> extends ConsumerWidget {
     final websiteUrl =
         adapter.getFieldValue(entity, ModelBrandFields.websiteUrl)?.toString() ??
         '';
-
-    final roleName = ref.watch(roleNameProvider)?.toLowerCase();
-    final isAdmin = roleName == 'admin';
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -125,6 +143,19 @@ class BrandListTile<T> extends ConsumerWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
+              if (showPrimaryAgencyNote) ...[
+                const SizedBox(height: 2),
+                Padding(
+                  padding: const EdgeInsets.only(left: 24),
+                  child: Text(
+                    'Primary Agency : ${brandPrimaryAgencyLabel.isNotEmpty ? brandPrimaryAgencyLabel : brandPrimaryAgencyId}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
               if (isAdmin) ...[
                 const SizedBox(height: 8),
                 _InfoRow(

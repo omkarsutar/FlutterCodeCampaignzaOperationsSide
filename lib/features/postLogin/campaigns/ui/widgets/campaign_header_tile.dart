@@ -35,11 +35,13 @@ class CampaignHeaderTile extends ConsumerWidget {
     // 2. Get Brand details
     String? brandId = filterBrandId ?? brandExtra?.brandId;
     String? brandName = brandExtra?.brandName;
+    ModelBrand? brandEntity = brandExtra;
 
     // If we have brandId but no brandName, look it up via brandByIdProvider
-    if (brandId != null && brandName == null) {
+    if (brandId != null && brandEntity == null) {
       final brandAsync = ref.watch(brandByIdProvider(brandId));
-      brandName = brandAsync.value?.brandName;
+      brandEntity = brandAsync.value;
+      brandName = brandEntity?.brandName;
     }
 
     // Fallback: if brandId is null, look up from first campaign item in state
@@ -57,6 +59,17 @@ class CampaignHeaderTile extends ConsumerWidget {
       fontWeight: FontWeight.bold,
       fontSize: 14,
     );
+    final primaryAgencyId = brandEntity?.brandsPrimaryAgency;
+    final primaryAgencyLabel =
+        brandEntity?.resolvedLabels['brands_primary_agency_label']?.toString() ??
+        primaryAgencyId ??
+        '';
+    final showPrimaryAgencyNote =
+        primaryAgencyId != null &&
+        primaryAgencyId.isNotEmpty &&
+        agencyId != null &&
+        agencyId.isNotEmpty &&
+        agencyId != primaryAgencyId;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -106,9 +119,24 @@ class CampaignHeaderTile extends ConsumerWidget {
                 Icon(Icons.business_outlined, color: theme.colorScheme.primary, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    'Brand: ${brandName ?? 'Loading...'}',
-                    style: valueStyle,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Brand: ${brandName ?? 'Loading...'}',
+                        style: valueStyle,
+                      ),
+                      if (showPrimaryAgencyNote) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          'Primary Agency : $primaryAgencyLabel',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 if (brandId != null && brandId.isNotEmpty)

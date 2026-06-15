@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:go_router/go_router.dart';
-
 import 'package:flutter_supabase_order_app_mobile/core/config/module_config.dart';
 import '../../../../core/config/field_config.dart';
 import '../../../../core/models/entity_meta.dart';
