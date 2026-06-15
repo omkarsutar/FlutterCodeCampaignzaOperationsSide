@@ -14,6 +14,17 @@ class CampaignTileLogic {
         return Colors.blue;
       case 'cancelled':
         return Colors.red;
+      case 'paid ads':
+      case 'paid_ads':
+        return Colors.deepOrange;
+      case 'direct':
+      case 'direct brand promotions':
+      case 'direct_brand_promotions':
+        return Colors.teal;
+      case 'collabs':
+      case 'influencer collaborations':
+      case 'influencer_collaborations':
+        return Colors.purple;
       default:
         return Colors.orange;
     }

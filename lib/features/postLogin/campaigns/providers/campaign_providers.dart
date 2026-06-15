@@ -363,7 +363,7 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
       profitToBrand: entity.profitToBrand,
       poLat: entity.poLat,
       poLong: entity.poLong,
-      status: entity.status ?? 'confirmed',
+      status: entity.derivedWorkflowStatus,
     );
   }
 

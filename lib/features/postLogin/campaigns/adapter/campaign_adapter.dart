@@ -16,6 +16,8 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
         return entity.campaignType?.toDbValue();
       case ModelCampaignFields.collaborationCount:
         return entity.collaborationCount;
+      case ModelCampaignFields.referrerLinkCount:
+        return entity.referrerLinkCount;
       case ModelCampaignFields.referrerLinks:
         return entity.referrerLinks;
       case ModelCampaignFields.campaignAgencyId:
@@ -27,7 +29,7 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
       case ModelCampaignFields.adminComment:
         return entity.adminComment;
       case ModelCampaignFields.status:
-        return entity.status;
+        return entity.derivedWorkflowStatus;
       case ModelCampaignFields.validFrom:
         return entity.validFrom;
       case ModelCampaignFields.validUntil:
@@ -67,9 +69,11 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
       case ModelCampaignFields.validUntil:
         return entity.validUntil != null ? formatTimestamp(entity.validUntil) : '';
       case ModelCampaignFields.status:
-        return entity.status ?? 'Pending';
+        return entity.effectiveStatusLabel;
       case ModelCampaignFields.collaborationCount:
-        return entity.collaborationCount?.toString() ?? '0';
+        return entity.effectiveLinkCount.toString();
+      case ModelCampaignFields.referrerLinkCount:
+        return entity.referrerLinkCount?.toString() ?? '0';
       case ModelCampaignFields.referrerLinks:
         return entity.referrerLinks.isEmpty
             ? ''

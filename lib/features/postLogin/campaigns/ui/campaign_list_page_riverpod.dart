@@ -275,7 +275,7 @@ class _CampaignListPageRiverpodState
             onTap: () => ref
                 .read(cartControllerProvider)
                 .editCampaign(context, displayListItem),
-            showShare: listState.selectedStatus?.toLowerCase() == 'delivered',
+            showShare: displayListItem.derivedWorkflowStatus == 'delivered',
             onStatusChanged: (oldStatus, newStatus) {
               if (oldStatus == 'confirmed' &&
                   newStatus == 'delivered' &&

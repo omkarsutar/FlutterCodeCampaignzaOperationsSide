@@ -9,6 +9,7 @@ class ModelCampaignFields {
   static const String campaignNameString = 'campaign_name_string';
   static const String campaignType = 'campaign_type';
   static const String collaborationCount = 'collaboration_count';
+  static const String referrerLinkCount = 'referrer_link_count';
   static const String referrerLinks = 'referrer_links';
   static const String campaignAgencyId = 'campaign_agency_id';
   static const String campaignBrandId = 'campaign_brand_id';
@@ -39,6 +40,7 @@ class ModelCampaignFields {
     campaignNameString: 'Campaign Name String',
     campaignType: 'Campaign Type',
     collaborationCount: 'Collaborations',
+    referrerLinkCount: 'Referrer Links',
     referrerLinks: 'Referrer Links',
     campaignAgencyId: 'Agency',
     campaignBrandId: 'Brand',
@@ -107,6 +109,7 @@ class ModelCampaign {
   final String? campaignNameString;
   final CampaignType? campaignType;
   final int? collaborationCount;
+  final int? referrerLinkCount;
   final List<String> referrerLinks;
   final String? campaignAgencyId;
   final String? campaignBrandId;
@@ -127,12 +130,28 @@ class ModelCampaign {
   String? get poAgencyId => campaignAgencyId;
   String? get poBrandId => campaignBrandId;
   int? get poLineItemCount => collaborationCount;
+  int get effectiveLinkCount {
+    if (effectiveCampaignType.isInfluencerCollaboration) {
+      return collaborationCount ?? 0;
+    }
+    return referrerLinkCount ?? 0;
+  }
+
+  String get derivedWorkflowStatus {
+    if (effectiveCampaignType.isInfluencerCollaboration) {
+      return (collaborationCount ?? 0) > 0 ? 'confirmed' : 'pending';
+    }
+    return (referrerLinkCount ?? 0) > 0 ? 'delivered' : 'pending';
+  }
+
+  String get effectiveStatusLabel => derivedWorkflowStatus;
+
   CampaignType get effectiveCampaignType {
     if (campaignType != null) return campaignType!;
     if ((collaborationCount ?? 0) > 0) {
       return CampaignType.influencerCollaborations;
     }
-    if (referrerLinks.isNotEmpty) {
+    if ((referrerLinkCount ?? 0) > 0 || referrerLinks.isNotEmpty) {
       return CampaignType.directBrandPromotions;
     }
     return CampaignType.paidAds;
@@ -157,6 +176,7 @@ class ModelCampaign {
     this.campaignNameString,
     this.campaignType,
     int? collaborationCount,
+    this.referrerLinkCount,
     List<String>? referrerLinks,
     String? campaignAgencyId,
     String? campaignBrandId,
@@ -208,6 +228,9 @@ class ModelCampaign {
           : null,
       collaborationCount: map[ModelCampaignFields.collaborationCount] != null
           ? int.tryParse(map[ModelCampaignFields.collaborationCount].toString())
+          : null,
+      referrerLinkCount: map[ModelCampaignFields.referrerLinkCount] != null
+          ? int.tryParse(map[ModelCampaignFields.referrerLinkCount].toString())
           : null,
       referrerLinks: const [],
       campaignAgencyId: map[ModelCampaignFields.campaignAgencyId] as String?,
@@ -280,6 +303,7 @@ class ModelCampaign {
       'campaignNameString': campaignNameString,
       'campaignType': campaignType?.toDbValue(),
       'collaborationCount': collaborationCount,
+      'referrerLinkCount': referrerLinkCount,
       'referrerLinks': referrerLinks,
       'campaignAgencyId': campaignAgencyId,
       'campaignBrandId': campaignBrandId,
@@ -305,6 +329,7 @@ class ModelCampaign {
           ? CampaignType.fromString(json['campaignType'] as String?)
           : null,
       collaborationCount: json['collaborationCount'] as int?,
+      referrerLinkCount: json['referrerLinkCount'] as int?,
       referrerLinks: (json['referrerLinks'] as List?)
           ?.map((e) => e.toString())
           .toList(),
@@ -329,6 +354,7 @@ class ModelCampaign {
     String? campaignNameString,
     CampaignType? campaignType,
     int? collaborationCount,
+    int? referrerLinkCount,
     List<String>? referrerLinks,
     String? campaignAgencyId,
     String? campaignBrandId,
@@ -350,6 +376,7 @@ class ModelCampaign {
       campaignNameString: campaignNameString ?? this.campaignNameString,
       campaignType: campaignType ?? this.campaignType,
       collaborationCount: collaborationCount ?? this.collaborationCount,
+      referrerLinkCount: referrerLinkCount ?? this.referrerLinkCount,
       referrerLinks: referrerLinks ?? this.referrerLinks,
       campaignAgencyId: campaignAgencyId ?? this.campaignAgencyId,
       campaignBrandId: campaignBrandId ?? this.campaignBrandId,

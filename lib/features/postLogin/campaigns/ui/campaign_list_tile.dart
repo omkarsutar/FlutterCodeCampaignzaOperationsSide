@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/services/entity_service.dart';
 import '../model/campaign_model.dart';
-import '../providers/campaign_tile_logic.dart';
 import '../../cart/providers/cart_controller.dart';
 import 'widgets/po_actions.dart';
 
@@ -56,11 +55,12 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
             .getLabelValue(widget.entity, ModelCampaignFields.poAgencyId)
             ?.toString() ??
         'Unknown Agency';
-    final status = widget.entity.status ?? 'pending';
+    final workflowStatus = widget.entity.derivedWorkflowStatus;
     final campaignType = widget.entity.effectiveCampaignType;
-    final collabsCount = widget.entity.poLineItemCount ?? 0;
-    final showCollabsCount = campaignType.isInfluencerCollaboration;
-    final statusColor = CampaignTileLogic.getStatusColor(status);
+    final collabsCount = widget.entity.effectiveLinkCount;
+    final countLabel = campaignType.isInfluencerCollaboration
+        ? 'Collabs'
+        : 'Referrer';
     final commentStr = widget.entity.userComment ?? '';
     final adminCommentStr = widget.entity.adminComment ?? '';
     final formatter = DateFormat('dd MMM yyyy HH:mm');
@@ -126,9 +126,7 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
                         ),
-                      )
-                    else
-                      _StatusBadge(status: status, statusColor: statusColor),
+                      ),
                     IconButton(
                       tooltip: 'Edit campaign',
                       icon: const Icon(Icons.edit_outlined),
@@ -234,14 +232,14 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                   ),
                 ],
               ),
-              if (showCollabsCount) ...[
+              if (collabsCount > 0) ...[
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: [
                     _MetricPill(
-                      label: 'Collabs: $collabsCount',
+                      label: '$countLabel: $collabsCount',
                       background: theme.colorScheme.secondaryContainer,
                       foreground: theme.colorScheme.onSecondaryContainer,
                     ),
@@ -256,7 +254,7 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                     adapter: widget.adapter,
                     showShare: widget.showShare,
                     canDelete: canDelete,
-                    status: status,
+                    status: workflowStatus,
                     isUpdating: _isUpdating,
                     onUpdating: (val) {
                       if (mounted) setState(() => _isUpdating = val);
@@ -397,30 +395,3 @@ class _MetricPill extends StatelessWidget {
   }
 }
 
-class _StatusBadge extends StatelessWidget {
-  final String status;
-  final Color statusColor;
-
-  const _StatusBadge({required this.status, required this.statusColor});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: statusColor.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: statusColor, width: 0.8),
-      ),
-      child: Text(
-        status.toUpperCase(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: statusColor,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}

@@ -30,7 +30,7 @@
             "campaign_type",
             "po_agency_id_label",
             "po_brand_id_label",
-            "status",
+            "referrer_link_count",
             "created_by_label",
             "updated_by_label"
         ]
@@ -122,6 +122,14 @@
             "visibleInList": false
         },
         {
+            "name": "referrer_link_count",
+            "label": "Referrer Link Count",
+            "type": "intField",
+            "required": false,
+            "visibleInForm": false,
+            "visibleInList": false
+        },
+        {
             "name": "referrer_links",
             "label": "Referrer Links",
             "type": "textarea",
@@ -142,19 +150,6 @@
             "type": "textarea",
             "required": false,
             "maxLength": 500
-        },
-        {
-            "name": "status",
-            "label": "Status",
-            "type": "dropdown",
-            "required": true,
-            "visibleInForm": false,
-            "dropdownOptions": [
-                "pending",
-                "confirmed",
-                "delivered",
-                "cancelled"
-            ]
         },
         {
             "name": "created_by",

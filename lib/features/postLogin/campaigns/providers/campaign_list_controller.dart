@@ -210,7 +210,7 @@ class CampaignListController
               .toLowerCase();
           if (routeName?.contains(query) ?? false) return true;
 
-          if (po.status?.toLowerCase().contains(query) ?? false) return true;
+          if (po.effectiveStatusLabel.toLowerCase().contains(query)) return true;
           if (po.userComment?.toLowerCase().contains(query) ?? false) {
             return true;
           }
