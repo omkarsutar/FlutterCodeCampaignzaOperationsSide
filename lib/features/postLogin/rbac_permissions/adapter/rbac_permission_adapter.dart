@@ -19,6 +19,8 @@ class RbacPermissionAdapter implements EntityAdapter<ModelRbacPermission> {
         return entity.canUpdate;
       case ModelRbacPermissionFields.canDelete:
         return entity.canDelete;
+      case ModelRbacPermissionFields.showInMenu:
+        return entity.showInMenu;
       case ModelRbacPermissionFields.createdAt:
         return entity.createdAt;
       case ModelRbacPermissionFields.updatedAt:

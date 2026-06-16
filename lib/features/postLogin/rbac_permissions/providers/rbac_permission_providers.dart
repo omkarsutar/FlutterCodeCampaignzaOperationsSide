@@ -57,6 +57,7 @@ class RbacPermissionFormState {
   final bool canCreate;
   final bool canUpdate;
   final bool canDelete;
+  final bool showInMenu;
   final bool isLoading;
   final String? error;
 
@@ -67,6 +68,7 @@ class RbacPermissionFormState {
     this.canCreate = false,
     this.canUpdate = false,
     this.canDelete = false,
+    this.showInMenu = false,
     this.isLoading = false,
     this.error,
   });
@@ -78,6 +80,7 @@ class RbacPermissionFormState {
     bool? canCreate,
     bool? canUpdate,
     bool? canDelete,
+    bool? showInMenu,
     bool? isLoading,
     String? error,
   }) {
@@ -88,6 +91,7 @@ class RbacPermissionFormState {
       canCreate: canCreate ?? this.canCreate,
       canUpdate: canUpdate ?? this.canUpdate,
       canDelete: canDelete ?? this.canDelete,
+      showInMenu: showInMenu ?? this.showInMenu,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -130,6 +134,9 @@ class RbacPermissionFormNotifier
       case ModelRbacPermissionFields.canDelete:
         state = state.copyWith(canDelete: value as bool, error: null);
         break;
+      case ModelRbacPermissionFields.showInMenu:
+        state = state.copyWith(showInMenu: value as bool, error: null);
+        break;
     }
   }
 
@@ -158,6 +165,7 @@ class RbacPermissionFormNotifier
         canCreate: state.canCreate,
         canUpdate: state.canUpdate,
         canDelete: state.canDelete,
+        showInMenu: state.showInMenu,
       );
 
       if (entityId == null) {
@@ -210,6 +218,7 @@ class RbacPermissionFormNotifier
       canCreate: entity.canCreate,
       canUpdate: entity.canUpdate,
       canDelete: entity.canDelete,
+      showInMenu: entity.showInMenu,
     );
   }
 

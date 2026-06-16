@@ -20,6 +20,7 @@ class ModelRbacPermissionFields {
   static const String canCreate = 'can_create';
   static const String canUpdate = 'can_update';
   static const String canDelete = 'can_delete';
+  static const String showInMenu = 'show_in_menu';
   static const String createdAt = 'created_at';
   static const String updatedAt = 'updated_at';
 
@@ -31,6 +32,7 @@ class ModelRbacPermissionFields {
     canCreate: 'Can Create',
     canUpdate: 'Can Update',
     canDelete: 'Can Delete',
+    showInMenu: 'Show In Menu',
     createdAt: 'Created At',
     updatedAt: 'Updated At',
   };
@@ -46,6 +48,7 @@ class ModelRbacPermission {
   final bool canCreate;
   final bool canUpdate;
   final bool canDelete;
+  final bool showInMenu;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final Map<String, dynamic> _resolvedLabels;
@@ -58,6 +61,7 @@ class ModelRbacPermission {
     this.canCreate = false,
     this.canUpdate = false,
     this.canDelete = false,
+    this.showInMenu = false,
     this.createdAt,
     this.updatedAt,
     Map<String, dynamic>? resolvedLabels,
@@ -73,6 +77,7 @@ class ModelRbacPermission {
     bool? canCreate,
     bool? canUpdate,
     bool? canDelete,
+    bool? showInMenu,
     DateTime? createdAt,
     DateTime? updatedAt,
     Map<String, dynamic>? resolvedLabels,
@@ -85,6 +90,7 @@ class ModelRbacPermission {
       canCreate: canCreate ?? this.canCreate,
       canUpdate: canUpdate ?? this.canUpdate,
       canDelete: canDelete ?? this.canDelete,
+      showInMenu: showInMenu ?? this.showInMenu,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       resolvedLabels: resolvedLabels ?? this.resolvedLabels,
@@ -107,6 +113,7 @@ class ModelRbacPermission {
       canCreate: map[ModelRbacPermissionFields.canCreate] ?? false,
       canUpdate: map[ModelRbacPermissionFields.canUpdate] ?? false,
       canDelete: map[ModelRbacPermissionFields.canDelete] ?? false,
+      showInMenu: map[ModelRbacPermissionFields.showInMenu] ?? false,
       createdAt: _parseDate(map[ModelRbacPermissionFields.createdAt]),
       updatedAt: _parseDate(map[ModelRbacPermissionFields.updatedAt]),
       resolvedLabels: labelEntries,
@@ -123,6 +130,7 @@ class ModelRbacPermission {
       ModelRbacPermissionFields.canCreate: canCreate,
       ModelRbacPermissionFields.canUpdate: canUpdate,
       ModelRbacPermissionFields.canDelete: canDelete,
+      ModelRbacPermissionFields.showInMenu: showInMenu,
     };
   }
 
@@ -135,6 +143,7 @@ class ModelRbacPermission {
       'canCreate': canCreate,
       'canUpdate': canUpdate,
       'canDelete': canDelete,
+      'showInMenu': showInMenu,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };
@@ -149,6 +158,7 @@ class ModelRbacPermission {
       canCreate: json['canCreate'] as bool? ?? false,
       canUpdate: json['canUpdate'] as bool? ?? false,
       canDelete: json['canDelete'] as bool? ?? false,
+      showInMenu: json['showInMenu'] as bool? ?? false,
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
     );

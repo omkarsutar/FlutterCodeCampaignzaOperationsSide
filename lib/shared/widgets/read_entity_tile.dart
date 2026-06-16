@@ -40,9 +40,10 @@ class ReadEntityTile extends ConsumerWidget {
     final rbacService = ref.watch(rbacServiceProvider);
 
     final canRead = allowAnonymous || rbacService.canRead(moduleName);
+    final canShowInMenu = allowAnonymous || rbacService.canShowInMenu(moduleName);
 
-    if (!canRead || !visible) {
-      // Hide tile if user lacks read permission OR explicitly hidden
+    if (!canRead || !canShowInMenu || !visible) {
+      // Hide tile if user lacks read permission, menu visibility, or is explicitly hidden
       return const SizedBox.shrink();
     }
 

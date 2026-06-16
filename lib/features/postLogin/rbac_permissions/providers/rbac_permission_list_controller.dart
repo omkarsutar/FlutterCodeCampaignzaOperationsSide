@@ -92,6 +92,7 @@ class RbacPermissionListController
             canCreate: false,
             canUpdate: false,
             canDelete: false,
+            showInMenu: false,
           ),
         );
         rolePermissions.add(existing);
@@ -121,6 +122,9 @@ class RbacPermissionListController
         canCreate: field == 'can_create' ? value : permission.canCreate,
         canUpdate: field == 'can_update' ? value : permission.canUpdate,
         canDelete: field == 'can_delete' ? value : permission.canDelete,
+        showInMenu: field == 'show_in_menu'
+            ? value
+            : permission.showInMenu,
       );
 
       if (permission.permissionId == null) {

@@ -145,8 +145,8 @@ class _RolePermissionCard extends StatelessWidget {
     return Row(
       children: [
         Expanded(flex: 2, child: Text('Module', style: labelStyle)),
-        // R C U D
-        ...['Read', 'Create', 'Update', 'Delete'].map(
+        // R C U D M
+        ...['Read', 'Create', 'Update', 'Delete', 'Menu'].map(
           (label) => Expanded(
             flex: 1,
             child: Center(child: Text(label, style: labelStyle)),
@@ -209,6 +209,10 @@ class _PermissionRow extends StatelessWidget {
           Expanded(
             flex: 1,
             child: _buildSwitch(context, 'can_delete', permission.canDelete),
+          ),
+          Expanded(
+            flex: 1,
+            child: _buildSwitch(context, 'show_in_menu', permission.showInMenu),
           ),
         ],
       ),

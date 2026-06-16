@@ -31,6 +31,7 @@ class RbacService {
   // Cache for current user's permissions
   // Format: {moduleId: {action: hasPermission}}
   final Map<String, Map<RbacAction, bool>> _permissionCache = {};
+  final Map<String, bool> _menuVisibilityCache = {};
   String? _cachedRoleId;
   String? _cachedRoleName; // NEW
 
@@ -87,6 +88,7 @@ class RbacService {
           .eq(ModelRbacPermissionFields.roleId, roleId);
 
       _permissionCache.clear();
+      _menuVisibilityCache.clear();
 
       for (final permData in permissions) {
         final permission = ModelRbacPermission.fromMap(permData);
@@ -98,6 +100,7 @@ class RbacService {
           RbacAction.update: permission.canUpdate,
           RbacAction.delete: permission.canDelete,
         };
+        _menuVisibilityCache[moduleName] = permission.showInMenu;
       }
       debugPrint('--- RBAC Permission Cache Loaded ---');
       _permissionCache.forEach((key, val) {
@@ -160,6 +163,7 @@ class RbacService {
   bool canCreate(String moduleId) => hasPermission(moduleId, RbacAction.create);
   bool canUpdate(String moduleId) => hasPermission(moduleId, RbacAction.update);
   bool canDelete(String moduleId) => hasPermission(moduleId, RbacAction.delete);
+  bool canShowInMenu(String moduleId) => _menuVisibilityCache[moduleId] ?? false;
 
   /// Get current user's role ID
   String? get roleId => _cachedRoleId;
@@ -176,6 +180,7 @@ class RbacService {
   /// Clear all cached data (call on logout)
   void clearCache() {
     _permissionCache.clear();
+    _menuVisibilityCache.clear();
     _cachedRoleId = null;
     _cachedRoleName = null;
     initializationNotifier.value = false;

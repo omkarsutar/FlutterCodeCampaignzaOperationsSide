@@ -98,6 +98,14 @@
             "visibleInForm": true
         },
         {
+            "name": "show_in_menu",
+            "label": "Show In Menu",
+            "type": "switchField",
+            "required": true,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
             "name": "created_at",
             "label": "Created At",
             "type": "text",
