@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/providers/brand_providers.dart';
 import '../../../../core/config/module_config.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/shared_widget_barrel.dart';
@@ -72,9 +73,12 @@ class _CollaborationListPageRiverpodState
     {String? existingLink, ModelReferrerLink? existingLinkItem}) async {
     dynamic parentBrand;
     try {
-      parentBrand = await ref.read(
-        collaborationParentBrandProvider(campaign.poId ?? '').future,
-      );
+      final brandId = campaign.campaignBrandId ?? campaign.poBrandId;
+      if (brandId != null && brandId.isNotEmpty) {
+        parentBrand = await ref.read(
+          brandByIdProvider(brandId).future,
+        );
+      }
     } catch (_) {
       parentBrand = null;
     }

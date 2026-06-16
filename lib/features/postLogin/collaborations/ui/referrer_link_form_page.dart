@@ -259,53 +259,6 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _sourceController,
-                  autofocus: true,
-                  decoration: const InputDecoration(
-                    labelText: 'utm_source',
-                    hintText: 'instagram',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Enter utm_source';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    final normalized = value.trim().toLowerCase();
-                    if (_referrerLinkSourceOptions(_referrerLinkSource)
-                        .contains(normalized)) {
-                      _referrerLinkSource = normalized;
-                    } else if (normalized.isNotEmpty) {
-                      // Accept any non-empty typed value as the source
-                      _referrerLinkSource = normalized;
-                    }
-                    setState(() {});
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _mediumController,
-                  readOnly: isMediumLocked,
-                  decoration: InputDecoration(
-                    labelText: 'utm_medium',
-                    hintText: 'bio',
-                    border: const OutlineInputBorder(),
-                    helperText: isMediumLocked
-                        ? 'Locked to collaboration promo code'
-                        : null,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Enter utm_medium';
-                    }
-                    return null;
-                  },
-                  onChanged: isMediumLocked ? null : (_) => setState(() {}),
-                ),
-                const SizedBox(height: 12),
                 Text(
                   'Campaign: ${widget.campaignNameString}',
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -359,6 +312,53 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                       _sourceController.text = value;
                     });
                   },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _sourceController,
+                  autofocus: true,
+                  decoration: const InputDecoration(
+                    labelText: 'utm_source',
+                    hintText: 'instagram',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Enter utm_source';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    final normalized = value.trim().toLowerCase();
+                    if (_referrerLinkSourceOptions(_referrerLinkSource)
+                        .contains(normalized)) {
+                      _referrerLinkSource = normalized;
+                    } else if (normalized.isNotEmpty) {
+                      // Accept any non-empty typed value as the source
+                      _referrerLinkSource = normalized;
+                    }
+                    setState(() {});
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _mediumController,
+                  readOnly: isMediumLocked,
+                  decoration: InputDecoration(
+                    labelText: 'utm_medium',
+                    hintText: 'bio',
+                    border: const OutlineInputBorder(),
+                    helperText: isMediumLocked
+                        ? 'Locked to collaboration promo code'
+                        : null,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Enter utm_medium';
+                    }
+                    return null;
+                  },
+                  onChanged: isMediumLocked ? null : (_) => setState(() {}),
                 ),
                 const SizedBox(height: 24),
                 Row(
