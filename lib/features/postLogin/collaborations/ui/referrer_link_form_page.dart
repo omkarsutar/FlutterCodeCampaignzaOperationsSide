@@ -17,6 +17,8 @@ class ReferrerLinkFormPage extends StatefulWidget {
   final String campaignNameString;
   final String? promoCode;
   final String? existingLink;
+  final String? initialReferrerLinkType;
+  final String? initialReferrerLinkSource;
 
   const ReferrerLinkFormPage({
     super.key,
@@ -24,6 +26,8 @@ class ReferrerLinkFormPage extends StatefulWidget {
     required this.campaignNameString,
     this.promoCode,
     this.existingLink,
+    this.initialReferrerLinkType,
+    this.initialReferrerLinkSource,
   });
 
   @override
@@ -32,10 +36,11 @@ class ReferrerLinkFormPage extends StatefulWidget {
 
 class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   static const List<String> _referrerLinkTypeOptions = ['plain', 'qrcode'];
-  static const List<String> _referrerLinkSourceOptions = [
+  static const List<String> _baseReferrerLinkSourceOptions = [
     'facebook',
     'instagram',
     'youtube',
+    'google',
     'tiktok',
     'twitter',
     'linkedin',
@@ -49,6 +54,17 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
   String _referrerLinkType = 'plain';
   String _referrerLinkSource = 'facebook';
+
+  List<String> _referrerLinkSourceOptions([String? extraValue]) {
+    final options = [..._baseReferrerLinkSourceOptions];
+    final normalizedExtra = extraValue?.trim().toLowerCase();
+    if (normalizedExtra != null &&
+        normalizedExtra.isNotEmpty &&
+        !options.contains(normalizedExtra)) {
+      options.add(normalizedExtra);
+    }
+    return options;
+  }
 
   @override
   void initState() {
@@ -66,10 +82,30 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   void _populateFromExistingLink() {
     final existingLink = widget.existingLink;
     final promoCode = widget.promoCode?.trim();
+    final sourceOptions = _referrerLinkSourceOptions(
+      widget.initialReferrerLinkSource,
+    );
     if (promoCode != null && promoCode.isNotEmpty) {
       _mediumController.text = promoCode;
     }
 
+    // 1. Apply saved type/source from the database (authoritative values)
+    final initialType = widget.initialReferrerLinkType?.trim().toLowerCase();
+    if (initialType != null && _referrerLinkTypeOptions.contains(initialType)) {
+      _referrerLinkType = initialType;
+    }
+
+    final initialSource =
+        widget.initialReferrerLinkSource?.trim().toLowerCase();
+    final hasInitialSource = initialSource != null &&
+        initialSource.isNotEmpty &&
+        sourceOptions.contains(initialSource);
+    if (hasInitialSource) {
+      _referrerLinkSource = initialSource;
+      _sourceController.text = initialSource;
+    }
+
+    // 2. Parse URL as fallback for fields not already set by saved values
     if (existingLink == null || existingLink.isEmpty) return;
 
     final existingUri = Uri.tryParse(existingLink);
@@ -78,10 +114,13 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
     try {
       final parts = Uri.splitQueryString(existingReferrer);
-      _sourceController.text = parts['utm_source'] ?? '';
-      final utmSource = _sourceController.text.trim().toLowerCase();
-      if (_referrerLinkSourceOptions.contains(utmSource)) {
-        _referrerLinkSource = utmSource;
+      // Only use URL-parsed utm_source if no saved source was provided
+      if (!hasInitialSource) {
+        final utmSource = (parts['utm_source'] ?? '').trim().toLowerCase();
+        if (utmSource.isNotEmpty) {
+          _sourceController.text = utmSource;
+          _referrerLinkSource = utmSource;
+        }
       }
       if (promoCode == null || promoCode.isEmpty) {
         _mediumController.text = parts['utm_medium'] ?? '';
@@ -236,7 +275,11 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                   },
                   onChanged: (value) {
                     final normalized = value.trim().toLowerCase();
-                    if (_referrerLinkSourceOptions.contains(normalized)) {
+                    if (_referrerLinkSourceOptions(_referrerLinkSource)
+                        .contains(normalized)) {
+                      _referrerLinkSource = normalized;
+                    } else if (normalized.isNotEmpty) {
+                      // Accept any non-empty typed value as the source
                       _referrerLinkSource = normalized;
                     }
                     setState(() {});
@@ -271,7 +314,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                 ),
                 const SizedBox(height: 20),
                 DropdownButtonFormField<String>(
-                  value: _referrerLinkType,
+                  value: _referrerLinkTypeOptions.contains(_referrerLinkType)
+                      ? _referrerLinkType
+                      : _referrerLinkTypeOptions.first,
                   decoration: const InputDecoration(
                     labelText: 'referrer_link_type',
                     border: OutlineInputBorder(),
@@ -291,12 +336,15 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: _referrerLinkSource,
+                  value: _referrerLinkSourceOptions(_referrerLinkSource)
+                          .contains(_referrerLinkSource)
+                      ? _referrerLinkSource
+                      : _referrerLinkSourceOptions(_referrerLinkSource).first,
                   decoration: const InputDecoration(
                     labelText: 'referrer_link_source',
                     border: OutlineInputBorder(),
                   ),
-                  items: _referrerLinkSourceOptions
+                  items: _referrerLinkSourceOptions(_referrerLinkSource)
                       .map(
                         (value) => DropdownMenuItem<String>(
                           value: value,
@@ -306,7 +354,10 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                       .toList(),
                   onChanged: (value) {
                     if (value == null) return;
-                    setState(() => _referrerLinkSource = value);
+                    setState(() {
+                      _referrerLinkSource = value;
+                      _sourceController.text = value;
+                    });
                   },
                 ),
                 const SizedBox(height: 24),

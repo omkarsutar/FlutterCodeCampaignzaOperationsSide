@@ -1,5 +1,10 @@
+import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../core/config/module_config.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/shared_widget_barrel.dart';
@@ -11,6 +16,7 @@ import '../../cart/ui/cart_item_card.dart';
 import '../../campaigns/ui/widgets/referrer_link_tile.dart';
 import 'referrer_link_form_page.dart';
 import '../../referrer_links/providers/referrer_link_providers.dart';
+import '../../referrer_links/model/referrer_link_model.dart';
 
 class CollaborationListPageRiverpod extends ConsumerStatefulWidget {
   final String poId;
@@ -63,7 +69,7 @@ class _CollaborationListPageRiverpodState
     BuildContext context,
     WidgetRef ref,
     ModelCampaign campaign,
-    {String? existingLink}) async {
+    {String? existingLink, ModelReferrerLink? existingLinkItem}) async {
     dynamic parentBrand;
     try {
       parentBrand = await ref.read(
@@ -87,6 +93,8 @@ class _CollaborationListPageRiverpodState
           appId: resolvedAppId,
           campaignNameString: campaignNameString,
           existingLink: existingLink,
+          initialReferrerLinkType: existingLinkItem?.referrerLinkType,
+          initialReferrerLinkSource: existingLinkItem?.referrerLinkSource,
         ),
       ),
     );
@@ -181,6 +189,35 @@ class _CollaborationListPageRiverpodState
       adapter: ref.read(campaignAdapterProvider),
       onTap: null,
       collaborationTile: true,
+    );
+  }
+
+  Widget? _buildReferrerLinkQrWidget(ModelReferrerLink linkItem) {
+    if (linkItem.referrerLinkType.trim().toLowerCase() != 'qrcode') {
+      return null;
+    }
+
+    final link = linkItem.referrerLinkString.trim();
+    if (link.isEmpty) return null;
+
+    return _QrShareBlock(
+      data: link,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.black12),
+        ),
+        child: QrImageView(
+          data: link,
+          version: QrVersions.auto,
+          size: 180,
+          backgroundColor: Colors.white,
+          gapless: false,
+          errorCorrectionLevel: QrErrorCorrectLevel.M,
+        ),
+      ),
     );
   }
 
@@ -287,14 +324,19 @@ class _CollaborationListPageRiverpodState
                     padding: const EdgeInsets.only(bottom: 20),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
-                        final link = links[index].referrerLinkString;
+                        final linkItem = links[index];
+                        final link = linkItem.referrerLinkString;
                         return ReferrerLinkTile(
                           link: link,
+                          belowLinkWidget: _buildReferrerLinkQrWidget(
+                            linkItem,
+                          ),
                           onEdit: (existingLink) => _showReferrerLinkPage(
                             context,
                             ref,
                             campaign,
                             existingLink: existingLink,
+                            existingLinkItem: linkItem,
                           ),
                           onDelete: (existingLink) => _deleteReferrerLink(
                             context,
@@ -391,6 +433,69 @@ class _CollaborationListPageRiverpodState
                 return _buildReferrerLinksBody(campaign);
               },
             ),
+    );
+  }
+}
+
+class _QrShareBlock extends StatefulWidget {
+  final String data;
+  final Widget child;
+
+  const _QrShareBlock({
+    required this.data,
+    required this.child,
+  });
+
+  @override
+  State<_QrShareBlock> createState() => _QrShareBlockState();
+}
+
+class _QrShareBlockState extends State<_QrShareBlock> {
+  final GlobalKey _boundaryKey = GlobalKey();
+
+  Future<void> _shareQrCode() async {
+    try {
+      final boundary =
+          _boundaryKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
+      if (boundary == null) return;
+
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return;
+
+      final pngBytes = byteData.buffer.asUint8List();
+      final fileName = 'referrer_qr.png';
+
+      if (kIsWeb) {
+        await Share.share(widget.data);
+        return;
+      }
+
+      await Share.shareXFiles(
+        [XFile.fromData(pngBytes, name: fileName, mimeType: 'image/png')],
+        subject: 'Referrer QR Code',
+        text: widget.data,
+      );
+    } catch (_) {
+      if (mounted) {
+        await Share.share(widget.data);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        RepaintBoundary(key: _boundaryKey, child: widget.child),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          onPressed: _shareQrCode,
+          icon: const Icon(Icons.share_outlined),
+          label: const Text('Share QR Code'),
+        ),
+      ],
     );
   }
 }

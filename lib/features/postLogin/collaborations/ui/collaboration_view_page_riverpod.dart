@@ -648,6 +648,8 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
           campaignNameString: campaignNameString,
           promoCode: collaboration.promoCode,
           existingLink: existingLinkItem?.referrerLinkString,
+          initialReferrerLinkType: existingLinkItem?.referrerLinkType,
+          initialReferrerLinkSource: existingLinkItem?.referrerLinkSource,
         ),
       ),
     );
