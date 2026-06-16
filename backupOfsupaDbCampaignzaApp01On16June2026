@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict u7kKyb7hb6cHUORsHlkoSrOGbvKXHcKKLL1YgMZeH6aZEqOB9uqQxNvcU7agSAm
+\restrict co79eo5qULaYKpj9YS2tIZqHtFHlQ03c4H0k7iE8dNgpdfywsXVwXNxb3h7PZ1V
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 18.3
 
--- Started on 2026-06-16 19:27:27
+-- Started on 2026-06-16 23:26:12
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3654,11 +3654,11 @@ ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON T
 ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO service_role;
 
 
--- Completed on 2026-06-16 19:28:01
+-- Completed on 2026-06-16 23:26:26
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict u7kKyb7hb6cHUORsHlkoSrOGbvKXHcKKLL1YgMZeH6aZEqOB9uqQxNvcU7agSAm
+\unrestrict co79eo5qULaYKpj9YS2tIZqHtFHlQ03c4H0k7iE8dNgpdfywsXVwXNxb3h7PZ1V
 
