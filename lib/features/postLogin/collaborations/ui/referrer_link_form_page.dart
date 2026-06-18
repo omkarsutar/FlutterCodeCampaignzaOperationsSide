@@ -66,6 +66,16 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     return options;
   }
 
+  String _normalizeUtmValue(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return trimmed;
+    return trimmed.replaceAll(RegExp(r'\s+'), '_');
+  }
+
+  String _normalizePromoCode(String value) {
+    return value.trim().replaceAll(RegExp(r'\s+'), '').toUpperCase();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -85,7 +95,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     final sourceOptions =
         _referrerLinkSourceOptions(widget.initialReferrerLinkSource);
     if (promoCode != null && promoCode.isNotEmpty) {
-      _mediumController.text = promoCode;
+      _mediumController.text = _normalizePromoCode(promoCode);
     }
 
     // 1. Apply saved type/source from the database (authoritative values)
@@ -112,23 +122,23 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
     try {
       final parts = Uri.splitQueryString(existingReferrer);
-      final utmSource = (parts['utm_source'] ?? '').trim();
+      final utmSource = _normalizeUtmValue(parts['utm_source'] ?? '');
       if (utmSource.isNotEmpty) {
         _utmSourceController.text = utmSource;
       }
       if (promoCode == null || promoCode.isEmpty) {
-        _mediumController.text = parts['utm_medium'] ?? '';
+        _mediumController.text = _normalizeUtmValue(parts['utm_medium'] ?? '');
       }
     } catch (_) {}
   }
 
   String _buildPreviewUrl() {
-    final source = _utmSourceController.text.trim().isEmpty
+    final source = _normalizeUtmValue(_utmSourceController.text).isEmpty
         ? '<>'
-        : _utmSourceController.text.trim();
+        : _normalizeUtmValue(_utmSourceController.text);
     final mediumValue = widget.promoCode?.trim().isNotEmpty == true
-        ? widget.promoCode!.trim()
-        : _mediumController.text.trim();
+        ? _normalizePromoCode(widget.promoCode!)
+        : _normalizeUtmValue(_mediumController.text);
     final medium = mediumValue.isEmpty ? '<>' : mediumValue;
     final referrer = Uri.encodeComponent(
       'utm_source=$source&utm_campaign=${widget.campaignNameString}&utm_medium=$medium',
@@ -314,7 +324,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
+                    if (value == null || _normalizeUtmValue(value).isEmpty) {
                       return 'Enter utm_source';
                     }
                     return null;
