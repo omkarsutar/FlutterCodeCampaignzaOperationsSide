@@ -74,10 +74,6 @@ class ModelAgency {
       'agencyName': agencyName,
       'agencyNote': agencyNote,
       'isActive': isActive,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
-      'createdBy': createdBy,
-      'updatedBy': updatedBy,
     };
   }
 

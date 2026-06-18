@@ -109,10 +109,6 @@ class ModelAgencyBrandLink {
       'agencyId': agencyId,
       'brandId': brandId,
       'brandsPrimaryAgency': brandsPrimaryAgency,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
-      'createdBy': createdBy,
-      'updatedBy': updatedBy,
       'visitOrder': visitOrder,
     };
   }

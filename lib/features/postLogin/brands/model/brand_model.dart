@@ -199,10 +199,6 @@ class ModelBrand {
       'brandLong': brandLong,
       'androidAppId': androidAppId,
       'websiteUrl': websiteUrl,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
-      'createdBy': createdBy,
-      'updatedBy': updatedBy,
       'visitOrder': visitOrder,
     };
   }

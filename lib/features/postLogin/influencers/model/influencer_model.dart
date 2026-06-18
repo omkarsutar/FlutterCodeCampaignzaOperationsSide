@@ -125,10 +125,6 @@ class ModelInfluencer {
       'isActive': isActive,
       'isAvailable': isAvailable,
       'influencerImageUrl': influencerImageUrl,
-      'createdBy': createdBy,
-      'updatedBy': updatedBy,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 

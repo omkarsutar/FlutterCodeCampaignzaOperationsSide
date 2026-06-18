@@ -144,8 +144,6 @@ class ModelRbacPermission {
       'canUpdate': canUpdate,
       'canDelete': canDelete,
       'showInMenu': showInMenu,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 

@@ -73,8 +73,6 @@ class ModelUser {
       'roleId': roleId,
       'userPhotoUrl': userPhotoUrl,
       'email': email,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
       'resolvedLabels': resolvedLabels,
     };
   }

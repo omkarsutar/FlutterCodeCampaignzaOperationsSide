@@ -342,10 +342,6 @@ class ModelCollaboration {
       'promoCode': promoCode,
       'discountPercentage': discountPercentage,
       'isActive': isActive,
-      'createdBy': createdBy,
-      'updatedBy': updatedBy,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 

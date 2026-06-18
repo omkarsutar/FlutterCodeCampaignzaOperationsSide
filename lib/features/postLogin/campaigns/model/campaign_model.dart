@@ -312,10 +312,6 @@ class ModelCampaign {
       'status': status,
       'validFrom': validFrom?.toIso8601String(),
       'validUntil': validUntil?.toIso8601String(),
-      'createdBy': createdBy,
-      'updatedBy': updatedBy,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
       'visitOrder': visitOrder,
     };
   }
