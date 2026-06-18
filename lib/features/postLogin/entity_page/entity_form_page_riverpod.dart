@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/config/field_config.dart';
 import '../../../core/models/entity_meta.dart';
@@ -11,6 +12,8 @@ import '../../../shared/widgets/custom_app_bar.dart';
 import '../../../core/providers/core_providers.dart';
 import 'providers/entity_form_logic.dart';
 import 'providers/generic_form_controller.dart';
+
+enum _AvailabilityStatus { idle, checking, available, unavailable, error }
 
 /// Generic Riverpod version of Entity Form Page
 /// Can be used for any entity type (Role, Note, etc.)
@@ -64,6 +67,10 @@ class _EntityFormPageRiverpodState<T>
   final Map<String, dynamic> _dropdownValues = {}; // Store selected IDs
   final Map<String, String> _selectorLabels =
       {}; // Store display labels for selectors
+  final Map<String, String?> _initialFieldValues = {};
+  final Map<String, _AvailabilityStatus> _availabilityStatuses = {};
+  final Map<String, String?> _availabilityCheckedValues = {};
+  final Map<String, String?> _availabilityMessages = {};
 
   // Track if we have initialized form data from remote entity
   bool _isDataLoaded = false;
@@ -100,6 +107,7 @@ class _EntityFormPageRiverpodState<T>
   void _initializeControllers() {
     for (var field in widget.fieldConfigs) {
       final defaultValue = widget.defaultValues?[field.name];
+      _initialFieldValues[field.name] = defaultValue?.toString();
 
       if (field.type == FieldType.switchField) {
         _switchValues[field.name] = (defaultValue as bool?) ?? false;
@@ -159,13 +167,123 @@ class _EntityFormPageRiverpodState<T>
       } else {
         _controllers[field.name]?.text = value.toString();
       }
+
+      _initialFieldValues[field.name] = value.toString();
     }
 
     setState(() => _isDataLoaded = true);
   }
 
+  List<FieldConfig> _availabilityFields() {
+    return widget.fieldConfigs
+        .where((field) => field.availabilityCheckRpc != null)
+        .toList();
+  }
+
+  void _invalidateAvailability(String fieldName) {
+    final currentValue = _controllers[fieldName]?.text.trim();
+    final checkedValue = _availabilityCheckedValues[fieldName];
+    if (currentValue == checkedValue) return;
+
+    setState(() {
+      _availabilityStatuses[fieldName] = _AvailabilityStatus.idle;
+      _availabilityMessages[fieldName] = null;
+      _availabilityCheckedValues.remove(fieldName);
+    });
+  }
+
+  Future<void> _checkAvailability(FieldConfig field) async {
+    final rpcName = field.availabilityCheckRpc;
+    final controller = _controllers[field.name];
+    final currentValue = controller?.text.trim() ?? '';
+
+    if (rpcName == null) return;
+
+    if (currentValue.isEmpty) {
+      SnackbarUtils.showError('Enter ${field.label.toLowerCase()} first.');
+      return;
+    }
+
+    setState(() {
+      _availabilityStatuses[field.name] = _AvailabilityStatus.checking;
+      _availabilityMessages[field.name] = null;
+    });
+
+    try {
+      final rpcResult = await Supabase.instance.client.rpc(
+        rpcName,
+        params: {'p_${field.name}': currentValue},
+      );
+      final isAvailable = rpcResult is bool ? rpcResult : false;
+
+      if (!mounted) return;
+
+      setState(() {
+        _availabilityCheckedValues[field.name] = currentValue;
+        _availabilityStatuses[field.name] = isAvailable
+            ? _AvailabilityStatus.available
+            : _AvailabilityStatus.unavailable;
+        _availabilityMessages[field.name] = isAvailable
+            ? '${field.label} is available.'
+            : '${field.label} is already in use.';
+      });
+
+      if (isAvailable) {
+        SnackbarUtils.showSuccess('${field.label} is available.');
+      } else {
+        SnackbarUtils.showError('${field.label} is already in use.');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _availabilityStatuses[field.name] = _AvailabilityStatus.error;
+        _availabilityMessages[field.name] =
+            'Failed to check ${field.label.toLowerCase()}.';
+      });
+      SnackbarUtils.showError('Failed to check ${field.label.toLowerCase()}.');
+      debugPrint('Availability check failed for ${field.name}: $e');
+    }
+  }
+
+  bool _canSkipAvailabilityCheck(FieldConfig field, String currentValue) {
+    if (currentValue.isEmpty) return true;
+
+    final originalValue = _initialFieldValues[field.name]?.trim();
+    if (widget.entityId != null &&
+        originalValue != null &&
+        originalValue == currentValue) {
+      return true;
+    }
+
+    return false;
+  }
+
+  bool _hasPassedAvailabilityCheck(FieldConfig field, String currentValue) {
+    final checkedValue = _availabilityCheckedValues[field.name];
+    final status = _availabilityStatuses[field.name];
+
+    return checkedValue == currentValue &&
+        status == _AvailabilityStatus.available;
+  }
+
+  Future<bool> _validateAvailabilityBeforeSave() async {
+    for (final field in _availabilityFields()) {
+      final currentValue = _controllers[field.name]?.text.trim() ?? '';
+      if (_canSkipAvailabilityCheck(field, currentValue)) continue;
+
+      if (!_hasPassedAvailabilityCheck(field, currentValue)) {
+        final message =
+            'Check availability for ${field.label.toLowerCase()} before saving.';
+        SnackbarUtils.showError(message);
+        return false;
+      }
+    }
+    return true;
+  }
+
   Future<void> _onSavePressed(GenericFormController controller) async {
     if (!_formKey.currentState!.validate()) return;
+    if (!await _validateAvailabilityBeforeSave()) return;
 
     // Determine currently visible fields (taking into account any conditional filtering)
     var activeFields = widget.fieldConfigs
@@ -203,7 +321,7 @@ class _EntityFormPageRiverpodState<T>
       }
     }
 
-    controller.saveEntity(
+    await controller.saveEntity(
       onSave: widget.onSave,
       fieldValues: fieldValues,
       entityId: widget.entityId,
@@ -325,8 +443,68 @@ class _EntityFormPageRiverpodState<T>
     );
   }
 
+  Widget _buildAvailabilityControls(FieldConfig field) {
+    final status = _availabilityStatuses[field.name] ?? _AvailabilityStatus.idle;
+    final message = _availabilityMessages[field.name];
+    final isChecking = status == _AvailabilityStatus.checking;
+    final currentValue = _controllers[field.name]?.text.trim() ?? '';
+    final canCheck = currentValue.isNotEmpty && !isChecking;
+
+    Color? statusColor;
+    switch (status) {
+      case _AvailabilityStatus.available:
+        statusColor = Colors.green;
+        break;
+      case _AvailabilityStatus.unavailable:
+      case _AvailabilityStatus.error:
+        statusColor = Colors.red;
+        break;
+      case _AvailabilityStatus.checking:
+        statusColor = Theme.of(context).colorScheme.primary;
+        break;
+      case _AvailabilityStatus.idle:
+        statusColor = Theme.of(context).hintColor;
+        break;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: canCheck ? () => _checkAvailability(field) : null,
+              icon: isChecking
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    )
+                  : const Icon(Icons.search),
+              label: Text(isChecking ? 'Checking' : 'Check availability'),
+            ),
+          ),
+          if (message != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: statusColor,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildTextField(FieldConfig field, {bool isFirst = false}) {
-    return TextFormField(
+    final textField = TextFormField(
       controller: _controllers[field.name],
       focusNode: isFirst ? _firstFocusNode : null,
       autofocus: isFirst && !field.readOnly,
@@ -339,6 +517,21 @@ class _EntityFormPageRiverpodState<T>
         helperText: field.readOnly ? 'Read-only' : null,
       ),
       validator: EntityFormLogic.buildValidator(field),
+      onChanged: field.availabilityCheckRpc == null
+          ? null
+          : (_) => _invalidateAvailability(field.name),
+    );
+
+    if (field.availabilityCheckRpc == null) {
+      return textField;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        textField,
+        _buildAvailabilityControls(field),
+      ],
     );
   }
 
@@ -358,6 +551,9 @@ class _EntityFormPageRiverpodState<T>
         helperText: field.readOnly ? 'Read-only' : null,
       ),
       validator: EntityFormLogic.buildValidator(field),
+      onChanged: field.availabilityCheckRpc == null
+          ? null
+          : (_) => _invalidateAvailability(field.name),
     );
   }
 

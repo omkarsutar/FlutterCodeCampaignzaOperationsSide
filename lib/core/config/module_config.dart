@@ -228,6 +228,7 @@ extension FieldConfigJson on FieldConfig {
       dropdownSource: json['dropdownSource'] != null
           ? DropdownSource.fromJson(json['dropdownSource'])
           : null,
+      availabilityCheckRpc: json['availabilityCheckRpc'] as String?,
     );
   }
 
@@ -245,6 +246,8 @@ extension FieldConfigJson on FieldConfig {
       if (suffix != null) 'suffix': suffix,
       if (dropdownOptions != null) 'dropdownOptions': dropdownOptions,
       if (dropdownSource != null) 'dropdownSource': dropdownSource!.toJson(),
+      if (availabilityCheckRpc != null)
+        'availabilityCheckRpc': availabilityCheckRpc,
     };
   }
 

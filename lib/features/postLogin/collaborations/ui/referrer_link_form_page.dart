@@ -49,7 +49,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   ];
 
   final _formKey = GlobalKey<FormState>();
-  final _sourceController = TextEditingController();
+  final _utmSourceController = TextEditingController();
   final _mediumController = TextEditingController();
 
   String _referrerLinkType = 'plain';
@@ -74,7 +74,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
   @override
   void dispose() {
-    _sourceController.dispose();
+    _utmSourceController.dispose();
     _mediumController.dispose();
     super.dispose();
   }
@@ -82,9 +82,8 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   void _populateFromExistingLink() {
     final existingLink = widget.existingLink;
     final promoCode = widget.promoCode?.trim();
-    final sourceOptions = _referrerLinkSourceOptions(
-      widget.initialReferrerLinkSource,
-    );
+    final sourceOptions =
+        _referrerLinkSourceOptions(widget.initialReferrerLinkSource);
     if (promoCode != null && promoCode.isNotEmpty) {
       _mediumController.text = promoCode;
     }
@@ -102,7 +101,6 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
         sourceOptions.contains(initialSource);
     if (hasInitialSource) {
       _referrerLinkSource = initialSource;
-      _sourceController.text = initialSource;
     }
 
     // 2. Parse URL as fallback for fields not already set by saved values
@@ -114,13 +112,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
     try {
       final parts = Uri.splitQueryString(existingReferrer);
-      // Only use URL-parsed utm_source if no saved source was provided
-      if (!hasInitialSource) {
-        final utmSource = (parts['utm_source'] ?? '').trim().toLowerCase();
-        if (utmSource.isNotEmpty) {
-          _sourceController.text = utmSource;
-          _referrerLinkSource = utmSource;
-        }
+      final utmSource = (parts['utm_source'] ?? '').trim();
+      if (utmSource.isNotEmpty) {
+        _utmSourceController.text = utmSource;
       }
       if (promoCode == null || promoCode.isEmpty) {
         _mediumController.text = parts['utm_medium'] ?? '';
@@ -129,9 +123,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   }
 
   String _buildPreviewUrl() {
-    final source = _sourceController.text.trim().isEmpty
+    final source = _utmSourceController.text.trim().isEmpty
         ? '<>'
-        : _sourceController.text.trim();
+        : _utmSourceController.text.trim();
     final mediumValue = widget.promoCode?.trim().isNotEmpty == true
         ? widget.promoCode!.trim()
         : _mediumController.text.trim();
@@ -307,15 +301,12 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                       .toList(),
                   onChanged: (value) {
                     if (value == null) return;
-                    setState(() {
-                      _referrerLinkSource = value;
-                      _sourceController.text = value;
-                    });
+                    setState(() => _referrerLinkSource = value);
                   },
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  controller: _sourceController,
+                  controller: _utmSourceController,
                   autofocus: true,
                   decoration: const InputDecoration(
                     labelText: 'utm_source',
@@ -329,14 +320,6 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                     return null;
                   },
                   onChanged: (value) {
-                    final normalized = value.trim().toLowerCase();
-                    if (_referrerLinkSourceOptions(_referrerLinkSource)
-                        .contains(normalized)) {
-                      _referrerLinkSource = normalized;
-                    } else if (normalized.isNotEmpty) {
-                      // Accept any non-empty typed value as the source
-                      _referrerLinkSource = normalized;
-                    }
                     setState(() {});
                   },
                 ),

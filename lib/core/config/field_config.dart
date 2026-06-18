@@ -35,13 +35,14 @@ class FieldConfig {
   final FieldType type;
   final bool required;
   final bool readOnly;
-  final bool visibleInForm; // Show/hide in form pages
-  final bool visibleInList; // Show/hide in list pages
+  final bool visibleInForm;
+  final bool visibleInList;
   final int? maxLength;
-  final DropdownSource? dropdownSource; // unified type
+  final DropdownSource? dropdownSource;
   final List<String>? dropdownOptions;
-  final String? prefix; // e.g. '₹ ' for currency fields
-  final String? suffix; // e.g. ' kg' for weight fields
+  final String? prefix;
+  final String? suffix;
+  final String? availabilityCheckRpc;
 
   FieldConfig({
     required this.name,
@@ -56,6 +57,7 @@ class FieldConfig {
     this.dropdownOptions,
     this.prefix,
     this.suffix,
+    this.availabilityCheckRpc,
   });
 
   factory FieldConfig.fromJson(Map<String, dynamic> json) {
@@ -79,6 +81,7 @@ class FieldConfig {
           : null,
       prefix: json['prefix'] as String?,
       suffix: json['suffix'] as String?,
+      availabilityCheckRpc: json['availabilityCheckRpc'] as String?,
     );
   }
 
@@ -96,6 +99,8 @@ class FieldConfig {
       if (dropdownSource != null) 'dropdownSource': dropdownSource!.toJson(),
       if (prefix != null) 'prefix': prefix,
       if (suffix != null) 'suffix': suffix,
+      if (availabilityCheckRpc != null)
+        'availabilityCheckRpc': availabilityCheckRpc,
     };
   }
 }

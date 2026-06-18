@@ -105,6 +105,7 @@
             "label": "Promo Code",
             "type": "text",
             "required": false,
+            "availabilityCheckRpc": "check_promo_code_availability",
             "visibleInList": true,
             "visibleInForm": true
         },

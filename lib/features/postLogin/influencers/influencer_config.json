@@ -63,6 +63,7 @@
             "type": "text",
             "required": true,
             "maxLength": 200,
+            "availabilityCheckRpc": "check_influencer_name_availability",
             "visibleInList": true,
             "visibleInForm": true
         },

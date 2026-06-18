@@ -50,6 +50,7 @@
             "label": "Campaign Name",
             "type": "text",
             "required": true,
+            "availabilityCheckRpc": "check_campaign_name_availability",
             "visibleInList": true,
             "visibleInForm": true
         },

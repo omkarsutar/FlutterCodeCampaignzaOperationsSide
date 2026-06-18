@@ -37,6 +37,7 @@
             "type": "text",
             "required": true,
             "maxLength": 200,
+            "availabilityCheckRpc": "check_brand_name_availability",
             "visibleInList": true,
             "visibleInForm": true
         },
