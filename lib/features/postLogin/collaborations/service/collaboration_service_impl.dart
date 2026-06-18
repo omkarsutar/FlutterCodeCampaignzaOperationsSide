@@ -211,7 +211,7 @@ class CollaborationServiceImpl
     ModelCollaboration entity,
     String selectedPoId,
   ) async {
-    final data = mapper.toMap(entity);
+    final data = stripSupabaseAuditFields(mapper.toMap(entity));
     data[ModelCollaborationFields.campaignId] = selectedPoId;
 
     final inserted = await client

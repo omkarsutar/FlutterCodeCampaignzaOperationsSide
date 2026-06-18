@@ -59,7 +59,7 @@ abstract class SupabaseEntityService<T> extends LoggingEntityService<T> {
   Future<T> createImpl(T entity) async {
     final inserted = await client
         .from(tableName)
-        .insert(mapper.toMap(entity))
+        .insert(stripSupabaseAuditFields(mapper.toMap(entity)))
         .select()
         .single();
     return mapper.fromMap(inserted);
@@ -69,7 +69,7 @@ abstract class SupabaseEntityService<T> extends LoggingEntityService<T> {
   Future<T> updateImpl(String id, T entity) async {
     final updated = await client
         .from(tableName)
-        .update(mapper.toMap(entity))
+        .update(stripSupabaseAuditFields(mapper.toMap(entity)))
         .eq(idColumn, id)
         .select()
         .single();

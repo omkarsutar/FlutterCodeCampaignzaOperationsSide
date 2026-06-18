@@ -83,12 +83,13 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     );
 
     final enriched = mapper.toMap(entity);
+    final payload = stripSupabaseAuditFields(enriched);
     // Exclude status field as per Supabase logic
-    enriched.remove(ModelCampaignFields.status);
-    enriched.remove(ModelCampaignFields.collaborationCount);
+    payload.remove(ModelCampaignFields.status);
+    payload.remove(ModelCampaignFields.collaborationCount);
     final response = await client
         .from(tableName)
-        .insert(enriched)
+        .insert(payload)
         .select()
         .single();
     return response;
@@ -103,10 +104,10 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
   }) async {
     final campaign = await fetchById(campaignId);
     final uri = Uri.tryParse(referrerLink);
-    final source =
-        referrerLinkSource?.trim().isNotEmpty == true
-            ? referrerLinkSource!.trim()
-            : uri?.queryParameters['utm_source'] ?? 'direct';
+      final source =
+          referrerLinkSource?.trim().isNotEmpty == true
+              ? referrerLinkSource!.trim()
+              : uri?.queryParameters['utm_source'] ?? 'direct';
 
     await client.from('referrer_links').insert({
       'referrer_link_string': referrerLink.trim(),
@@ -139,7 +140,6 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
           'referrer_link_string': newReferrerLink.trim(),
           'referrer_link_type': referrerLinkType,
           'referrer_link_source': source,
-          'updated_at': DateTime.now().toIso8601String(),
         })
         .eq('campaign_id', campaignId)
         .eq('referrer_link_string', oldReferrerLink.trim());
@@ -323,7 +323,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
   Future<ModelCampaign> create(ModelCampaign entity) async {
     try {
       // Get the map and exclude status field as per Supabase logic
-      final payload = mapper.toMap(entity);
+      final payload = stripSupabaseAuditFields(mapper.toMap(entity));
       payload.remove(ModelCampaignFields.status);
       payload.remove(ModelCampaignFields.collaborationCount);
 
@@ -368,7 +368,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
 
   @override
   Future<void> insertEntity(ModelCampaign entity) async {
-    final enriched = mapper.toMap(entity);
+    final enriched = stripSupabaseAuditFields(mapper.toMap(entity));
     // Exclude status field as per Supabase logic
     enriched.remove(ModelCampaignFields.status);
     enriched.remove(ModelCampaignFields.collaborationCount);

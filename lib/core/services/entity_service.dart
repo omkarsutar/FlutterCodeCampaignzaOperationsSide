@@ -62,6 +62,19 @@ abstract class EntityMapper<T> {
   Map<String, dynamic> toMap(T entity);
 }
 
+const Set<String> _supabaseAuditFields = {
+  'created_at',
+  'updated_at',
+  'created_by',
+  'updated_by',
+};
+
+Map<String, dynamic> stripSupabaseAuditFields(Map<String, dynamic> payload) {
+  final sanitized = Map<String, dynamic>.from(payload);
+  sanitized.removeWhere((key, value) => _supabaseAuditFields.contains(key));
+  return sanitized;
+}
+
 /// Adapter interface for accessing entity properties dynamically
 abstract class EntityAdapter<T> {
   /// Get a field value from entity
@@ -156,7 +169,7 @@ abstract class ForeignKeyAwareService<T> implements EntityService<T> {
       logger.info('Creating new $T in $tableName');
       final inserted = await client
           .from(tableName)
-          .insert(mapper.toMap(entity))
+          .insert(stripSupabaseAuditFields(mapper.toMap(entity)))
           .select()
           .single();
       final resolved = await resolveForeignLabelsForSingle(inserted);
@@ -174,7 +187,7 @@ abstract class ForeignKeyAwareService<T> implements EntityService<T> {
       logger.info('Updating $T with id=$id in $tableName');
       final updated = await client
           .from(tableName)
-          .update(mapper.toMap(entity))
+          .update(stripSupabaseAuditFields(mapper.toMap(entity)))
           .eq(idColumn, id)
           .select()
           .single();

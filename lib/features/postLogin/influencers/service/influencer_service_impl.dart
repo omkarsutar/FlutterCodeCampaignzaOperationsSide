@@ -89,7 +89,7 @@ class InfluencerServiceImpl extends SupabaseEntityService<ModelInfluencer> {
   Future<ModelInfluencer> createImpl(ModelInfluencer entity) async {
     final inserted = await client
         .from(tableName)
-        .insert(mapper.toMap(entity))
+        .insert(stripSupabaseAuditFields(mapper.toMap(entity)))
         .select()
         .single();
     return mapper.fromMap(inserted);
