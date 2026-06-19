@@ -10,6 +10,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agency_brand_links/agency_brand_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/dashboard/dashboard_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_brand_links/retailer_brand_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/user_agency_links/user_agency_link_barrel.dart';
@@ -38,6 +39,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...NotesRoutesJson.routes,
       ...AgenciesRoutesJson.routes,
       ...BrandsRoutesJson.routes,
+      GoRoute(
+        name: AppRoute.dashboardName,
+        path: AppRoute.dashboard,
+        builder: (context, state) => const DashboardPage(),
+      ),
       ...AgencyBrandLinksRoutesJson.routes,
       ...RolesRoutesJson.routes,
       ...UsersRoutesJson.routes,
@@ -52,7 +58,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...UserAgencyLinkRoutesJson.routes,
       ...UserInfluencerLinkRoutesJson.routes,
     ],
-    initialLocation: BrandsRoutesJson.brands,
+    initialLocation: AppRoute.welcome,
     refreshListenable: rbacService.initializationNotifier,
     redirect: (context, state) async {
       final session = Supabase.instance.client.auth.currentSession;
@@ -95,9 +101,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         }
 
         debugPrint(
-          'AppRouter: User role is $roleName -> Redirecting to Brands list',
+          'AppRouter: User role is $roleName -> Redirecting to Dashboard',
         );
-        return state.namedLocation(BrandsRoutesJson.listRouteName);
+        return state.namedLocation(AppRoute.dashboardName);
       }
 
       // --- RBAC Route Protection ---

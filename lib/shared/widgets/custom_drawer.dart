@@ -102,6 +102,13 @@ class CustomDrawer extends ConsumerWidget {
             ),
           ),
 
+          if (isLoggedIn)
+            ListTile(
+              leading: const Icon(Icons.dashboard_rounded),
+              title: const Text('Dashboard'),
+              onTap: () => context.goNamed(AppRoute.dashboardName),
+            ),
+
           // Removed Todays Brands per user request
 
           // Agencies

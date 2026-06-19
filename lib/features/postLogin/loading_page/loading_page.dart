@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,7 +25,7 @@ class LoadingPage extends ConsumerWidget {
         final state = GoRouterState.of(context);
         if (state.uri.path != AppRoute.loading) return;
 
-        context.goNamed(BrandsRoutesJson.listRouteName);
+        context.goNamed(AppRoute.dashboardName);
       });
     }
 
