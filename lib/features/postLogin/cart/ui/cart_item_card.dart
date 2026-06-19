@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../collaborations/model/collaboration_model.dart';
 import '../../collaborations/providers/collaboration_providers.dart';
 import '../../collaborations/providers/collaboration_list_controller.dart';
+import '../../campaigns/providers/campaign_providers.dart';
+import '../../agencies/providers/agency_providers.dart';
+import '../../brands/providers/brand_providers.dart';
 import '../../influencers/influencer_barrel.dart';
 import '../providers/cart_providers.dart';
 
@@ -68,7 +71,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final lastModifiedId =
-        widget.lastModifiedId ??
+        widget.lastModifiedId ?? 
         ref.watch(cartProvider.select((s) => s.lastModifiedItemId));
 
     if (lastModifiedId == widget.entity.collaborationId && !_isHighlighted) {
@@ -89,6 +92,34 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
         influencer?.influencerCategory ??
         widget.entity.resolvedLabels['influencer_category_label'] ??
         'General';
+
+    final campaignAsync = widget.entity.campaignId != null
+        ? ref.watch(campaignByIdProvider(widget.entity.campaignId!))
+        : null;
+    final campaign = campaignAsync?.valueOrNull;
+
+    final brandAsync = campaign?.campaignBrandId != null
+        ? ref.watch(brandByIdProvider(campaign!.campaignBrandId!))
+        : null;
+    final agencyAsync = campaign?.campaignAgencyId != null
+        ? ref.watch(agencyByIdProvider(campaign!.campaignAgencyId!))
+        : null;
+
+    final campaignName =
+        campaign?.campaignNameString ??
+        campaign?.campaignName ??
+        widget.entity.resolvedLabels['campaign_id_label']?.toString() ??
+        widget.entity.campaignId ??
+        '-';
+    final brandName =
+        brandAsync?.valueOrNull?.brandName ??
+        campaign?.campaignBrandLabel?.toString() ??
+        '-';
+    final agencyName =
+        agencyAsync?.valueOrNull?.agencyName ??
+        campaign?.campaignAgencyLabel?.toString() ??
+        '-';
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeOut,
@@ -289,6 +320,12 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
+                      if (widget.isReadOnly) ...[
+                        const SizedBox(height: 8),
+                        _MetaLine(label: 'Agency', value: agencyName),
+                        _MetaLine(label: 'Brand', value: brandName),
+                        _MetaLine(label: 'Campaign', value: campaignName),
+                      ],
                       const Spacer(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -330,6 +367,42 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _MetaLine extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _MetaLine({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        children: [
+          Text(
+            '$label: ',
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

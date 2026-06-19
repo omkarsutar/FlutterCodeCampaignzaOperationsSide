@@ -376,8 +376,68 @@ class _CollaborationListPageRiverpodState
     );
   }
 
+  Widget _buildGlobalCollaborationsBody(
+    AsyncValue<CollaborationListState> asyncState,
+  ) {
+    return asyncState.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Error loading collaborations: $error'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => ref.invalidate(
+                collaborationListControllerProvider(''),
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+      data: (state) {
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(collaborationListControllerProvider(''));
+            await ref.read(
+              collaborationListControllerProvider('').future,
+            );
+          },
+          child: state.items.isEmpty
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: const [
+                    SizedBox(height: 120),
+                    Center(
+                      child: Text('No collaborations found.'),
+                    ),
+                  ],
+                )
+              : ListView.builder(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: state.items.length,
+                  itemBuilder: (context, index) {
+                    final item = state.items[index];
+                    return CartItemCard(
+                      key: ValueKey(item.collaborationId),
+                      entity: item,
+                      influencers: state.influencers,
+                      isReadOnly: true,
+                      lastModifiedId: state.lastModifiedItemId,
+                      poId: item.campaignId,
+                    );
+                  },
+                ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isGlobalView = widget.poId.isEmpty;
     final campaignAsync = widget.poId.isNotEmpty
         ? ref.watch(campaignStreamByIdProvider(widget.poId))
         : null;
@@ -393,6 +453,9 @@ class _CollaborationListPageRiverpodState
           orElse: () => 'Campaign Details',
         ) ??
         'All Collaborations';
+    final globalAsync = isGlobalView
+        ? ref.watch(collaborationListControllerProvider(''))
+        : null;
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -400,9 +463,9 @@ class _CollaborationListPageRiverpodState
         showBack: widget.poId.isNotEmpty,
       ),
       drawer: const CustomDrawer(),
-      body: campaignAsync == null
-          ? const Center(child: Text('No campaign selected'))
-          : campaignAsync.when(
+      body: isGlobalView
+          ? _buildGlobalCollaborationsBody(globalAsync!)
+          : campaignAsync!.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stackTrace) => Center(
                 child: Column(
