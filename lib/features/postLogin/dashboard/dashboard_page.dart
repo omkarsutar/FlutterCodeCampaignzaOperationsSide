@@ -8,8 +8,9 @@ String _dashboardRoleTitle(String role) {
   switch (role) {
     case 'admin':
       return 'Admin Overview';
+    case 'agency_manager':
     case 'agency':
-      return 'Agency Overview';
+      return 'Agency Manager';
     case 'influencer':
       return 'Influencer Overview';
     case 'brand':
@@ -23,6 +24,7 @@ String _dashboardRoleSubtitle(String role) {
   switch (role) {
     case 'admin':
       return 'High-level operational counts across the platform.';
+    case 'agency_manager':
     case 'agency':
       return 'Campaign and collaboration activity for your agency.';
     case 'influencer':
@@ -38,6 +40,7 @@ IconData _dashboardHeroIcon(String role) {
   switch (role) {
     case 'admin':
       return Icons.admin_panel_settings_rounded;
+    case 'agency_manager':
     case 'agency':
       return Icons.apartment_rounded;
     case 'influencer':
@@ -177,7 +180,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   _ContextCard(
                     title: 'Session Context',
                     items: [
-                      _ContextRow('Role', role),
+                      _ContextRow(
+                        'Role',
+                        _dashboardRoleTitle(role).replaceAll(' Overview', ''),
+                      ),
                       if (data['total_campaigns'] != null)
                         _ContextRow(
                           'Total Campaigns',
@@ -193,20 +199,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           'Collaborations',
                           data['total_collaborations'].toString(),
                         ),
-                      if (data['linked_brands'] != null)
+                      if (data['total_brands'] != null)
                         _ContextRow(
-                          'Linked Brands',
-                          data['linked_brands'].toString(),
-                        ),
-                      if (data['pending_proposals'] != null)
-                        _ContextRow(
-                          'Pending Proposals',
-                          data['pending_proposals'].toString(),
-                        ),
-                      if (data['total_links_generated'] != null)
-                        _ContextRow(
-                          'Links Generated',
-                          data['total_links_generated'].toString(),
+                          'Brands',
+                          data['total_brands'].toString(),
                         ),
                     ],
                   ),
@@ -248,6 +244,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             tint: Colors.green,
           ),
         ];
+      case 'agency_manager':
       case 'agency':
         return [
           _DashboardMetric(
@@ -263,14 +260,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             tint: Colors.blue,
           ),
           _DashboardMetric(
-            title: 'Linked Brands',
-            value: data['linked_brands']?.toString() ?? '0',
+            title: 'Brands',
+            value: data['total_brands']?.toString() ?? '0',
             icon: Icons.link_rounded,
             tint: Colors.purple,
           ),
           _DashboardMetric(
             title: 'Role',
-            value: 'Agency',
+            value: 'Agency Manager',
             icon: Icons.badge_rounded,
             tint: Colors.teal,
           ),
@@ -406,6 +403,8 @@ class _DashboardHeroCard extends StatelessWidget {
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -427,6 +426,7 @@ class _DashboardHeroCard extends StatelessWidget {
     switch (role) {
       case 'admin':
         return 'Platform-wide visibility across agencies, brands, influencers, and campaigns.';
+      case 'agency_manager':
       case 'agency':
         return 'You have ${data['active_campaigns']?.toString() ?? '0'} active campaigns and ${data['total_collaborations']?.toString() ?? '0'} collaborations in motion.';
       case 'influencer':
@@ -500,7 +500,7 @@ class _MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
@@ -513,25 +513,33 @@ class _MetricCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: tint.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: tint, size: 20),
+            child: Icon(icon, color: tint, size: 18),
           ),
-          const SizedBox(height: 10),
-          Text(
-            value,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: theme.colorScheme.onSurface,
+          const SizedBox(height: 8),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              maxLines: 1,
+              softWrap: false,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: theme.colorScheme.onSurface,
+              ),
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 1),
           Text(
             title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: theme.textTheme.labelLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w700,
