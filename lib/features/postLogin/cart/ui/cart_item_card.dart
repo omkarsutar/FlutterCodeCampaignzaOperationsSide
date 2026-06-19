@@ -71,7 +71,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final lastModifiedId =
-        widget.lastModifiedId ?? 
+        widget.lastModifiedId ??
         ref.watch(cartProvider.select((s) => s.lastModifiedItemId));
 
     if (lastModifiedId == widget.entity.collaborationId && !_isHighlighted) {
@@ -277,15 +277,27 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                                             widget.entity.collaborationId!,
                                             widget.poId!,
                                           );
-                                      ref.invalidate(collaborationsByPoIdProvider(widget.poId!));
+                                      ref.invalidate(
+                                        collaborationsByPoIdProvider(
+                                          widget.poId!,
+                                        ),
+                                      );
                                     } else {
                                       await ref
                                           .read(collaborationServiceProvider)
                                           .delete(
                                             widget.entity.collaborationId!,
                                           );
-                                      if (widget.entity.campaignId != null && widget.entity.campaignId!.isNotEmpty) {
-                                        ref.invalidate(collaborationsByPoIdProvider(widget.entity.campaignId!));
+                                      if (widget.entity.campaignId != null &&
+                                          widget
+                                              .entity
+                                              .campaignId!
+                                              .isNotEmpty) {
+                                        ref.invalidate(
+                                          collaborationsByPoIdProvider(
+                                            widget.entity.campaignId!,
+                                          ),
+                                        );
                                       }
                                     }
                                   } catch (e) {
@@ -325,6 +337,7 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                         _MetaLine(label: 'Agency', value: agencyName),
                         _MetaLine(label: 'Brand', value: brandName),
                         _MetaLine(label: 'Campaign', value: campaignName),
+                        const SizedBox(height: 10),
                       ],
                       const Spacer(),
                       Row(
