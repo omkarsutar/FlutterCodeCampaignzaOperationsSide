@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict fyUskxgQJTJHXXSpA1VbGlyioz7M6jFOTVwxL9e5WWmEbULVZn5BRud9nR6NuHD
+\restrict FzDNFoLrmdYSA15eoVXE7fMeu8XccvmC5vIhuyVM3TepHURA370OoQKJRyfFveY
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 18.3
 
--- Started on 2026-06-19 15:34:51
+-- Started on 2026-06-19 16:34:50
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -280,11 +280,16 @@ BEGIN
         SELECT json_build_object(
             'role', 'influencer',
             'total_collaborations', (SELECT COUNT(*) FROM public.collaborations WHERE influencer_id = v_influencer_id),
-            'active_links', (SELECT COUNT(*) FROM public.referrer_links WHERE influencer_id = v_influencer_id)
+            'active_links', (
+                SELECT COUNT(*) 
+                FROM public.referrer_links rl
+                JOIN public.collaborations col ON rl.collaboration_id = col.collaboration_id
+                WHERE col.influencer_id = v_influencer_id
+            )
         ) INTO v_result;
 
     -- =========================================================================
-    -- CASE 2: AGENCY_MANAGER ROLE
+    -- CASE 2: AGENCY_MANAGER ROLE (FIXED: Added linked brands count)
     -- =========================================================================
     ELSIF v_role_name = 'agency_manager' THEN
         SELECT agency_id INTO v_agency_id 
@@ -299,18 +304,22 @@ BEGIN
         SELECT json_build_object(
             'role', 'agency_manager',
             'active_campaigns', (SELECT COUNT(*) FROM public.campaign WHERE campaign_agency_id = v_agency_id),
-            'total_collaborations', (SELECT COUNT(*) FROM public.collaborations col JOIN public.campaign c ON col.campaign_id = c.campaign_id WHERE c.campaign_agency_id = v_agency_id)
+            'total_collaborations', (SELECT COUNT(*) FROM public.collaborations col JOIN public.campaign c ON col.campaign_id = c.campaign_id WHERE c.campaign_agency_id = v_agency_id),
+            -- Looks up brands assigned exclusively to this manager's corporate agency
+            'total_brands', (SELECT COUNT(*) FROM public.agency_brand_links WHERE agency_id = v_agency_id)
         ) INTO v_result;
 
     -- =========================================================================
-    -- CASE 3: ADMIN ROLE
+    -- CASE 3: ADMIN ROLE (FIXED: Added global brands count)
     -- =========================================================================
     ELSIF v_role_name = 'admin' THEN
         SELECT json_build_object(
             'role', 'admin',
             'total_agencies', (SELECT COUNT(*) FROM public.agencies),
             'total_campaigns', (SELECT COUNT(*) FROM public.campaign),
-            'total_influencers', (SELECT COUNT(*) FROM public.influencer)
+            'total_influencers', (SELECT COUNT(*) FROM public.influencer),
+            -- Returns total system brands across all ecosystems globally
+            'total_brands', (SELECT COUNT(*) FROM public.brands)
         ) INTO v_result;
 
     ELSE
@@ -3862,11 +3871,11 @@ ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON T
 ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO service_role;
 
 
--- Completed on 2026-06-19 15:34:57
+-- Completed on 2026-06-19 16:34:57
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict fyUskxgQJTJHXXSpA1VbGlyioz7M6jFOTVwxL9e5WWmEbULVZn5BRud9nR6NuHD
+\unrestrict FzDNFoLrmdYSA15eoVXE7fMeu8XccvmC5vIhuyVM3TepHURA370OoQKJRyfFveY
 
