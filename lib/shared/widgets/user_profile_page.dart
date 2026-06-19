@@ -101,6 +101,14 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
+                      Supabase.instance.client.auth.currentUser?.email ?? 'No email',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
                       'Role : ${roleName ?? profile.resolvedLabels['role_id_label'] ?? profile.roleId ?? 'Unknown Role'}',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,

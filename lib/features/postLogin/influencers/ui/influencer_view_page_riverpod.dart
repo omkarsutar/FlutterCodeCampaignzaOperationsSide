@@ -20,6 +20,9 @@ class InfluencerViewPageRiverpod extends ConsumerWidget {
     final isInitialized = ref.watch(rbacInitializationProvider);
     final rbacService = ref.watch(rbacServiceProvider);
 
+    final roleName = ref.watch(roleNameProvider);
+    final isAdmin = roleName?.toLowerCase() == 'admin';
+
     const rbacModule = 'influencer';
     final canUpdate = isInitialized && rbacService.canUpdate(rbacModule);
     final canDelete = isInitialized && rbacService.canDelete(rbacModule);
@@ -92,12 +95,13 @@ class InfluencerViewPageRiverpod extends ConsumerWidget {
                         influencer.influencerCategory,
                       ),
 
-                      // Commission Rate
-                      _buildInfoRow(
-                        theme,
-                        'Base Commission Rate',
-                        '${influencer.baseCommissionRate}%',
-                      ),
+                      // Commission Rate (admin only)
+                      if (isAdmin)
+                        _buildInfoRow(
+                          theme,
+                          'Base Commission Rate',
+                          '${influencer.baseCommissionRate}%',
+                        ),
 
                       // Availability
                       _buildInfoRow(

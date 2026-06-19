@@ -77,6 +77,15 @@ class CustomDrawer extends ConsumerWidget {
                     color: theme.colorScheme.onPrimary,
                   ),
                 ),
+                if (Supabase.instance.client.auth.currentUser?.email != null)
+                  Text(
+                    Supabase.instance.client.auth.currentUser!.email!,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w300,
+                      color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
+                    ),
+                  ),
                 if (roleName != null)
                   Text(
                     'Role : $roleName',

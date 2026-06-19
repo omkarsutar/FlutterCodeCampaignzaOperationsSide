@@ -6,6 +6,7 @@ import '../../../../core/config/field_config.dart';
 import '../../../../core/config/module_config.dart';
 import '../../../../core/models/entity_meta.dart';
 import '../../../../core/services/entity_service.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../../../core/providers/localization_provider.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../shared/widgets/custom_drawer.dart';
@@ -52,6 +53,10 @@ class InfluencerListPageRiverpod extends ConsumerWidget {
     final entityAdapter = ref.watch(adapterProvider);
     final l10n = ref.watch(l10nProvider);
 
+    final isInitialized = ref.watch(rbacInitializationProvider);
+    final rbacService = ref.watch(rbacServiceProvider);
+    final canCreate = isInitialized && rbacService.canCreate(rbacModule);
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       drawer: isSelectionMode ? null : const CustomDrawer(),
@@ -61,7 +66,7 @@ class InfluencerListPageRiverpod extends ConsumerWidget {
             : l10n['influencers'] ?? entityMeta.entityNamePlural,
         showBack: isSelectionMode,
       ),
-      floatingActionButton: isSelectionMode
+      floatingActionButton: isSelectionMode || !canCreate
           ? null
           : FloatingActionButton.extended(
               onPressed: () => context.pushNamed(newRouteName),

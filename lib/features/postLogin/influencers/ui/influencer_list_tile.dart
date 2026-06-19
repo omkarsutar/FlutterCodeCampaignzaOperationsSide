@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import '../../../../core/providers/core_providers.dart';
 import '../../../../core/services/entity_service.dart';
 import '../model/influencer_model.dart';
 
@@ -20,6 +21,8 @@ class InfluencerListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final roleName = ref.watch(roleNameProvider);
+    final isAdmin = roleName?.toLowerCase() == 'admin';
 
     final influencerName = entity.influencerName;
     final influencerCategory = entity.influencerCategory;
@@ -72,8 +75,10 @@ class InfluencerListTile extends ConsumerWidget {
                     Row(
                       children: [
                         _buildCategoryChip(theme, influencerCategory),
-                        const SizedBox(width: 8),
-                        _buildCommissionRate(theme, commissionRate),
+                        if (isAdmin) ...[
+                          const SizedBox(width: 8),
+                          _buildCommissionRate(theme, commissionRate),
+                        ],
                       ],
                     ),
                   ],
