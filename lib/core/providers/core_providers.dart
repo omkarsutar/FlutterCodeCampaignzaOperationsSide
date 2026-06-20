@@ -59,3 +59,12 @@ final roleNameProvider = Provider<String?>((ref) {
   final profile = ref.watch(userProfileStateProvider).profile;
   return profile?.roleId;
 });
+
+/// Whether the current user has the `agency_manager` role.
+/// Gates role-specific UI such as the "Agency" label shown on the drawer and
+/// profile page. Returns false for logged-out users (roleName is null) and for
+/// any role other than agency_manager.
+final isAgencyManagerProvider = Provider<bool>((ref) {
+  final role = ref.watch(roleNameProvider);
+  return role != null && role.toLowerCase() == 'agency_manager';
+});

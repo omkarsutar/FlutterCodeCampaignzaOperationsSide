@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict FzDNFoLrmdYSA15eoVXE7fMeu8XccvmC5vIhuyVM3TepHURA370OoQKJRyfFveY
+\restrict z16D8kN3CDlFUyT6AfGqgIJJmZFh7gnKUr9TPZZMyk0thwhAvLfkzpFYmt8kAbP
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 18.3
 
--- Started on 2026-06-19 16:34:50
+-- Started on 2026-06-20 17:44:48
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -32,7 +32,7 @@ CREATE SCHEMA public;
 ALTER SCHEMA public OWNER TO pg_database_owner;
 
 --
--- TOC entry 4326 (class 0 OID 0)
+-- TOC entry 4327 (class 0 OID 0)
 -- Dependencies: 16
 -- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: pg_database_owner
 --
@@ -41,7 +41,7 @@ COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
--- TOC entry 536 (class 1255 OID 17546)
+-- TOC entry 525 (class 1255 OID 17546)
 -- Name: assign_visit_order(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -63,7 +63,7 @@ END;$$;
 ALTER FUNCTION public.assign_visit_order() OWNER TO postgres;
 
 --
--- TOC entry 550 (class 1255 OID 27756)
+-- TOC entry 436 (class 1255 OID 27756)
 -- Name: check_agency_name_availability(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -83,7 +83,7 @@ $$;
 ALTER FUNCTION public.check_agency_name_availability(p_agency_name text) OWNER TO postgres;
 
 --
--- TOC entry 551 (class 1255 OID 27757)
+-- TOC entry 556 (class 1255 OID 27757)
 -- Name: check_brand_name_availability(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -103,7 +103,7 @@ $$;
 ALTER FUNCTION public.check_brand_name_availability(p_brand_name text) OWNER TO postgres;
 
 --
--- TOC entry 552 (class 1255 OID 27758)
+-- TOC entry 502 (class 1255 OID 27758)
 -- Name: check_campaign_name_availability(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -123,7 +123,7 @@ $$;
 ALTER FUNCTION public.check_campaign_name_availability(p_campaign_name text) OWNER TO postgres;
 
 --
--- TOC entry 549 (class 1255 OID 27730)
+-- TOC entry 446 (class 1255 OID 27730)
 -- Name: check_campaign_name_lock(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -151,7 +151,7 @@ $$;
 ALTER FUNCTION public.check_campaign_name_lock() OWNER TO postgres;
 
 --
--- TOC entry 553 (class 1255 OID 27759)
+-- TOC entry 496 (class 1255 OID 27759)
 -- Name: check_influencer_name_availability(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -171,7 +171,7 @@ $$;
 ALTER FUNCTION public.check_influencer_name_availability(p_influencer_name text) OWNER TO postgres;
 
 --
--- TOC entry 554 (class 1255 OID 27760)
+-- TOC entry 438 (class 1255 OID 27760)
 -- Name: check_promo_code_availability(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -191,7 +191,7 @@ $$;
 ALTER FUNCTION public.check_promo_code_availability(p_promo_code text) OWNER TO postgres;
 
 --
--- TOC entry 543 (class 1255 OID 24883)
+-- TOC entry 466 (class 1255 OID 24883)
 -- Name: decode_url(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -216,7 +216,7 @@ $$;
 ALTER FUNCTION public.decode_url(p_text text) OWNER TO postgres;
 
 --
--- TOC entry 544 (class 1255 OID 25118)
+-- TOC entry 470 (class 1255 OID 25118)
 -- Name: generate_campaign_name_string(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -233,7 +233,7 @@ $$;
 ALTER FUNCTION public.generate_campaign_name_string() OWNER TO postgres;
 
 --
--- TOC entry 559 (class 1255 OID 28013)
+-- TOC entry 537 (class 1255 OID 28013)
 -- Name: get_dashboard_highlights(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -334,7 +334,7 @@ $$;
 ALTER FUNCTION public.get_dashboard_highlights() OWNER TO postgres;
 
 --
--- TOC entry 542 (class 1255 OID 24876)
+-- TOC entry 485 (class 1255 OID 24876)
 -- Name: get_install_count_by_referrer(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -373,7 +373,7 @@ $$;
 ALTER FUNCTION public.get_install_count_by_referrer(p_referrer_raw text) OWNER TO postgres;
 
 --
--- TOC entry 555 (class 1255 OID 27871)
+-- TOC entry 490 (class 1255 OID 27871)
 -- Name: get_my_agencies(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -387,7 +387,7 @@ $$;
 ALTER FUNCTION public.get_my_agencies() OWNER TO postgres;
 
 --
--- TOC entry 556 (class 1255 OID 27872)
+-- TOC entry 482 (class 1255 OID 27872)
 -- Name: get_my_influencers(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -401,7 +401,7 @@ $$;
 ALTER FUNCTION public.get_my_influencers() OWNER TO postgres;
 
 --
--- TOC entry 541 (class 1255 OID 24875)
+-- TOC entry 534 (class 1255 OID 24875)
 -- Name: get_purchase_count_by_promo(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -417,7 +417,7 @@ $$;
 ALTER FUNCTION public.get_purchase_count_by_promo(p_promo_code text) OWNER TO postgres;
 
 --
--- TOC entry 557 (class 1255 OID 27981)
+-- TOC entry 440 (class 1255 OID 27981)
 -- Name: handle_full_row_audit(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -447,7 +447,7 @@ $$;
 ALTER FUNCTION public.handle_full_row_audit() OWNER TO postgres;
 
 --
--- TOC entry 537 (class 1255 OID 17548)
+-- TOC entry 531 (class 1255 OID 17548)
 -- Name: handle_new_auth_user(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -508,7 +508,7 @@ $$;
 ALTER FUNCTION public.handle_new_auth_user() OWNER TO postgres;
 
 --
--- TOC entry 558 (class 1255 OID 27982)
+-- TOC entry 492 (class 1255 OID 27982)
 -- Name: handle_timestamp_only_audit(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -533,7 +533,7 @@ $$;
 ALTER FUNCTION public.handle_timestamp_only_audit() OWNER TO postgres;
 
 --
--- TOC entry 548 (class 1255 OID 25628)
+-- TOC entry 512 (class 1255 OID 25628)
 -- Name: is_admin(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -554,7 +554,7 @@ $$;
 ALTER FUNCTION public.is_admin() OWNER TO postgres;
 
 --
--- TOC entry 539 (class 1255 OID 21280)
+-- TOC entry 472 (class 1255 OID 21280)
 -- Name: reorder_agency_brand_links(uuid, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -614,7 +614,7 @@ $$;
 ALTER FUNCTION public.reorder_agency_brand_links(p_link_id uuid, p_new_position integer) OWNER TO postgres;
 
 --
--- TOC entry 538 (class 1255 OID 17554)
+-- TOC entry 510 (class 1255 OID 17554)
 -- Name: resequence_visit_order_after_delete(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -634,7 +634,7 @@ END;$$;
 ALTER FUNCTION public.resequence_visit_order_after_delete() OWNER TO postgres;
 
 --
--- TOC entry 540 (class 1255 OID 22664)
+-- TOC entry 506 (class 1255 OID 22664)
 -- Name: sync_campaigns_with_brand_link(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -800,7 +800,7 @@ CREATE TABLE public.brands (
 ALTER TABLE public.brands OWNER TO postgres;
 
 --
--- TOC entry 4354 (class 0 OID 0)
+-- TOC entry 4355 (class 0 OID 0)
 -- Dependencies: 401
 -- Name: COLUMN brands.android_app_id; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -809,7 +809,7 @@ COMMENT ON COLUMN public.brands.android_app_id IS 'Android package ID for the br
 
 
 --
--- TOC entry 4355 (class 0 OID 0)
+-- TOC entry 4356 (class 0 OID 0)
 -- Dependencies: 401
 -- Name: COLUMN brands.website_url; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -939,7 +939,7 @@ CREATE TABLE public.po_collections (
 ALTER TABLE public.po_collections OWNER TO postgres;
 
 --
--- TOC entry 415 (class 1259 OID 26922)
+-- TOC entry 414 (class 1259 OID 26922)
 -- Name: public_agency_labels; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -971,7 +971,7 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO postgres;
 
 --
--- TOC entry 416 (class 1259 OID 26926)
+-- TOC entry 415 (class 1259 OID 26926)
 -- Name: public_user_labels; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1046,7 +1046,7 @@ CREATE TABLE public.rbac_roles (
 ALTER TABLE public.rbac_roles OWNER TO postgres;
 
 --
--- TOC entry 422 (class 1259 OID 27343)
+-- TOC entry 420 (class 1259 OID 27343)
 -- Name: referrer_links; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1122,7 +1122,7 @@ CREATE TABLE public.user_agency_link (
 ALTER TABLE public.user_agency_link OWNER TO postgres;
 
 --
--- TOC entry 4371 (class 0 OID 0)
+-- TOC entry 4372 (class 0 OID 0)
 -- Dependencies: 406
 -- Name: TABLE user_agency_link; Type: COMMENT; Schema: public; Owner: postgres
 --
@@ -1149,7 +1149,7 @@ CREATE TABLE public.user_influencer_link (
 ALTER TABLE public.user_influencer_link OWNER TO postgres;
 
 --
--- TOC entry 417 (class 1259 OID 26930)
+-- TOC entry 416 (class 1259 OID 26930)
 -- Name: view_agency_brand_links; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1195,7 +1195,7 @@ CREATE VIEW public.view_brand_dropdown WITH (security_invoker='true') AS
 ALTER VIEW public.view_brand_dropdown OWNER TO postgres;
 
 --
--- TOC entry 418 (class 1259 OID 26935)
+-- TOC entry 417 (class 1259 OID 26935)
 -- Name: view_brands; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1237,7 +1237,7 @@ CREATE VIEW public.view_brands WITH (security_invoker='true') AS
 ALTER VIEW public.view_brands OWNER TO postgres;
 
 --
--- TOC entry 424 (class 1259 OID 27682)
+-- TOC entry 422 (class 1259 OID 27682)
 -- Name: view_campaigns; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1291,11 +1291,18 @@ CREATE VIEW public.view_campaigns WITH (security_invoker='true') AS
 ALTER VIEW public.view_campaigns OWNER TO postgres;
 
 --
--- TOC entry 410 (class 1259 OID 26780)
+-- TOC entry 428 (class 1259 OID 28089)
 -- Name: view_collaborations; Type: VIEW; Schema: public; Owner: postgres
 --
 
 CREATE VIEW public.view_collaborations WITH (security_invoker='true') AS
+ WITH user_context AS (
+         SELECT u.user_id,
+            lower(r.role_name) AS active_role
+           FROM (public.users u
+             JOIN public.rbac_roles r ON ((u.role_id = r.role_id)))
+          WHERE (u.user_id = auth.uid())
+        )
  SELECT c.collaboration_id,
     c.campaign_id,
     c.influencer_id,
@@ -1312,19 +1319,23 @@ CREATE VIEW public.view_collaborations WITH (security_invoker='true') AS
     c.promo_code,
     c.discount_percentage,
     c.is_active,
+    cam.campaign_name AS campaign_id_label,
+    b.brand_name AS brand_id_label,
+    a.agency_name AS agency_id_label,
     i.influencer_name AS influencer_id_label,
     i.influencer_category AS influencer_category_label,
     i.influencer_image_url AS influencer_image_label,
     i.base_commission_rate AS base_commission_rate_label,
-    cam.campaign_id AS campaign_id_label,
     uc.full_name AS created_by_label,
     uu.full_name AS updated_by_label,
     COALESCE(pc.purchase_count, (0)::bigint) AS purchase_count,
     COALESCE(ic_ig.instagram_install_count, (0)::bigint) AS instagram_install_count,
     COALESCE(ic_fb.facebook_install_count, (0)::bigint) AS facebook_install_count
-   FROM (((((((public.collaborations c
+   FROM ((((((((((public.collaborations c
      LEFT JOIN public.influencer i ON ((c.influencer_id = i.influencer_id)))
      LEFT JOIN public.campaign cam ON ((c.campaign_id = cam.campaign_id)))
+     LEFT JOIN public.brands b ON ((cam.campaign_brand_id = b.brand_id)))
+     LEFT JOIN public.agencies a ON ((cam.campaign_agency_id = a.agency_id)))
      LEFT JOIN public.users uc ON ((c.created_by = uc.user_id)))
      LEFT JOIN public.users uu ON ((c.updated_by = uu.user_id)))
      LEFT JOIN LATERAL ( SELECT count(*) AS purchase_count
@@ -1335,13 +1346,19 @@ CREATE VIEW public.view_collaborations WITH (security_invoker='true') AS
           WHERE ((app_install_tracking.referrer_raw ~~ (('%utm_medium='::text || c.promo_code) || '%'::text)) AND (app_install_tracking.referrer_raw ~~ '%utm_source=instagram%'::text))) ic_ig ON (true))
      LEFT JOIN LATERAL ( SELECT count(*) AS facebook_install_count
            FROM public.app_install_tracking
-          WHERE ((app_install_tracking.referrer_raw ~~ (('%utm_medium='::text || c.promo_code) || '%'::text)) AND (app_install_tracking.referrer_raw ~~ '%utm_source=facebook%'::text))) ic_fb ON (true));
+          WHERE ((app_install_tracking.referrer_raw ~~ (('%utm_medium='::text || c.promo_code) || '%'::text)) AND (app_install_tracking.referrer_raw ~~ '%utm_source=facebook%'::text))) ic_fb ON (true))
+     CROSS JOIN user_context ctx)
+  WHERE ((ctx.active_role = 'admin'::text) OR ((ctx.active_role = 'agency_manager'::text) AND (cam.campaign_agency_id IN ( SELECT user_agency_link.agency_id
+           FROM public.user_agency_link
+          WHERE (user_agency_link.user_id = ctx.user_id)))) OR ((ctx.active_role = 'influencer'::text) AND (c.influencer_id IN ( SELECT user_influencer_link.influencer_id
+           FROM public.user_influencer_link
+          WHERE (user_influencer_link.user_id = ctx.user_id)))) OR ((ctx.active_role = 'guest'::text) AND false));
 
 
 ALTER VIEW public.view_collaborations OWNER TO postgres;
 
 --
--- TOC entry 411 (class 1259 OID 26790)
+-- TOC entry 410 (class 1259 OID 26790)
 -- Name: view_products; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1369,7 +1386,7 @@ CREATE VIEW public.view_products AS
 ALTER VIEW public.view_products OWNER TO postgres;
 
 --
--- TOC entry 426 (class 1259 OID 27713)
+-- TOC entry 424 (class 1259 OID 27713)
 -- Name: view_rbac_permissions; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1400,7 +1417,7 @@ CREATE VIEW public.view_rbac_permissions AS
 ALTER VIEW public.view_rbac_permissions OWNER TO postgres;
 
 --
--- TOC entry 412 (class 1259 OID 26795)
+-- TOC entry 411 (class 1259 OID 26795)
 -- Name: view_retailer_brand_link; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1426,7 +1443,7 @@ CREATE VIEW public.view_retailer_brand_link AS
 ALTER VIEW public.view_retailer_brand_link OWNER TO postgres;
 
 --
--- TOC entry 413 (class 1259 OID 26800)
+-- TOC entry 412 (class 1259 OID 26800)
 -- Name: view_user_agency_link; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1450,7 +1467,7 @@ CREATE VIEW public.view_user_agency_link WITH (security_invoker='true') AS
 ALTER VIEW public.view_user_agency_link OWNER TO postgres;
 
 --
--- TOC entry 414 (class 1259 OID 26805)
+-- TOC entry 413 (class 1259 OID 26805)
 -- Name: view_user_influencer_link; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -1474,7 +1491,7 @@ CREATE VIEW public.view_user_influencer_link WITH (security_invoker='true') AS
 ALTER VIEW public.view_user_influencer_link OWNER TO postgres;
 
 --
--- TOC entry 419 (class 1259 OID 27017)
+-- TOC entry 418 (class 1259 OID 27017)
 -- Name: view_users; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -2568,6 +2585,24 @@ CREATE POLICY "Influencer read policy" ON public.influencer FOR SELECT USING (tr
 
 
 --
+-- TOC entry 4310 (class 3256 OID 28087)
+-- Name: collaborations Unified dynamic integrations lookup; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Unified dynamic integrations lookup" ON public.collaborations FOR SELECT USING (((( SELECT lower(rbac_roles.role_name) AS lower
+   FROM public.rbac_roles
+  WHERE (rbac_roles.role_id = ( SELECT users.role_id
+           FROM public.users
+          WHERE (users.user_id = auth.uid())))) = 'admin'::text) OR (EXISTS ( SELECT 1
+   FROM public.campaign cp
+  WHERE ((cp.campaign_id = collaborations.campaign_id) AND (cp.campaign_agency_id IN ( SELECT user_agency_link.agency_id
+           FROM public.user_agency_link
+          WHERE (user_agency_link.user_id = auth.uid())))))) OR (influencer_id IN ( SELECT user_influencer_link.influencer_id
+   FROM public.user_influencer_link
+  WHERE (user_influencer_link.user_id = auth.uid())))));
+
+
+--
 -- TOC entry 4239 (class 0 OID 17654)
 -- Dependencies: 398
 -- Name: agencies; Type: ROW SECURITY; Schema: public; Owner: postgres
@@ -3033,7 +3068,7 @@ CREATE POLICY rbac_roles_select_policy ON public.rbac_roles FOR SELECT TO authen
 
 --
 -- TOC entry 4250 (class 0 OID 27343)
--- Dependencies: 422
+-- Dependencies: 420
 -- Name: referrer_links; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
@@ -3200,7 +3235,7 @@ CREATE POLICY users_update_own_policy ON public.users FOR UPDATE TO authenticate
 
 
 --
--- TOC entry 4327 (class 0 OID 0)
+-- TOC entry 4328 (class 0 OID 0)
 -- Dependencies: 16
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pg_database_owner
 --
@@ -3212,8 +3247,8 @@ GRANT USAGE ON SCHEMA public TO service_role;
 
 
 --
--- TOC entry 4328 (class 0 OID 0)
--- Dependencies: 536
+-- TOC entry 4329 (class 0 OID 0)
+-- Dependencies: 525
 -- Name: FUNCTION assign_visit_order(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3223,8 +3258,8 @@ GRANT ALL ON FUNCTION public.assign_visit_order() TO service_role;
 
 
 --
--- TOC entry 4329 (class 0 OID 0)
--- Dependencies: 550
+-- TOC entry 4330 (class 0 OID 0)
+-- Dependencies: 436
 -- Name: FUNCTION check_agency_name_availability(p_agency_name text); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3234,8 +3269,8 @@ GRANT ALL ON FUNCTION public.check_agency_name_availability(p_agency_name text) 
 
 
 --
--- TOC entry 4330 (class 0 OID 0)
--- Dependencies: 551
+-- TOC entry 4331 (class 0 OID 0)
+-- Dependencies: 556
 -- Name: FUNCTION check_brand_name_availability(p_brand_name text); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3245,8 +3280,8 @@ GRANT ALL ON FUNCTION public.check_brand_name_availability(p_brand_name text) TO
 
 
 --
--- TOC entry 4331 (class 0 OID 0)
--- Dependencies: 552
+-- TOC entry 4332 (class 0 OID 0)
+-- Dependencies: 502
 -- Name: FUNCTION check_campaign_name_availability(p_campaign_name text); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3256,8 +3291,8 @@ GRANT ALL ON FUNCTION public.check_campaign_name_availability(p_campaign_name te
 
 
 --
--- TOC entry 4332 (class 0 OID 0)
--- Dependencies: 549
+-- TOC entry 4333 (class 0 OID 0)
+-- Dependencies: 446
 -- Name: FUNCTION check_campaign_name_lock(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3267,8 +3302,8 @@ GRANT ALL ON FUNCTION public.check_campaign_name_lock() TO service_role;
 
 
 --
--- TOC entry 4333 (class 0 OID 0)
--- Dependencies: 553
+-- TOC entry 4334 (class 0 OID 0)
+-- Dependencies: 496
 -- Name: FUNCTION check_influencer_name_availability(p_influencer_name text); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3278,8 +3313,8 @@ GRANT ALL ON FUNCTION public.check_influencer_name_availability(p_influencer_nam
 
 
 --
--- TOC entry 4334 (class 0 OID 0)
--- Dependencies: 554
+-- TOC entry 4335 (class 0 OID 0)
+-- Dependencies: 438
 -- Name: FUNCTION check_promo_code_availability(p_promo_code text); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3289,8 +3324,8 @@ GRANT ALL ON FUNCTION public.check_promo_code_availability(p_promo_code text) TO
 
 
 --
--- TOC entry 4335 (class 0 OID 0)
--- Dependencies: 543
+-- TOC entry 4336 (class 0 OID 0)
+-- Dependencies: 466
 -- Name: FUNCTION decode_url(p_text text); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3300,8 +3335,8 @@ GRANT ALL ON FUNCTION public.decode_url(p_text text) TO service_role;
 
 
 --
--- TOC entry 4336 (class 0 OID 0)
--- Dependencies: 544
+-- TOC entry 4337 (class 0 OID 0)
+-- Dependencies: 470
 -- Name: FUNCTION generate_campaign_name_string(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3311,8 +3346,8 @@ GRANT ALL ON FUNCTION public.generate_campaign_name_string() TO service_role;
 
 
 --
--- TOC entry 4337 (class 0 OID 0)
--- Dependencies: 559
+-- TOC entry 4338 (class 0 OID 0)
+-- Dependencies: 537
 -- Name: FUNCTION get_dashboard_highlights(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3322,8 +3357,8 @@ GRANT ALL ON FUNCTION public.get_dashboard_highlights() TO service_role;
 
 
 --
--- TOC entry 4338 (class 0 OID 0)
--- Dependencies: 542
+-- TOC entry 4339 (class 0 OID 0)
+-- Dependencies: 485
 -- Name: FUNCTION get_install_count_by_referrer(p_referrer_raw text); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3333,8 +3368,8 @@ GRANT ALL ON FUNCTION public.get_install_count_by_referrer(p_referrer_raw text) 
 
 
 --
--- TOC entry 4339 (class 0 OID 0)
--- Dependencies: 555
+-- TOC entry 4340 (class 0 OID 0)
+-- Dependencies: 490
 -- Name: FUNCTION get_my_agencies(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3344,8 +3379,8 @@ GRANT ALL ON FUNCTION public.get_my_agencies() TO service_role;
 
 
 --
--- TOC entry 4340 (class 0 OID 0)
--- Dependencies: 556
+-- TOC entry 4341 (class 0 OID 0)
+-- Dependencies: 482
 -- Name: FUNCTION get_my_influencers(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3355,8 +3390,8 @@ GRANT ALL ON FUNCTION public.get_my_influencers() TO service_role;
 
 
 --
--- TOC entry 4341 (class 0 OID 0)
--- Dependencies: 541
+-- TOC entry 4342 (class 0 OID 0)
+-- Dependencies: 534
 -- Name: FUNCTION get_purchase_count_by_promo(p_promo_code text); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3366,8 +3401,8 @@ GRANT ALL ON FUNCTION public.get_purchase_count_by_promo(p_promo_code text) TO s
 
 
 --
--- TOC entry 4342 (class 0 OID 0)
--- Dependencies: 557
+-- TOC entry 4343 (class 0 OID 0)
+-- Dependencies: 440
 -- Name: FUNCTION handle_full_row_audit(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3377,8 +3412,8 @@ GRANT ALL ON FUNCTION public.handle_full_row_audit() TO service_role;
 
 
 --
--- TOC entry 4343 (class 0 OID 0)
--- Dependencies: 537
+-- TOC entry 4344 (class 0 OID 0)
+-- Dependencies: 531
 -- Name: FUNCTION handle_new_auth_user(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3388,8 +3423,8 @@ GRANT ALL ON FUNCTION public.handle_new_auth_user() TO service_role;
 
 
 --
--- TOC entry 4344 (class 0 OID 0)
--- Dependencies: 558
+-- TOC entry 4345 (class 0 OID 0)
+-- Dependencies: 492
 -- Name: FUNCTION handle_timestamp_only_audit(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3399,8 +3434,8 @@ GRANT ALL ON FUNCTION public.handle_timestamp_only_audit() TO service_role;
 
 
 --
--- TOC entry 4345 (class 0 OID 0)
--- Dependencies: 548
+-- TOC entry 4346 (class 0 OID 0)
+-- Dependencies: 512
 -- Name: FUNCTION is_admin(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3410,8 +3445,8 @@ GRANT ALL ON FUNCTION public.is_admin() TO service_role;
 
 
 --
--- TOC entry 4346 (class 0 OID 0)
--- Dependencies: 539
+-- TOC entry 4347 (class 0 OID 0)
+-- Dependencies: 472
 -- Name: FUNCTION reorder_agency_brand_links(p_link_id uuid, p_new_position integer); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3421,8 +3456,8 @@ GRANT ALL ON FUNCTION public.reorder_agency_brand_links(p_link_id uuid, p_new_po
 
 
 --
--- TOC entry 4347 (class 0 OID 0)
--- Dependencies: 538
+-- TOC entry 4348 (class 0 OID 0)
+-- Dependencies: 510
 -- Name: FUNCTION resequence_visit_order_after_delete(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3432,8 +3467,8 @@ GRANT ALL ON FUNCTION public.resequence_visit_order_after_delete() TO service_ro
 
 
 --
--- TOC entry 4348 (class 0 OID 0)
--- Dependencies: 540
+-- TOC entry 4349 (class 0 OID 0)
+-- Dependencies: 506
 -- Name: FUNCTION sync_campaigns_with_brand_link(); Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3443,7 +3478,7 @@ GRANT ALL ON FUNCTION public.sync_campaigns_with_brand_link() TO service_role;
 
 
 --
--- TOC entry 4349 (class 0 OID 0)
+-- TOC entry 4350 (class 0 OID 0)
 -- Dependencies: 398
 -- Name: TABLE agencies; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3454,7 +3489,7 @@ GRANT ALL ON TABLE public.agencies TO service_role;
 
 
 --
--- TOC entry 4350 (class 0 OID 0)
+-- TOC entry 4351 (class 0 OID 0)
 -- Dependencies: 402
 -- Name: TABLE agency_brand_links; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3465,7 +3500,7 @@ GRANT ALL ON TABLE public.agency_brand_links TO service_role;
 
 
 --
--- TOC entry 4351 (class 0 OID 0)
+-- TOC entry 4352 (class 0 OID 0)
 -- Dependencies: 390
 -- Name: TABLE app_config; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3476,7 +3511,7 @@ GRANT ALL ON TABLE public.app_config TO service_role;
 
 
 --
--- TOC entry 4352 (class 0 OID 0)
+-- TOC entry 4353 (class 0 OID 0)
 -- Dependencies: 404
 -- Name: TABLE app_install_tracking; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3487,7 +3522,7 @@ GRANT ALL ON TABLE public.app_install_tracking TO service_role;
 
 
 --
--- TOC entry 4353 (class 0 OID 0)
+-- TOC entry 4354 (class 0 OID 0)
 -- Dependencies: 405
 -- Name: TABLE app_purchases; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3498,7 +3533,7 @@ GRANT ALL ON TABLE public.app_purchases TO service_role;
 
 
 --
--- TOC entry 4356 (class 0 OID 0)
+-- TOC entry 4357 (class 0 OID 0)
 -- Dependencies: 401
 -- Name: TABLE brands; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3509,7 +3544,7 @@ GRANT ALL ON TABLE public.brands TO service_role;
 
 
 --
--- TOC entry 4357 (class 0 OID 0)
+-- TOC entry 4358 (class 0 OID 0)
 -- Dependencies: 394
 -- Name: TABLE campaign; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3520,7 +3555,7 @@ GRANT ALL ON TABLE public.campaign TO service_role;
 
 
 --
--- TOC entry 4358 (class 0 OID 0)
+-- TOC entry 4359 (class 0 OID 0)
 -- Dependencies: 392
 -- Name: TABLE collaborations; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3531,7 +3566,7 @@ GRANT ALL ON TABLE public.collaborations TO service_role;
 
 
 --
--- TOC entry 4359 (class 0 OID 0)
+-- TOC entry 4360 (class 0 OID 0)
 -- Dependencies: 408
 -- Name: TABLE guest_role_id; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3542,7 +3577,7 @@ GRANT ALL ON TABLE public.guest_role_id TO service_role;
 
 
 --
--- TOC entry 4360 (class 0 OID 0)
+-- TOC entry 4361 (class 0 OID 0)
 -- Dependencies: 393
 -- Name: TABLE influencer; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3553,7 +3588,7 @@ GRANT ALL ON TABLE public.influencer TO service_role;
 
 
 --
--- TOC entry 4361 (class 0 OID 0)
+-- TOC entry 4362 (class 0 OID 0)
 -- Dependencies: 391
 -- Name: TABLE po_collections; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3564,8 +3599,8 @@ GRANT ALL ON TABLE public.po_collections TO service_role;
 
 
 --
--- TOC entry 4362 (class 0 OID 0)
--- Dependencies: 415
+-- TOC entry 4363 (class 0 OID 0)
+-- Dependencies: 414
 -- Name: TABLE public_agency_labels; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3575,7 +3610,7 @@ GRANT ALL ON TABLE public.public_agency_labels TO service_role;
 
 
 --
--- TOC entry 4363 (class 0 OID 0)
+-- TOC entry 4364 (class 0 OID 0)
 -- Dependencies: 400
 -- Name: TABLE users; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3586,8 +3621,8 @@ GRANT ALL ON TABLE public.users TO service_role;
 
 
 --
--- TOC entry 4364 (class 0 OID 0)
--- Dependencies: 416
+-- TOC entry 4365 (class 0 OID 0)
+-- Dependencies: 415
 -- Name: TABLE public_user_labels; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3597,7 +3632,7 @@ GRANT ALL ON TABLE public.public_user_labels TO service_role;
 
 
 --
--- TOC entry 4365 (class 0 OID 0)
+-- TOC entry 4366 (class 0 OID 0)
 -- Dependencies: 395
 -- Name: TABLE rbac_modules; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3608,7 +3643,7 @@ GRANT ALL ON TABLE public.rbac_modules TO service_role;
 
 
 --
--- TOC entry 4366 (class 0 OID 0)
+-- TOC entry 4367 (class 0 OID 0)
 -- Dependencies: 396
 -- Name: TABLE rbac_permissions; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3619,7 +3654,7 @@ GRANT ALL ON TABLE public.rbac_permissions TO service_role;
 
 
 --
--- TOC entry 4367 (class 0 OID 0)
+-- TOC entry 4368 (class 0 OID 0)
 -- Dependencies: 397
 -- Name: TABLE rbac_roles; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3630,8 +3665,8 @@ GRANT ALL ON TABLE public.rbac_roles TO service_role;
 
 
 --
--- TOC entry 4368 (class 0 OID 0)
--- Dependencies: 422
+-- TOC entry 4369 (class 0 OID 0)
+-- Dependencies: 420
 -- Name: TABLE referrer_links; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3641,7 +3676,7 @@ GRANT ALL ON TABLE public.referrer_links TO service_role;
 
 
 --
--- TOC entry 4369 (class 0 OID 0)
+-- TOC entry 4370 (class 0 OID 0)
 -- Dependencies: 403
 -- Name: TABLE retailer_brand_link; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3652,7 +3687,7 @@ GRANT ALL ON TABLE public.retailer_brand_link TO service_role;
 
 
 --
--- TOC entry 4370 (class 0 OID 0)
+-- TOC entry 4371 (class 0 OID 0)
 -- Dependencies: 399
 -- Name: TABLE tbl_notes; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3663,7 +3698,7 @@ GRANT ALL ON TABLE public.tbl_notes TO service_role;
 
 
 --
--- TOC entry 4372 (class 0 OID 0)
+-- TOC entry 4373 (class 0 OID 0)
 -- Dependencies: 406
 -- Name: TABLE user_agency_link; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3674,7 +3709,7 @@ GRANT ALL ON TABLE public.user_agency_link TO service_role;
 
 
 --
--- TOC entry 4373 (class 0 OID 0)
+-- TOC entry 4374 (class 0 OID 0)
 -- Dependencies: 407
 -- Name: TABLE user_influencer_link; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3685,8 +3720,8 @@ GRANT ALL ON TABLE public.user_influencer_link TO service_role;
 
 
 --
--- TOC entry 4374 (class 0 OID 0)
--- Dependencies: 417
+-- TOC entry 4375 (class 0 OID 0)
+-- Dependencies: 416
 -- Name: TABLE view_agency_brand_links; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3696,7 +3731,7 @@ GRANT ALL ON TABLE public.view_agency_brand_links TO service_role;
 
 
 --
--- TOC entry 4375 (class 0 OID 0)
+-- TOC entry 4376 (class 0 OID 0)
 -- Dependencies: 409
 -- Name: TABLE view_brand_dropdown; Type: ACL; Schema: public; Owner: postgres
 --
@@ -3707,8 +3742,8 @@ GRANT ALL ON TABLE public.view_brand_dropdown TO service_role;
 
 
 --
--- TOC entry 4376 (class 0 OID 0)
--- Dependencies: 418
+-- TOC entry 4377 (class 0 OID 0)
+-- Dependencies: 417
 -- Name: TABLE view_brands; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3718,8 +3753,8 @@ GRANT ALL ON TABLE public.view_brands TO service_role;
 
 
 --
--- TOC entry 4377 (class 0 OID 0)
--- Dependencies: 424
+-- TOC entry 4378 (class 0 OID 0)
+-- Dependencies: 422
 -- Name: TABLE view_campaigns; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3729,8 +3764,8 @@ GRANT ALL ON TABLE public.view_campaigns TO service_role;
 
 
 --
--- TOC entry 4378 (class 0 OID 0)
--- Dependencies: 410
+-- TOC entry 4379 (class 0 OID 0)
+-- Dependencies: 428
 -- Name: TABLE view_collaborations; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3740,8 +3775,8 @@ GRANT ALL ON TABLE public.view_collaborations TO service_role;
 
 
 --
--- TOC entry 4379 (class 0 OID 0)
--- Dependencies: 411
+-- TOC entry 4380 (class 0 OID 0)
+-- Dependencies: 410
 -- Name: TABLE view_products; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3751,8 +3786,8 @@ GRANT ALL ON TABLE public.view_products TO service_role;
 
 
 --
--- TOC entry 4380 (class 0 OID 0)
--- Dependencies: 426
+-- TOC entry 4381 (class 0 OID 0)
+-- Dependencies: 424
 -- Name: TABLE view_rbac_permissions; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3762,8 +3797,8 @@ GRANT ALL ON TABLE public.view_rbac_permissions TO service_role;
 
 
 --
--- TOC entry 4381 (class 0 OID 0)
--- Dependencies: 412
+-- TOC entry 4382 (class 0 OID 0)
+-- Dependencies: 411
 -- Name: TABLE view_retailer_brand_link; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3773,8 +3808,8 @@ GRANT ALL ON TABLE public.view_retailer_brand_link TO service_role;
 
 
 --
--- TOC entry 4382 (class 0 OID 0)
--- Dependencies: 413
+-- TOC entry 4383 (class 0 OID 0)
+-- Dependencies: 412
 -- Name: TABLE view_user_agency_link; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3784,8 +3819,8 @@ GRANT ALL ON TABLE public.view_user_agency_link TO service_role;
 
 
 --
--- TOC entry 4383 (class 0 OID 0)
--- Dependencies: 414
+-- TOC entry 4384 (class 0 OID 0)
+-- Dependencies: 413
 -- Name: TABLE view_user_influencer_link; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3795,8 +3830,8 @@ GRANT ALL ON TABLE public.view_user_influencer_link TO service_role;
 
 
 --
--- TOC entry 4384 (class 0 OID 0)
--- Dependencies: 419
+-- TOC entry 4385 (class 0 OID 0)
+-- Dependencies: 418
 -- Name: TABLE view_users; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -3871,11 +3906,11 @@ ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON T
 ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO service_role;
 
 
--- Completed on 2026-06-19 16:34:57
+-- Completed on 2026-06-20 17:44:55
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict FzDNFoLrmdYSA15eoVXE7fMeu8XccvmC5vIhuyVM3TepHURA370OoQKJRyfFveY
+\unrestrict z16D8kN3CDlFUyT6AfGqgIJJmZFh7gnKUr9TPZZMyk0thwhAvLfkzpFYmt8kAbP
 

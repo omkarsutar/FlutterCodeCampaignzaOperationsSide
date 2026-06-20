@@ -50,6 +50,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
     final profileAsync = ref.watch(enrichedUserProfileProvider);
     final theme = Theme.of(context);
     final roleName = ref.watch(roleNameProvider);
+    final isAgencyManager = ref.watch(isAgencyManagerProvider);
     final agencyNameAsync = ref.watch(currentAgencyNameProvider);
 
     return profileAsync.when(
@@ -115,18 +116,20 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 4),
-                    agencyNameAsync.when(
-                      data: (agencyName) => Text(
-                        'Agency : $agencyName',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                    if (isAgencyManager) ...[
+                      const SizedBox(height: 4),
+                      agencyNameAsync.when(
+                        data: (agencyName) => Text(
+                          'Agency : $agencyName',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, __) => const SizedBox.shrink(),
                       ),
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, __) => const SizedBox.shrink(),
-                    ),
+                    ],
                     const SizedBox(height: 32),
                     // Form Card
                     Card(

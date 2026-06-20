@@ -51,6 +51,7 @@ class CustomDrawer extends ConsumerWidget {
     final theme = Theme.of(context);
     final isLoggedIn = Supabase.instance.client.auth.currentSession != null;
     final roleName = ref.watch(roleNameProvider);
+    final isAgencyManager = ref.watch(isAgencyManagerProvider);
     final agencyNameAsync = ref.watch(currentAgencyNameProvider);
 
     return Drawer(
@@ -95,18 +96,19 @@ class CustomDrawer extends ConsumerWidget {
                       color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
                     ),
                   ),
-                agencyNameAsync.when(
-                  data: (agencyName) => Text(
-                    'Agency : $agencyName',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w300,
-                      color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
+                if (isAgencyManager)
+                  agencyNameAsync.when(
+                    data: (agencyName) => Text(
+                      'Agency : $agencyName',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w300,
+                        color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
+                      ),
                     ),
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
                   ),
-                  loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const SizedBox.shrink(),
-                ),
               ],
             ),
           ),
