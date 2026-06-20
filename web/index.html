@@ -15,7 +15,7 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-  <base href="/CampaignzaV01/">
+  <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -40,10 +40,137 @@
   <meta property="twitter:image" content="https://campaignza.github.io/CampaignzaV01/icons/Icon-192.png">
 
   <link rel="manifest" href="manifest.json">
+
+  <!-- PWA update banner: styling. Shown (non-blocking) when a new version
+       has been downloaded so the user can reload on their own terms. -->
+  <style>
+    #pwa-update-banner {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2147483647;
+      display: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #pwa-update-banner.is-visible {
+      display: block;
+      animation: pwaUbSlideUp 0.3s ease-out;
+    }
+    @keyframes pwaUbSlideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .pwa-ub__content {
+      margin: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #ffffff;
+      color: #1a1a1a;
+      border-radius: 12px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+    }
+    .pwa-ub__msg {
+      flex: 1 1 auto;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .pwa-ub__actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    #pwa-update-banner button {
+      font-family: inherit;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+    #pwa-ub-reload {
+      background: #0175C2;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    #pwa-ub-reload:hover { background: #0160a0; }
+    #pwa-ub-dismiss {
+      background: transparent;
+      color: #5a5a5a;
+      font-size: 18px;
+      line-height: 1;
+      padding: 8px 10px;
+    }
+    #pwa-ub-dismiss:hover { color: #1a1a1a; }
+    @media (prefers-color-scheme: dark) {
+      .pwa-ub__content { background: #2a2a2a; color: #f0f0f0; }
+      #pwa-ub-dismiss  { color: #b0b0b0; }
+      #pwa-ub-dismiss:hover { color: #ffffff; }
+    }
+  </style>
 </head>
 
 <body>
   <script src="flutter_bootstrap.js" async></script>
+
+  <!-- PWA update banner markup. -->
+  <div id="pwa-update-banner" role="status" aria-live="polite" aria-label="App update available">
+    <div class="pwa-ub__content">
+      <div class="pwa-ub__msg">A new version is available.</div>
+      <div class="pwa-ub__actions">
+        <button id="pwa-ub-reload" type="button">Reload</button>
+        <button id="pwa-ub-dismiss" type="button" aria-label="Dismiss update notice">&times;</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // PWA update banner logic.
+      //
+      // Flutter's service worker calls skipWaiting()/clients.claim() on install,
+      // so a freshly deployed version activates automatically and seizes control
+      // of the tab as soon as the browser revalidates index.html and spots the
+      // new serviceWorkerVersion. We react to that handover ("controllerchange")
+      // by showing a non-blocking banner so the user reloads on their own terms.
+      //
+      // We ignore the controllerchange that happens on a first visit (there is
+      // no previous controller) to avoid a pointless banner for brand-new users.
+      if (!('serviceWorker' in navigator)) return;
+
+      var banner = document.getElementById('pwa-update-banner');
+      var reloadBtn = document.getElementById('pwa-ub-reload');
+      var dismissBtn = document.getElementById('pwa-ub-dismiss');
+      var hadController = !!navigator.serviceWorker.controller;
+      var userDismissed = false;
+
+      function showBanner() {
+        if (!banner || userDismissed) return;
+        banner.classList.add('is-visible');
+      }
+      function hideBanner() {
+        if (banner) banner.classList.remove('is-visible');
+      }
+
+      reloadBtn && reloadBtn.addEventListener('click', function () {
+        window.location.reload();
+      });
+      dismissBtn && dismissBtn.addEventListener('click', function () {
+        userDismissed = true;
+        hideBanner();
+      });
+
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (!hadController) return;
+        // Wait a tick so the new SW finishes claiming clients, then prompt.
+        setTimeout(showBanner, 250);
+      });
+    })();
+  </script>
 </body>
 
 </html>
