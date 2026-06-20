@@ -313,6 +313,10 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
+                      const SizedBox(height: 6),
+                      _AcceptanceStatusChip(
+                        accepted: widget.entity.isAcceptedByInfluencer,
+                      ),
                       if (widget.isReadOnly) ...[
                         const SizedBox(height: 8),
                         _MetaLine(label: 'Agency', value: agencyName),
@@ -394,6 +398,46 @@ class _MetaLine extends StatelessWidget {
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Small pill that reflects the influencer's acceptance of the collaboration
+/// (driven by `is_accepted_by_influencer`). Shown on every collaboration tile.
+class _AcceptanceStatusChip extends StatelessWidget {
+  final bool accepted;
+
+  const _AcceptanceStatusChip({required this.accepted});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = accepted ? Colors.green : Colors.orange;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            accepted ? Icons.check_circle_rounded : Icons.pending_rounded,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            accepted ? 'Accepted' : 'Pending',
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: 11,
             ),
           ),
         ],

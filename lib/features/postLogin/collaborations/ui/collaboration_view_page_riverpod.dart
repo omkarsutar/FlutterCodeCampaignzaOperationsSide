@@ -36,13 +36,21 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     final canUpdate = isInitialized && rbacService.canUpdate(rbacModule);
     final canDelete = isInitialized && rbacService.canDelete(rbacModule);
 
+    // Influencer role has scoped actions on this page (accept collab, set
+    // promo code, view referrer links) regardless of the generic RBAC flags.
+    final role = ref.watch(roleNameProvider);
+    final isInfluencer =
+        role != null && role.toLowerCase() == 'influencer';
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: CustomAppBar(
         title: 'Collaboration Details',
         showBack: context.canPop(),
         actions: [
-          if (canUpdate)
+          // Influencer never gets the full edit affordance; their edits are
+          // scoped to dedicated controls on the page itself.
+          if (canUpdate && !isInfluencer)
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () {
@@ -52,7 +60,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                 );
               },
             ),
-          if (canDelete)
+          if (canDelete && !isInfluencer)
             IconButton(
               icon: const Icon(Icons.delete),
               onPressed: () => _showDeleteDialog(context, ref),
@@ -80,27 +88,19 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header card with Image
-                _buildProfileHeader(context, theme, influencerImage),
-
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Influencer details section
-                      Text(
+                      // Influencer details section: avatar on the left with
+                      // name and platform stacked on the right.
+                      _buildProfileHeaderRow(
+                        context,
+                        theme,
                         influencerName,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
                         category,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                        influencerImage,
                       ),
                       const SizedBox(height: 16),
                       const Divider(),
@@ -109,15 +109,19 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                       // Status Section
                       _buildStatusCard(
                         theme,
-                        collaboration.isAcceptedByInfluencer,
+                        collaboration,
+                        ref,
+                        isInfluencer: isInfluencer,
                       ),
                       const SizedBox(height: 24),
 
                       // Promo Code section
                       _buildPromoCodeSection(
+                        context,
                         theme,
                         collaboration,
                         ref,
+                        isInfluencer: isInfluencer,
                       ),
                       const SizedBox(height: 24),
 
@@ -127,6 +131,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                         theme,
                         collaboration,
                         ref,
+                        isInfluencer: isInfluencer,
                       ),
                       const SizedBox(height: 24),
 
@@ -199,9 +204,11 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileHeader(
+  Widget _buildProfileHeaderRow(
     BuildContext context,
     ThemeData theme,
+    String name,
+    String platform,
     String? imageUrl,
   ) {
     String? cleanUrl;
@@ -209,33 +216,95 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
       cleanUrl = Uri.encodeFull(Uri.decodeFull(imageUrl));
     }
 
-    return Container(
-      width: double.infinity,
-      height: 250,
-      color: Colors.grey[200],
-      child: cleanUrl != null
-          ? CachedNetworkImage(
-              imageUrl: cleanUrl,
-              fit: BoxFit.cover,
-              placeholder: (context, url) =>
-                  const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => _buildDefaultAvatar(theme),
-            )
-          : _buildDefaultAvatar(theme),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Avatar / influencer image on the left
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            width: 72,
+            height: 72,
+            color: theme.colorScheme.surfaceContainerHighest.withValues(
+              alpha: 0.4,
+            ),
+            child: cleanUrl != null
+                ? CachedNetworkImage(
+                    imageUrl: cleanUrl,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => const Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) =>
+                        _buildDefaultAvatarIcon(theme),
+                  )
+                : _buildDefaultAvatarIcon(theme),
+          ),
+        ),
+        const SizedBox(width: 16),
+        // Name and platform stacked on the right
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                name,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(
+                    Icons.public,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      platform,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildDefaultAvatar(ThemeData theme) {
+  Widget _buildDefaultAvatarIcon(ThemeData theme) {
     return Center(
       child: Icon(
         Icons.person,
-        size: 80,
+        size: 36,
         color: theme.colorScheme.onSurfaceVariant.withAlpha(127),
       ),
     );
   }
 
-  Widget _buildStatusCard(ThemeData theme, bool isAccepted) {
+  Widget _buildStatusCard(
+    ThemeData theme,
+    ModelCollaboration collaboration,
+    WidgetRef ref, {
+    bool isInfluencer = false,
+  }) {
+    final isAccepted = collaboration.isAcceptedByInfluencer;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -248,31 +317,57 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
           width: 1,
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            isAccepted ? Icons.check_circle_rounded : Icons.pending_rounded,
-            color: isAccepted ? Colors.green : Colors.orange,
-            size: 24,
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Text(
-                'Acceptance Status',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: isAccepted ? Colors.green[800] : Colors.orange[800],
+              Icon(
+                isAccepted
+                    ? Icons.check_circle_rounded
+                    : Icons.pending_rounded,
+                color: isAccepted ? Colors.green : Colors.orange,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Acceptance Status',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: isAccepted
+                            ? Colors.green[800]
+                            : Colors.orange[800],
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      isAccepted
+                          ? 'Accepted by Influencer'
+                          : 'Pending Acceptance',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isAccepted
+                            ? Colors.green[900]
+                            : Colors.orange[900],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                isAccepted ? 'Accepted by Influencer' : 'Pending Acceptance',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: isAccepted ? Colors.green[900] : Colors.orange[900],
+              // Influencer can accept the collaboration but, once accepted,
+              // cannot toggle it back off.
+              if (isInfluencer && !isAccepted)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: FilledButton.icon(
+                    onPressed: () => _acceptCollaboration(ref, collaboration),
+                    icon: const Icon(Icons.check_rounded),
+                    label: const Text('Accept'),
+                  ),
                 ),
-              ),
             ],
           ),
         ],
@@ -378,14 +473,17 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
   }
 
   Widget _buildPromoCodeSection(
+    BuildContext context,
     ThemeData theme,
     ModelCollaboration collaboration,
-    WidgetRef ref,
-  ) {
+    WidgetRef ref, {
+    bool isInfluencer = false,
+  }) {
     final promoCode = collaboration.promoCode;
+    final hasPromoCode = promoCode != null && promoCode.isNotEmpty;
 
     // Watch analytics counts
-    final purchaseCountAsync = (promoCode != null && promoCode.isNotEmpty)
+    final purchaseCountAsync = hasPromoCode
         ? ref.watch(purchaseCountProvider(promoCode))
         : const AsyncValue<int>.data(0);
 
@@ -423,7 +521,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                     size: 22,
                   ),
                   onPressed: () {
-                    if (promoCode != null && promoCode.isNotEmpty) {
+                    if (hasPromoCode) {
                       ref.invalidate(purchaseCountProvider(promoCode));
                     }
                     SnackbarUtils.showSuccess('Refreshing purchase count...');
@@ -435,7 +533,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 12),
-          if (promoCode != null && promoCode.isNotEmpty)
+          if (hasPromoCode)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -488,7 +586,41 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                   ),
                 ),
               ],
+            )
+          else ...[
+            Row(
+              children: [
+                Icon(
+                  Icons.local_offer_outlined,
+                  size: 20,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'No promo code set yet.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
             ),
+            // Influencer can create a promo code when one does not exist.
+            if (isInfluencer) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: () =>
+                      _setPromoCodeForCollaboration(context, ref, collaboration),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Set Promo Code'),
+                ),
+              ),
+            ],
+          ],
         ],
       ),
     );
@@ -498,11 +630,47 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     BuildContext context,
     ThemeData theme,
     ModelCollaboration collaboration,
-    WidgetRef ref,
-  ) {
+    WidgetRef ref, {
+    bool isInfluencer = false,
+  }) {
     final linksAsync = ref.watch(
       referrerLinksForCollaborationProvider(collaboration.collaborationId ?? ''),
     );
+
+    // Influencers can only view referrer links and only after they have
+    // accepted the collaboration. Everyone else sees the full management UI.
+    final isAccepted = collaboration.isAcceptedByInfluencer;
+    final showLinks = !isInfluencer || isAccepted;
+    final canManageLinks = !isInfluencer;
+
+    if (!showLinks) {
+      return SizedBox(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Referrer Links',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                'Accept the collaboration to view your referrer links.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return SizedBox(
       width: double.infinity,
@@ -575,35 +743,41 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                       linkItem,
                     ),
                     belowLinkWidget: _buildReferrerLinkQrWidget(linkItem),
-                    onEdit: (_) => _addReferrerLinkForCollaboration(
-                      context,
-                      ref,
-                      collaboration,
-                      existingLinkItem: linkItem,
-                    ),
-                    onDelete: (_) => _deleteReferrerLinkForCollaboration(
-                      context,
-                      ref,
-                      linkItem,
-                    ),
+                    onEdit: canManageLinks
+                        ? (_) => _addReferrerLinkForCollaboration(
+                            context,
+                            ref,
+                            collaboration,
+                            existingLinkItem: linkItem,
+                          )
+                        : null,
+                    onDelete: canManageLinks
+                        ? (_) => _deleteReferrerLinkForCollaboration(
+                            context,
+                            ref,
+                            linkItem,
+                          )
+                        : null,
                   );
                 },
               );
             },
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => _addReferrerLinkForCollaboration(
-                context,
-                ref,
-                collaboration,
+          if (canManageLinks) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _addReferrerLinkForCollaboration(
+                  context,
+                  ref,
+                  collaboration,
+                ),
+                icon: const Icon(Icons.add_link),
+                label: const Text('Add Referrer Link'),
               ),
-              icon: const Icon(Icons.add_link),
-              label: const Text('Add Referrer Link'),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -720,6 +894,118 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     } catch (e) {
       SnackbarUtils.showError('Failed to delete referrer link: $e');
     }
+  }
+
+  /// Applies a partial update to the collaboration by writing only the
+  /// supplied fields. Used by the influencer-scoped actions on this page
+  /// (accept collaboration, set promo code) since the influencer role does
+  /// not have the generic `update` RBAC permission.
+  Future<void> _patchCollaboration(
+    WidgetRef ref,
+    ModelCollaboration collaboration,
+    Map<String, dynamic> changes,
+  ) async {
+    final id = collaboration.collaborationId;
+    if (id == null || id.isEmpty) {
+      SnackbarUtils.showError('Collaboration id is missing');
+      return;
+    }
+    if (changes.isEmpty) return;
+    try {
+      final service = ref.read(collaborationServiceProvider);
+      await service.update(
+        id,
+        collaboration.copyWith(
+          isAcceptedByInfluencer: changes.containsKey(
+            ModelCollaborationFields.isAcceptedByInfluencer,
+          )
+              ? changes[ModelCollaborationFields.isAcceptedByInfluencer] == true
+              : collaboration.isAcceptedByInfluencer,
+          promoCode: changes.containsKey(ModelCollaborationFields.promoCode)
+              ? changes[ModelCollaborationFields.promoCode]?.toString()
+              : collaboration.promoCode,
+        ),
+      );
+      ref.invalidate(collaborationByIdProvider(id));
+    } catch (e) {
+      SnackbarUtils.showError('Failed to update collaboration: $e');
+    }
+  }
+
+  /// Influencer-only action: accept (set is_accepted_by_influencer = true).
+  /// Acceptance is one-way; there is no UI to revoke it.
+  Future<void> _acceptCollaboration(
+    WidgetRef ref,
+    ModelCollaboration collaboration,
+  ) async {
+    final id = collaboration.collaborationId;
+    if (id == null) return;
+    await _patchCollaboration(ref, collaboration, {
+      ModelCollaborationFields.isAcceptedByInfluencer: true,
+    });
+    SnackbarUtils.showSuccess('Collaboration accepted!');
+  }
+
+  /// Influencer-only action: set a promo code when one does not exist yet.
+  Future<void> _setPromoCodeForCollaboration(
+    BuildContext context,
+    WidgetRef ref,
+    ModelCollaboration collaboration,
+  ) async {
+    final id = collaboration.collaborationId;
+    if (id == null) return;
+
+    final existing = collaboration.promoCode;
+    if (existing != null && existing.isNotEmpty) {
+      SnackbarUtils.showInfo('A promo code is already set for this collaboration.');
+      return;
+    }
+
+    final code = await _showPromoCodeDialog(context);
+    if (code == null || code.isEmpty) return;
+
+    await _patchCollaboration(ref, collaboration, {
+      ModelCollaborationFields.promoCode: code,
+    });
+    SnackbarUtils.showSuccess('Promo code set successfully!');
+  }
+
+  Future<String?> _showPromoCodeDialog(BuildContext context) async {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Set Promo Code'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          autocorrect: false,
+          enableSuggestions: false,
+          textCapitalization: TextCapitalization.characters,
+          decoration: const InputDecoration(
+            labelText: 'Promo Code',
+            hintText: 'e.g. SUMMER20',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.local_offer_outlined),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(null),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final value = controller.text.trim();
+              Navigator.of(dialogContext).pop(
+                value.isEmpty ? null : value,
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildCountPill(
