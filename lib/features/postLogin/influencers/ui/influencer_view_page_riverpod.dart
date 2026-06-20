@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/providers/core_providers.dart';
+import '../../../../core/utils/dialogs.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
 import '../model/influencer_model.dart';
 import '../providers/influencer_providers.dart';
@@ -249,28 +250,15 @@ class InfluencerViewPageRiverpod extends ConsumerWidget {
   }
 
   Future<void> _showDeleteDialog(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmDeleteWithTextDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Influencer'),
-        content: const Text(
+      title: 'Delete Influencer',
+      content:
           'Are you sure you want to delete this influencer? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      entityNameLower: 'influencer',
     );
 
-    if (confirmed == true) {
+    if (confirmed) {
       try {
         await ref.read(influencerFormProvider.notifier).delete(entityId);
         if (context.mounted) {

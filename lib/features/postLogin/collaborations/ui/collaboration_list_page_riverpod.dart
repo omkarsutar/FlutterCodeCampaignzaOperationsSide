@@ -10,6 +10,7 @@ import '../../../../core/config/module_config.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/shared_widget_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/core/utils/snackbar_utils.dart';
+import 'package:flutter_supabase_order_app_mobile/core/utils/dialogs.dart';
 import '../providers/collaboration_providers.dart';
 import '../providers/collaboration_list_controller.dart';
 import 'collaboration_add_card.dart';
@@ -148,30 +149,14 @@ class _CollaborationListPageRiverpodState
     ModelCampaign campaign,
     String existingLink,
   ) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmDeleteWithTextDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Referrer Link'),
-        content: const Text(
-          'Are you sure you want to delete this referrer link?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Referrer Link',
+      content: 'Are you sure you want to delete this referrer link?',
+      entityNameLower: 'referrer link',
     );
 
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     try {
       await ref.read(campaignServiceProvider).deleteReferrerLink(

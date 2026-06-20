@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/shared_widget_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/core/utils/dialogs.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/cart_view_logic.dart';
 import '../providers/cart_providers.dart';
@@ -186,33 +187,15 @@ class _CartPageState extends ConsumerState<CartPage> {
               onPressed: () async {
                 if (campaignId == null || campaignId.isEmpty) return;
 
-                final confirm = await showDialog<bool>(
+                final confirm = await showConfirmDeleteWithTextDialog(
                   context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Delete All Collaborations?'),
-                    content: const Text(
+                  title: 'Delete All Collaborations?',
+                  content:
                       'Are you sure you want to delete all collaborations for this campaign from Supabase? This action cannot be undone.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: const Text('Cancel'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
-                        child: const Text(
-                          'Delete All',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
+                  entityNameLower: 'all collaborations',
                 );
 
-                if (confirm == true && context.mounted) {
+                if (confirm && context.mounted) {
                   try {
                     await ref
                         .read(collaborationServiceProvider)

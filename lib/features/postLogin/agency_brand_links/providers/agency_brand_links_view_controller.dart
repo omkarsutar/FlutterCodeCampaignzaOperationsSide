@@ -106,25 +106,12 @@ class AgencyBrandLinksViewController
     String entityName,
     String entityNameLower,
   ) async {
-    final confirmed = await showDialog<bool>(
+    return await showConfirmDeleteWithTextDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete $entityName'),
-        content: Text('Are you sure you want to delete this $entityNameLower?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete $entityName',
+      content: 'Are you sure you want to delete this $entityNameLower?',
+      entityNameLower: entityNameLower,
     );
-    return confirmed ?? false;
   }
 
   // Handle delete entity with confirmation

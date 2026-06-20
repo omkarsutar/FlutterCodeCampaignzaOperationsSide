@@ -66,11 +66,11 @@ class DeleteEntityButton<T> extends ConsumerWidget {
   });
 
   Future<void> _deleteEntity(BuildContext context) async {
-    final confirmed = await showConfirmationDialog(
+    final confirmed = await showConfirmDeleteWithTextDialog(
       context: context,
       title: 'Delete $entityLabel',
       content: 'Are you sure you want to delete this $entityLabel?',
-      confirmLabel: 'Delete',
+      entityNameLower: entityLabelLower,
     );
 
     if (confirmed) {

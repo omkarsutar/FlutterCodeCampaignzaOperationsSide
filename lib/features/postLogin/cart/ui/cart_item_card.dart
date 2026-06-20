@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/utils/dialogs.dart';
 import '../../collaborations/model/collaboration_model.dart';
 import '../../collaborations/providers/collaboration_providers.dart';
 import '../../collaborations/providers/collaboration_list_controller.dart';
@@ -236,35 +237,15 @@ class _CartItemCardState extends ConsumerState<CartItemCard> {
                             const SizedBox(width: 12),
                             GestureDetector(
                               onTap: () async {
-                                final confirm = await showDialog<bool>(
+                                final confirm = await showConfirmDeleteWithTextDialog(
                                   context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Delete Collaboration?'),
-                                    content: const Text(
+                                  title: 'Delete Collaboration?',
+                                  content:
                                       'Are you sure you want to delete this collaboration from this campaign?',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, false),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, true),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.red,
-                                        ),
-                                        child: const Text(
-                                          'Delete',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  entityNameLower: 'collaboration',
                                 );
 
-                                if (confirm == true && context.mounted) {
+                                if (confirm && context.mounted) {
                                   try {
                                     if (widget.poId != null) {
                                       await ref

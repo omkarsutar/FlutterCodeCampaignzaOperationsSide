@@ -41,28 +41,15 @@ class UserAgencyLinkViewPageRiverpod<T> extends ConsumerWidget {
   });
 
   Future<void> _deleteEntity(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmDeleteWithTextDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete ${entityMeta.entityName}'),
-        content: Text(
+      title: 'Delete ${entityMeta.entityName}',
+      content:
           'Are you sure you want to delete this ${entityMeta.entityNameLower}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      entityNameLower: entityMeta.entityNameLower,
     );
 
-    if (confirmed == true && context.mounted) {
+    if (confirmed && context.mounted) {
       try {
         final success = await deleteFunction(ref, entityId);
 
