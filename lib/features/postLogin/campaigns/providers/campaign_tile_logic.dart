@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/utils/dialogs.dart';
 import '../model/campaign_model.dart';
 import '../providers/campaign_providers.dart';
 
@@ -104,28 +105,15 @@ class CampaignTileLogic {
     required String poId,
     required Function(bool) setUpdating,
   }) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmDeleteWithTextDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Campaign'),
-        content: const Text(
+      title: 'Delete Campaign',
+      content:
           'Are you sure you want to delete this campaign? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      entityNameLower: 'campaign',
     );
 
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     setUpdating(true);
     try {

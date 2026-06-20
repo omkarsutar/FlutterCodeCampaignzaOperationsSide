@@ -7,6 +7,7 @@ import '../../../core/services/entity_service.dart';
 import '../../../core/models/entity_meta.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import '../../../core/providers/core_providers.dart';
+import '../../../core/utils/dialogs.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import 'providers/entity_view_logic.dart';
 import 'providers/generic_view_controller.dart';
@@ -48,28 +49,15 @@ class EntityViewPageRiverpod<T> extends ConsumerWidget {
     WidgetRef ref,
     GenericViewController controller,
   ) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmDeleteWithTextDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete ${entityMeta.entityName}'),
-        content: Text(
+      title: 'Delete ${entityMeta.entityName}',
+      content:
           'Are you sure you want to delete this ${entityMeta.entityNameLower}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      entityNameLower: entityMeta.entityNameLower,
     );
 
-    if (confirmed == true && context.mounted) {
+    if (confirmed && context.mounted) {
       await controller.deleteEntity(
         deleteFunction: deleteFunction,
         entityId: entityId,

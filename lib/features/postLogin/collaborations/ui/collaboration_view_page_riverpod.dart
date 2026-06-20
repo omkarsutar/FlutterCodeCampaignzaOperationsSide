@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/providers/core_providers.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
+import '../../../../core/utils/dialogs.dart';
 import '../../../../core/utils/snackbar_utils.dart';
 import '../model/collaboration_model.dart';
 import '../providers/collaboration_providers.dart';
@@ -701,30 +702,14 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     WidgetRef ref,
     ModelReferrerLink linkItem,
   ) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmDeleteWithTextDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Referrer Link'),
-        content: const Text(
-          'Are you sure you want to delete this referrer link?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Referrer Link',
+      content: 'Are you sure you want to delete this referrer link?',
+      entityNameLower: 'referrer link',
     );
 
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     try {
       final service = ref.read(referrerLinkServiceProvider);
@@ -848,28 +833,15 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
   }
 
   Future<void> _showDeleteDialog(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showConfirmDeleteWithTextDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Collaboration'),
-        content: const Text(
+      title: 'Delete Collaboration',
+      content:
           'Are you sure you want to delete this collaboration? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      entityNameLower: 'collaboration',
     );
 
-    if (confirmed == true) {
+    if (confirmed) {
       try {
         final success = await ref
             .read(collaborationFormProvider.notifier)
