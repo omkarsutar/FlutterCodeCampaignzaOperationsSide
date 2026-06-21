@@ -60,7 +60,7 @@ class _CartPageState extends ConsumerState<CartPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.shopping_cart_outlined,
+                          Icons.handshake_outlined,
                           size: 64,
                           color: theme.colorScheme.onSurface.withValues(
                             alpha: 0.2,
@@ -68,10 +68,20 @@ class _CartPageState extends ConsumerState<CartPage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          l10n['empty_cart_msg'] ?? 'Your cart is empty',
+                          'No collaborations yet',
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: theme.colorScheme.onSurface.withValues(
                               alpha: 0.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Add an influencer to start a collaboration for this campaign.',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.4,
                             ),
                           ),
                         ),
