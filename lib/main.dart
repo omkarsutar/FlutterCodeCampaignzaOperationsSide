@@ -162,6 +162,7 @@ class _MainAppState extends ConsumerState<MainApp> {
           scaffoldMessengerKey: scaffoldMessengerKey,
           routerConfig: router,
           theme: AppTheme.light,
+          debugShowCheckedModeBanner: false,
         ),
       ),
     );

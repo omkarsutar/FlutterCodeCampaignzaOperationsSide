@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../core/providers/auth_providers.dart';
-import '../../core/utils/dialogs.dart';
 
 class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final String title;
@@ -19,8 +16,6 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasSession = Supabase.instance.client.auth.currentSession != null;
-
     return AppBar(
       leading: showBack
           ? IconButton(
@@ -37,22 +32,6 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
           !showBack, // ✅ Enable drawer icon when back is off
       actions: [
         ...?actions, // ✅ allows additional actions from the page
-        if (hasSession)
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-            onPressed: () async {
-              final confirmed = await showConfirmationDialog(
-                context: context,
-                title: 'Logout',
-                content: 'Are you sure you want to Logout?',
-                confirmLabel: 'Logout',
-              );
-              if (confirmed) {
-                await ref.read(authServiceProvider).signOut();
-              }
-            },
-          ),
       ],
     );
   }
