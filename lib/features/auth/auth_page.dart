@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/auth_providers.dart';
 import '../../core/services/error_handler.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../router/app_routes.dart';
+
+const _termsOfUseUrl =
+    'https://sites.google.com/view/steintechnologies/terms-of-use';
 
 class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
@@ -161,6 +165,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                               }
                             },
                           ),
+                        // Terms of Use consent shown directly under the
+                        // sign-in button.
+                        const SizedBox(height: 20),
+                        _buildTermsNotice(context),
                       ],
                     ),
                   ),
@@ -180,5 +188,56 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildTermsNotice(BuildContext context) {
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.4,
+            ),
+        children: [
+          const TextSpan(
+            text:
+                'By signing in, you agree to our ',
+          ),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: InkWell(
+              onTap: () => _openTermsOfUse(),
+              child: Text(
+                'Terms of Use',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                      decorationColor: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
+            ),
+          ),
+          const TextSpan(
+            text:
+                ' and acknowledge our privacy practices.',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openTermsOfUse() async {
+    final uri = Uri.parse(_termsOfUseUrl);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e, stackTrace) {
+      ErrorHandler.handle(
+        e,
+        stackTrace,
+        context: 'Opening Terms of Use',
+        showToUser: true,
+      );
+    }
   }
 }
