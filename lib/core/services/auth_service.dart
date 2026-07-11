@@ -23,12 +23,11 @@ class AuthService {
   /// Sign in with Google and load user profile
   Future<void> signInWithGoogle() async {
     final redirectUri = kIsWeb
-        ? (kReleaseMode
-            ? AppConstants.webAppProdUrl
-            : AppConstants.webAppLocalUrl)
+        ? _buildWebRedirectUri()
         : AppConstants.mobileRedirectUri;
 
     try {
+      debugPrint('Supabase redirectUri = $redirectUri');
       await _client.auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: redirectUri,
@@ -44,6 +43,17 @@ class AuthService {
     }
   }
 
+  /// Build a redirect URI from the current browser location.
+  ///
+  /// This keeps the callback on the same host/path the app was opened from,
+  /// which is important when switching between local servers such as
+  /// `localhost`, `127.0.0.1`, and the GitHub Pages deployment path.
+  String _buildWebRedirectUri() {
+    final currentUri = Uri.parse(web_utils.getHref());
+    final path = currentUri.path.isEmpty ? '/' : currentUri.path;
+    return '${currentUri.scheme}://${currentUri.authority}$path';
+  }
+
   /// Listen for auth state changes and keep profile in sync
   void initializeAuthListener() {
     _client.auth.onAuthStateChange.listen((authState) async {
@@ -53,8 +63,7 @@ class AuthService {
             // Clean up URL query parameters (code, state, etc.) after Google login redirect
             final currentUrl = web_utils.getHref();
             if (currentUrl.contains('?')) {
-              final newUrl =
-                  currentUrl.split('?')[0] + web_utils.getHash();
+              final newUrl = currentUrl.split('?')[0] + web_utils.getHash();
               web_utils.replaceState(null, '', newUrl);
               debugPrint('AuthService: Cleaned up URL parameters');
             }

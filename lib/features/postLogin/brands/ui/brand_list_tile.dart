@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
+// import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../core/constants/app_constants.dart';
+// import '../../../../core/constants/app_constants.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/services/entity_service.dart';
-import '../../../../core/utils/snackbar_utils.dart';
+// import '../../../../core/utils/snackbar_utils.dart';
 import '../../users/providers/user_providers.dart';
 import '../brand_barrel.dart';
 
@@ -56,10 +56,9 @@ class BrandListTile<T> extends ConsumerWidget {
     final roleName = ref.watch(roleNameProvider)?.toLowerCase();
     final isAdmin = roleName == 'admin';
     final selectedAgencyId = ref.watch(selectedAgencyIdProvider);
-    final brandPrimaryAgencyId =
-        adapter
-            .getFieldValue(entity, ModelBrandFields.brandsPrimaryAgency)
-            ?.toString();
+    final brandPrimaryAgencyId = adapter
+        .getFieldValue(entity, ModelBrandFields.brandsPrimaryAgency)
+        ?.toString();
     final showPrimaryAgencyNote =
         !isAdmin &&
         selectedAgencyId != null &&
@@ -90,7 +89,9 @@ class BrandListTile<T> extends ConsumerWidget {
             ?.toString() ??
         '';
     final websiteUrl =
-        adapter.getFieldValue(entity, ModelBrandFields.websiteUrl)?.toString() ??
+        adapter
+            .getFieldValue(entity, ModelBrandFields.websiteUrl)
+            ?.toString() ??
         '';
 
     return Card(
@@ -303,7 +304,8 @@ class BrandListTile<T> extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     InkWell(
-                      onTap: () => _copyUtmLink(context),
+                      // onTap: () => _copyUtmLink(context),
+                      onTap: () => {},
                       borderRadius: BorderRadius.circular(20),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -324,7 +326,7 @@ class BrandListTile<T> extends ConsumerWidget {
     );
   }
 
-  Future<void> _copyUtmLink(BuildContext context) async {
+  /* Future<void> _copyUtmLink(BuildContext context) async {
     final mobile1 = adapter
         .getFieldValue(entity, ModelBrandFields.brandMobile1)
         ?.toString();
@@ -403,7 +405,7 @@ class BrandListTile<T> extends ConsumerWidget {
         );
       }
     }
-  }
+  } */
 
   bool _isValidMobile(dynamic value) {
     if (value == null) return false;
