@@ -97,6 +97,8 @@ class _CollaborationListPageRiverpodState
         builder: (_) => ReferrerLinkFormPage(
           appId: resolvedAppId,
           campaignNameString: campaignNameString,
+          campaignPlatform: campaign.campaignPlatform,
+          websiteUrl: parentBrand?.websiteUrl?.toString().trim(),
           existingLink: existingLink,
           initialReferrerLinkType: existingLinkItem?.referrerLinkType,
           initialReferrerLinkSource: existingLinkItem?.referrerLinkSource,

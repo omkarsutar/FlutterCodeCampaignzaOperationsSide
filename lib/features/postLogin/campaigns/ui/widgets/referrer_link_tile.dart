@@ -28,16 +28,29 @@ class ReferrerLinkTile extends ConsumerWidget {
 
   Uri? get _uri => Uri.tryParse(link);
 
+  bool get _isPlayStoreLink {
+    final uri = _uri;
+    return uri != null &&
+        uri.host.contains('play.google.com') &&
+        uri.queryParameters['referrer']?.isNotEmpty == true;
+  }
+
   Map<String, String> get _utmValues {
     final uri = _uri;
-    final referrer = uri?.queryParameters['referrer'];
-    if (referrer == null || referrer.isEmpty) return const {};
+    if (uri == null) return const {};
 
-    try {
-      return Uri.splitQueryString(referrer);
-    } catch (_) {
-      return const {};
+    if (_isPlayStoreLink) {
+      final referrer = uri.queryParameters['referrer'];
+      if (referrer == null || referrer.isEmpty) return const {};
+
+      try {
+        return Uri.splitQueryString(referrer);
+      } catch (_) {
+        return const {};
+      }
     }
+
+    return uri.queryParameters;
   }
 
   String _utm(String key) {
@@ -60,8 +73,43 @@ class ReferrerLinkTile extends ConsumerWidget {
   }
 
   Future<void> _copyLink(BuildContext context) async {
-    await Clipboard.setData(ClipboardData(text: link));
+    await Clipboard.setData(ClipboardData(text: _copyableLinkText()));
     SnackbarUtils.showSuccess('Link copied to clipboard');
+  }
+
+  String _copyableLinkText() {
+    final uri = _uri;
+    if (uri == null) return link;
+
+    if (_isPlayStoreLink) {
+      final appId = uri.queryParameters['id']?.trim();
+      final referrer = uri.queryParameters['referrer']?.trim();
+      if (appId == null || appId.isEmpty || referrer == null || referrer.isEmpty) {
+        return link;
+      }
+
+      try {
+        final params = Uri.splitQueryString(referrer);
+        final utmSource = params['utm_source']?.trim() ?? '';
+        final utmCampaign = params['utm_campaign']?.trim() ?? '';
+        final utmMedium = params['utm_medium']?.trim() ?? '';
+
+        return 'https://play.google.com/store/apps/details?id=$appId'
+            '&referrer=utm_source=$utmSource'
+            '&utm_campaign=$utmCampaign'
+            '&utm_medium=$utmMedium';
+      } catch (_) {
+        return link;
+      }
+    }
+
+    final basePath =
+        '${uri.scheme}://${uri.authority}${uri.path.isEmpty ? '/' : uri.path}';
+    final query = uri.queryParameters.entries
+        .map((entry) => '${entry.key}=${entry.value}')
+        .join('&');
+    if (query.isEmpty) return basePath;
+    return '$basePath?$query';
   }
 
   TextSpan _buildHighlightedLinkSpan(ThemeData theme) {
@@ -83,48 +131,86 @@ class ReferrerLinkTile extends ConsumerWidget {
       return TextSpan(text: link, style: baseStyle);
     }
 
-    final appId = uri.queryParameters['id']?.trim();
-    final referrer = uri.queryParameters['referrer'];
-    if (appId == null || appId.isEmpty || referrer == null || referrer.isEmpty) {
-      return TextSpan(text: link, style: baseStyle);
+    if (_isPlayStoreLink) {
+      final appId = uri.queryParameters['id']?.trim();
+      final referrer = uri.queryParameters['referrer'];
+      if (appId == null || appId.isEmpty || referrer == null || referrer.isEmpty) {
+        return TextSpan(text: link, style: baseStyle);
+      }
+
+      Map<String, String> parts;
+      try {
+        parts = Uri.splitQueryString(referrer);
+      } catch (_) {
+        return TextSpan(text: link, style: baseStyle);
+      }
+
+      return TextSpan(
+        style: baseStyle,
+        children: [
+          const TextSpan(
+            text: 'https://play.google.com/store/apps/details?id=',
+          ),
+          TextSpan(text: appId, style: highlightStyle),
+          const TextSpan(text: '&referrer='),
+          const TextSpan(text: 'utm_source='),
+          TextSpan(
+            text: parts['utm_source']?.trim().isNotEmpty == true
+                ? parts['utm_source']!.trim()
+                : '<>',
+            style: highlightStyle,
+          ),
+          const TextSpan(text: '&utm_campaign='),
+          TextSpan(
+            text: parts['utm_campaign']?.trim().isNotEmpty == true
+                ? parts['utm_campaign']!.trim()
+                : '<>',
+            style: highlightStyle,
+          ),
+          const TextSpan(text: '&utm_medium='),
+          TextSpan(
+            text: parts['utm_medium']?.trim().isNotEmpty == true
+                ? parts['utm_medium']!.trim()
+                : '<>',
+            style: highlightStyle,
+          ),
+        ],
+      );
     }
 
-    Map<String, String> parts;
-    try {
-      parts = Uri.splitQueryString(referrer);
-    } catch (_) {
-      return TextSpan(text: link, style: baseStyle);
-    }
+    final basePath =
+        '${uri.scheme}://${uri.authority}${uri.path.isEmpty ? '/' : uri.path}';
+    final params = uri.queryParameters;
 
     return TextSpan(
       style: baseStyle,
       children: [
-        const TextSpan(
-          text: 'https://play.google.com/store/apps/details?id=',
-        ),
-        TextSpan(text: appId, style: highlightStyle),
-        const TextSpan(text: '&referrer='),
-        const TextSpan(text: 'utm_source='),
-        TextSpan(
-          text: parts['utm_source']?.trim().isNotEmpty == true
-              ? parts['utm_source']!.trim()
-              : 'N/A',
-          style: highlightStyle,
-        ),
-        const TextSpan(text: '&utm_campaign='),
-        TextSpan(
-          text: parts['utm_campaign']?.trim().isNotEmpty == true
-              ? parts['utm_campaign']!.trim()
-              : 'N/A',
-          style: highlightStyle,
-        ),
-        const TextSpan(text: '&utm_medium='),
-        TextSpan(
-          text: parts['utm_medium']?.trim().isNotEmpty == true
-              ? parts['utm_medium']!.trim()
-              : 'N/A',
-          style: highlightStyle,
-        ),
+        TextSpan(text: basePath, style: baseStyle),
+        if (params.isNotEmpty) const TextSpan(text: '?'),
+        if (params.isNotEmpty) const TextSpan(text: 'utm_source='),
+        if (params.isNotEmpty)
+          TextSpan(
+            text: params['utm_source']?.trim().isNotEmpty == true
+                ? params['utm_source']!.trim()
+                : '<>',
+            style: highlightStyle,
+          ),
+        if (params.isNotEmpty) const TextSpan(text: '&utm_campaign='),
+        if (params.isNotEmpty)
+          TextSpan(
+            text: params['utm_campaign']?.trim().isNotEmpty == true
+                ? params['utm_campaign']!.trim()
+                : '<>',
+            style: highlightStyle,
+          ),
+        if (params.isNotEmpty) const TextSpan(text: '&utm_medium='),
+        if (params.isNotEmpty)
+          TextSpan(
+            text: params['utm_medium']?.trim().isNotEmpty == true
+                ? params['utm_medium']!.trim()
+                : '<>',
+            style: highlightStyle,
+          ),
       ],
     );
   }
@@ -132,8 +218,9 @@ class ReferrerLinkTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final installCountAsync =
-        link.isEmpty ? null : ref.watch(installCountProvider(link));
+    final installCountAsync = (_isPlayStoreLink && link.isNotEmpty)
+        ? ref.watch(installCountProvider(link))
+        : null;
 
     return Card(
       margin: margin,

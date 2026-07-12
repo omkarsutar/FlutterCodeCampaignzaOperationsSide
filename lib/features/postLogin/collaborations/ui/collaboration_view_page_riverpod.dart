@@ -821,6 +821,8 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
         builder: (_) => ReferrerLinkFormPage(
           appId: resolvedAppId,
           campaignNameString: campaignNameString,
+          campaignPlatform: campaign.campaignPlatform,
+          websiteUrl: brand.websiteUrl,
           promoCode: collaboration.promoCode,
           existingLink: existingLinkItem?.referrerLinkString,
           initialReferrerLinkType: existingLinkItem?.referrerLinkType,
