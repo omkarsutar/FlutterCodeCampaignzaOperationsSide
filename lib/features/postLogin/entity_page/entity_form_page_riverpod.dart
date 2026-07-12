@@ -114,7 +114,8 @@ class _EntityFormPageRiverpodState<T>
       } else if (field.type == FieldType.dropdown) {
         if (defaultValue != null) {
           _dropdownValues[field.name] = defaultValue.toString();
-        } else if (field.dropdownOptions != null &&
+        } else if (field.required &&
+            field.dropdownOptions != null &&
             field.dropdownOptions!.isNotEmpty) {
           _dropdownValues[field.name] = field.dropdownOptions!.first;
         }
@@ -693,7 +694,8 @@ class _EntityFormPageRiverpodState<T>
       }).toList();
 
       return DropdownButtonFormField<String>(
-        initialValue: _dropdownValues[field.name] ?? items.firstOrNull?.value,
+        initialValue: _dropdownValues[field.name] ??
+            (field.required ? items.firstOrNull?.value : null),
         decoration: InputDecoration(
           labelText: field.label,
           border: const OutlineInputBorder(),

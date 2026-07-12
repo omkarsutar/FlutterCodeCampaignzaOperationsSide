@@ -14,6 +14,8 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
         return entity.campaignNameString;
       case ModelCampaignFields.campaignType:
         return entity.campaignType?.toDbValue();
+      case ModelCampaignFields.campaignPlatform:
+        return entity.campaignPlatform;
       case ModelCampaignFields.collaborationCount:
         return entity.collaborationCount;
       case ModelCampaignFields.referrerLinkCount:
@@ -64,6 +66,8 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
         return entity.campaignNameString ?? '';
       case ModelCampaignFields.campaignType:
         return entity.campaignType?.displayName ?? '';
+      case ModelCampaignFields.campaignPlatform:
+        return _formatPlatformLabel(entity.campaignPlatform);
       case ModelCampaignFields.validFrom:
         return entity.validFrom != null ? formatTimestamp(entity.validFrom) : '';
       case ModelCampaignFields.validUntil:
@@ -89,5 +93,20 @@ class CampaignAdapter implements EntityAdapter<ModelCampaign> {
   @override
   dynamic getTimestamp(ModelCampaign entity, String timestampField) {
     return entity.createdAt;
+  }
+
+  String _formatPlatformLabel(String? platform) {
+    switch (platform) {
+      case 'website':
+        return 'Website';
+      case 'android_app':
+        return 'Android App';
+      case 'web_app':
+        return 'Web App';
+      case 'ios_app':
+        return 'iOS App';
+      default:
+        return platform ?? '';
+    }
   }
 }

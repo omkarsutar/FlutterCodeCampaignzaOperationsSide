@@ -8,6 +8,7 @@ class ModelCampaignFields {
   static const String campaignName = 'campaign_name';
   static const String campaignNameString = 'campaign_name_string';
   static const String campaignType = 'campaign_type';
+  static const String campaignPlatform = 'campaign_platform';
   static const String collaborationCount = 'collaboration_count';
   static const String referrerLinkCount = 'referrer_link_count';
   static const String referrerLinks = 'referrer_links';
@@ -39,6 +40,7 @@ class ModelCampaignFields {
     campaignName: 'Campaign Name',
     campaignNameString: 'Campaign Name String',
     campaignType: 'Campaign Type',
+    campaignPlatform: 'Campaign Platform',
     collaborationCount: 'Collaborations',
     referrerLinkCount: 'Referrer Links',
     referrerLinks: 'Referrer Links',
@@ -108,6 +110,7 @@ class ModelCampaign {
   final String? campaignName;
   final String? campaignNameString;
   final CampaignType? campaignType;
+  final String? campaignPlatform;
   final int? collaborationCount;
   final int? referrerLinkCount;
   final List<String> referrerLinks;
@@ -175,6 +178,7 @@ class ModelCampaign {
     this.campaignName,
     this.campaignNameString,
     this.campaignType,
+    this.campaignPlatform,
     int? collaborationCount,
     this.referrerLinkCount,
     List<String>? referrerLinks,
@@ -226,6 +230,7 @@ class ModelCampaign {
               map[ModelCampaignFields.campaignType]?.toString(),
             )
           : null,
+      campaignPlatform: map[ModelCampaignFields.campaignPlatform] as String?,
       collaborationCount: map[ModelCampaignFields.collaborationCount] != null
           ? int.tryParse(map[ModelCampaignFields.collaborationCount].toString())
           : null,
@@ -270,6 +275,9 @@ class ModelCampaign {
     if (campaignType != null) {
       map[ModelCampaignFields.campaignType] = campaignType!.toDbValue();
     }
+    if (campaignPlatform != null) {
+      map[ModelCampaignFields.campaignPlatform] = campaignPlatform;
+    }
     if (collaborationCount != null) {
       map[ModelCampaignFields.collaborationCount] = collaborationCount;
     }
@@ -302,6 +310,7 @@ class ModelCampaign {
       'campaignName': campaignName,
       'campaignNameString': campaignNameString,
       'campaignType': campaignType?.toDbValue(),
+      'campaignPlatform': campaignPlatform,
       'collaborationCount': collaborationCount,
       'referrerLinkCount': referrerLinkCount,
       'referrerLinks': referrerLinks,
@@ -324,6 +333,7 @@ class ModelCampaign {
       campaignType: json['campaignType'] != null
           ? CampaignType.fromString(json['campaignType'] as String?)
           : null,
+      campaignPlatform: json['campaignPlatform'] as String?,
       collaborationCount: json['collaborationCount'] as int?,
       referrerLinkCount: json['referrerLinkCount'] as int?,
       referrerLinks: (json['referrerLinks'] as List?)
@@ -349,6 +359,7 @@ class ModelCampaign {
     String? campaignName,
     String? campaignNameString,
     CampaignType? campaignType,
+    String? campaignPlatform,
     int? collaborationCount,
     int? referrerLinkCount,
     List<String>? referrerLinks,
@@ -371,6 +382,7 @@ class ModelCampaign {
       campaignName: campaignName ?? this.campaignName,
       campaignNameString: campaignNameString ?? this.campaignNameString,
       campaignType: campaignType ?? this.campaignType,
+      campaignPlatform: campaignPlatform ?? this.campaignPlatform,
       collaborationCount: collaborationCount ?? this.collaborationCount,
       referrerLinkCount: referrerLinkCount ?? this.referrerLinkCount,
       referrerLinks: referrerLinks ?? this.referrerLinks,

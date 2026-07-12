@@ -28,6 +28,7 @@
             "campaign_name",
             "campaign_name_string",
             "campaign_type",
+            "campaign_platform",
             "po_agency_id_label",
             "po_brand_id_label",
             "referrer_link_count",
@@ -74,6 +75,20 @@
                 "paid_ads",
                 "influencer_collaborations",
                 "direct_brand_promotions"
+            ]
+        },
+        {
+            "name": "campaign_platform",
+            "label": "Campaign Platform",
+            "type": "dropdown",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true,
+            "dropdownOptions": [
+                "website",
+                "android_app",
+                "web_app",
+                "ios_app"
             ]
         },
         {

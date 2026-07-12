@@ -105,6 +105,7 @@ final campaignStatusFilterProvider = StateProvider.family
 class CampaignFormState {
   final String campaignName;
   final CampaignType campaignType;
+  final String? campaignPlatform;
   final DateTime? validFrom;
   final DateTime? validUntil;
   final String poAgencyId;
@@ -122,6 +123,7 @@ class CampaignFormState {
   CampaignFormState({
     this.campaignName = '',
     this.campaignType = CampaignType.paidAds,
+    this.campaignPlatform,
     this.validFrom,
     this.validUntil,
     this.poAgencyId = '',
@@ -140,6 +142,7 @@ class CampaignFormState {
   CampaignFormState copyWith({
     String? campaignName,
     CampaignType? campaignType,
+    String? campaignPlatform,
     DateTime? validFrom,
     DateTime? validUntil,
     String? poAgencyId,
@@ -157,6 +160,7 @@ class CampaignFormState {
     return CampaignFormState(
       campaignName: campaignName ?? this.campaignName,
       campaignType: campaignType ?? this.campaignType,
+      campaignPlatform: campaignPlatform ?? this.campaignPlatform,
       validFrom: validFrom ?? this.validFrom,
       validUntil: validUntil ?? this.validUntil,
       poAgencyId: poAgencyId ?? this.poAgencyId,
@@ -203,6 +207,9 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
             error: null,
           );
         }
+        break;
+      case ModelCampaignFields.campaignPlatform:
+        state = state.copyWith(campaignPlatform: value as String?, error: null);
         break;
       case ModelCampaignFields.validFrom:
         state = state.copyWith(
@@ -302,6 +309,7 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
         poId: entityId,
         campaignName: state.campaignName.trim(),
         campaignType: state.campaignType,
+        campaignPlatform: state.campaignPlatform,
         validFrom: state.validFrom,
         validUntil: state.validUntil,
         poAgencyId: state.poAgencyId.trim(),
@@ -361,6 +369,7 @@ class CampaignFormNotifier extends StateNotifier<CampaignFormState> {
     state = CampaignFormState(
       campaignName: entity.campaignName ?? '',
       campaignType: entity.effectiveCampaignType,
+      campaignPlatform: entity.campaignPlatform,
       validFrom: entity.validFrom,
       validUntil: entity.validUntil,
       poAgencyId: entity.poAgencyId ?? '',
