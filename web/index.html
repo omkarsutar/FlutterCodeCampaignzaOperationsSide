@@ -16,6 +16,18 @@
     the `--base-href` argument provided to `flutter build`.
   -->
   <base href="$FLUTTER_BASE_HREF">
+  <script>
+    (function () {
+      var base = document.querySelector('base');
+      if (base) {
+        // Automatically adjust base href for GitHub Pages serving in subdirectory
+        if (window.location.pathname.indexOf('/CampaignzaV01/') !== -1 || 
+            window.location.host.endsWith('github.io')) {
+          base.href = '/CampaignzaV01/';
+        }
+      }
+    })();
+  </script>
 
   <meta charset="UTF-8">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
