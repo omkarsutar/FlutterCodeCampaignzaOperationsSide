@@ -262,4 +262,13 @@ class CollaborationServiceImpl
     );
     return (result as int?) ?? 0;
   }
+
+  /// Fetch website visit count for a referrer_raw string via Supabase RPC
+  Future<int> fetchWebsiteVisitCount(String referrerRaw) async {
+    final result = await client.rpc(
+      'get_website_visit_count_by_referrer',
+      params: {'p_referrer_raw': referrerRaw},
+    );
+    return (result as int?) ?? 0;
+  }
 }

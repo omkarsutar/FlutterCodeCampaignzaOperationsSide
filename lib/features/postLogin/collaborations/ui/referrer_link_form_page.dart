@@ -220,7 +220,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
       'utm_medium': mediumValue,
     };
 
-    return baseUri.replace(queryParameters: queryParameters).toString();
+    return baseUri
+        .replace(queryParameters: queryParameters, fragment: null)
+        .toString();
   }
 
   String _buildPreviewUrl() {

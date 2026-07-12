@@ -28,12 +28,21 @@ class ReferrerLinkTile extends ConsumerWidget {
 
   Uri? get _uri => Uri.tryParse(link);
 
+  String get _countLookupLink {
+    final uri = _uri;
+    if (uri == null) return link;
+    final cleaned = uri.replace(fragment: null).toString();
+    return cleaned.endsWith('#') ? cleaned.substring(0, cleaned.length - 1) : cleaned;
+  }
+
   bool get _isPlayStoreLink {
     final uri = _uri;
     return uri != null &&
         uri.host.contains('play.google.com') &&
         uri.queryParameters['referrer']?.isNotEmpty == true;
   }
+
+  bool get _isWebsiteLink => !_isPlayStoreLink && _uri != null;
 
   Map<String, String> get _utmValues {
     final uri = _uri;
@@ -218,9 +227,23 @@ class ReferrerLinkTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final installCountAsync = (_isPlayStoreLink && link.isNotEmpty)
-        ? ref.watch(installCountProvider(link))
-        : null;
+    final countAsync = (_isPlayStoreLink && link.isNotEmpty)
+        ? ref.watch(installCountProvider(_countLookupLink))
+        : (_isWebsiteLink && link.isNotEmpty)
+            ? ref.watch(websiteVisitCountProvider(_countLookupLink))
+            : null;
+    final countLabel = _isPlayStoreLink ? 'Installs' : 'Visits';
+    final countColor = _isPlayStoreLink
+        ? theme.colorScheme.tertiary
+        : theme.colorScheme.secondary;
+    final refreshTooltip =
+        _isPlayStoreLink ? 'Refresh installs' : 'Refresh visits';
+    final refreshMessage = _isPlayStoreLink
+        ? 'Refreshing install count...'
+        : 'Refreshing visit count...';
+    final refreshProvider = _isPlayStoreLink
+        ? installCountProvider(_countLookupLink)
+        : websiteVisitCountProvider(_countLookupLink);
 
     return Card(
       margin: margin,
@@ -271,12 +294,12 @@ class ReferrerLinkTile extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      if (installCountAsync != null) ...[
-                        installCountAsync.when(
+                      if (countAsync != null) ...[
+                        countAsync.when(
                           data: (count) => _buildCountChip(
                             theme,
-                            'Installs: $count',
-                            theme.colorScheme.tertiary,
+                            '$countLabel: $count',
+                            countColor,
                           ),
                           loading: () => const SizedBox(
                             width: 18,
@@ -285,12 +308,12 @@ class ReferrerLinkTile extends ConsumerWidget {
                           ),
                           error: (_, __) => _buildCountChip(
                             theme,
-                            'Installs: Error',
+                            '$countLabel: Error',
                             theme.colorScheme.error,
                           ),
                         ),
                         IconButton(
-                          tooltip: 'Refresh installs',
+                          tooltip: refreshTooltip,
                           visualDensity: VisualDensity.compact,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints.tightFor(
@@ -303,10 +326,8 @@ class ReferrerLinkTile extends ConsumerWidget {
                             color: theme.colorScheme.primary,
                           ),
                           onPressed: () {
-                            ref.invalidate(installCountProvider(link));
-                            SnackbarUtils.showSuccess(
-                              'Refreshing install count...',
-                            );
+                            ref.invalidate(refreshProvider);
+                            SnackbarUtils.showSuccess(refreshMessage);
                           },
                         ),
                       ],

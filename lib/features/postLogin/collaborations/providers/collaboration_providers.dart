@@ -347,3 +347,10 @@ final installCountProvider = FutureProvider.autoDispose.family<int, String>((
   final service = ref.read(collaborationServiceProvider);
   return await service.fetchInstallCount(referrerRaw);
 });
+
+/// Website visit count for a given referrer_raw string (fetched once per load)
+final websiteVisitCountProvider =
+    FutureProvider.autoDispose.family<int, String>((ref, referrerRaw) async {
+  final service = ref.read(collaborationServiceProvider);
+  return await service.fetchWebsiteVisitCount(referrerRaw);
+});
