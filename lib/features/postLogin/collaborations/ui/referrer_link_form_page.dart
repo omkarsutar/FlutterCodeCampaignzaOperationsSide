@@ -91,8 +91,17 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     final hasScheme =
         trimmed.startsWith('http://') || trimmed.startsWith('https://');
     final candidate = hasScheme ? trimmed : 'https://$trimmed';
-    final uri = Uri.tryParse(candidate);
+    var uri = Uri.tryParse(candidate);
     if (uri == null || uri.host.isEmpty) return trimmed;
+
+    final host = uri.host.toLowerCase();
+    final isIp = RegExp(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$').hasMatch(host);
+    final isLocalhost = host == 'localhost';
+    if (!host.startsWith('www.') && !isIp && !isLocalhost) {
+      final newHost = 'www.$host';
+      uri = uri.replace(host: newHost);
+    }
+
     return uri.replace(query: '', fragment: '').toString();
   }
 
