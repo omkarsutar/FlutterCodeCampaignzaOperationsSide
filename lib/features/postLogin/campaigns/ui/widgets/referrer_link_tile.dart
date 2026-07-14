@@ -32,7 +32,9 @@ class ReferrerLinkTile extends ConsumerWidget {
     final uri = _uri;
     if (uri == null) return link;
     final cleaned = uri.replace(fragment: null).toString();
-    return cleaned.endsWith('#') ? cleaned.substring(0, cleaned.length - 1) : cleaned;
+    return cleaned.endsWith('#')
+        ? cleaned.substring(0, cleaned.length - 1)
+        : cleaned;
   }
 
   bool get _isPlayStoreLink {
@@ -67,6 +69,17 @@ class ReferrerLinkTile extends ConsumerWidget {
     return (value == null || value.isEmpty) ? 'N/A' : value;
   }
 
+  // Encode referrer value for Play Store so '&' and '|' don't split the outer query
+  String _encodeReferrerValue(String value) {
+    // Keep '=' signs intact but percent-encode ampersands and pipe characters which would
+    // otherwise be interpreted as query separators. Also encode hash and question mark.
+    return value
+        .replaceAll('&', '%26')
+        .replaceAll('|', '%7C')
+        .replaceAll('#', '%23')
+        .replaceAll('?', '%3F');
+  }
+
   Future<void> _openLink(BuildContext context) async {
     final uri = _uri;
     if (uri == null) {
@@ -75,6 +88,29 @@ class ReferrerLinkTile extends ConsumerWidget {
     }
 
     try {
+      if (_isPlayStoreLink) {
+        // Reconstruct Play Store link with encoded referrer value so it is treated as a single
+        // query parameter value by Play Store.
+        final appId = uri.queryParameters['id']?.trim();
+        final referrer = uri.queryParameters['referrer']?.trim();
+        if (appId == null ||
+            appId.isEmpty ||
+            referrer == null ||
+            referrer.isEmpty) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          return;
+        }
+
+        final encodedRef = _encodeReferrerValue(referrer);
+        final reconstructed =
+            'https://play.google.com/store/apps/details?id=$appId&referrer=$encodedRef';
+        await launchUrl(
+          Uri.parse(reconstructed),
+          mode: LaunchMode.externalApplication,
+        );
+        return;
+      }
+
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (_) {
       SnackbarUtils.showError('Unable to open link');
@@ -93,7 +129,10 @@ class ReferrerLinkTile extends ConsumerWidget {
     if (_isPlayStoreLink) {
       final appId = uri.queryParameters['id']?.trim();
       final referrer = uri.queryParameters['referrer']?.trim();
-      if (appId == null || appId.isEmpty || referrer == null || referrer.isEmpty) {
+      if (appId == null ||
+          appId.isEmpty ||
+          referrer == null ||
+          referrer.isEmpty) {
         return link;
       }
 
@@ -103,10 +142,11 @@ class ReferrerLinkTile extends ConsumerWidget {
         final utmCampaign = params['utm_campaign']?.trim() ?? '';
         final utmMedium = params['utm_medium']?.trim() ?? '';
 
-        return 'https://play.google.com/store/apps/details?id=$appId'
-            '&referrer=utm_source=$utmSource'
-            '&utm_campaign=$utmCampaign'
-            '&utm_medium=$utmMedium';
+        final rawRef =
+            'utm_source=$utmSource&utm_campaign=$utmCampaign&utm_medium=$utmMedium';
+        final encodedRef = _encodeReferrerValue(rawRef);
+
+        return 'https://play.google.com/store/apps/details?id=$appId&referrer=$encodedRef';
       } catch (_) {
         return link;
       }
@@ -123,7 +163,8 @@ class ReferrerLinkTile extends ConsumerWidget {
 
   TextSpan _buildHighlightedLinkSpan(ThemeData theme) {
     final uri = _uri;
-    final baseStyle = theme.textTheme.bodySmall?.copyWith(
+    final baseStyle =
+        theme.textTheme.bodySmall?.copyWith(
           fontFamily: 'monospace',
           color: theme.colorScheme.onSurfaceVariant,
         ) ??
@@ -143,7 +184,10 @@ class ReferrerLinkTile extends ConsumerWidget {
     if (_isPlayStoreLink) {
       final appId = uri.queryParameters['id']?.trim();
       final referrer = uri.queryParameters['referrer'];
-      if (appId == null || appId.isEmpty || referrer == null || referrer.isEmpty) {
+      if (appId == null ||
+          appId.isEmpty ||
+          referrer == null ||
+          referrer.isEmpty) {
         return TextSpan(text: link, style: baseStyle);
       }
 
@@ -230,14 +274,15 @@ class ReferrerLinkTile extends ConsumerWidget {
     final countAsync = (_isPlayStoreLink && link.isNotEmpty)
         ? ref.watch(installCountProvider(_countLookupLink))
         : (_isWebsiteLink && link.isNotEmpty)
-            ? ref.watch(websiteVisitCountProvider(_countLookupLink))
-            : null;
+        ? ref.watch(websiteVisitCountProvider(_countLookupLink))
+        : null;
     final countLabel = _isPlayStoreLink ? 'Installs' : 'Visits';
     final countColor = _isPlayStoreLink
         ? theme.colorScheme.tertiary
         : theme.colorScheme.secondary;
-    final refreshTooltip =
-        _isPlayStoreLink ? 'Refresh installs' : 'Refresh visits';
+    final refreshTooltip = _isPlayStoreLink
+        ? 'Refresh installs'
+        : 'Refresh visits';
     final refreshMessage = _isPlayStoreLink
         ? 'Refreshing install count...'
         : 'Refreshing visit count...';
@@ -273,7 +318,8 @@ class ReferrerLinkTile extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
-                    child: leadingWidget ??
+                    child:
+                        leadingWidget ??
                         Icon(
                           Icons.link_rounded,
                           size: 20,
