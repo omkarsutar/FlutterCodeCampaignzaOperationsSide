@@ -8,6 +8,10 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter_supabase_order_app_mobile/core/utils/file_save_helper.dart';
 
 import '../../../../core/providers/core_providers.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
@@ -39,8 +43,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     // Influencer role has scoped actions on this page (accept collab, set
     // promo code, view referrer links) regardless of the generic RBAC flags.
     final role = ref.watch(roleNameProvider);
-    final isInfluencer =
-        role != null && role.toLowerCase() == 'influencer';
+    final isInfluencer = role != null && role.toLowerCase() == 'influencer';
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -323,9 +326,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
           Row(
             children: [
               Icon(
-                isAccepted
-                    ? Icons.check_circle_rounded
-                    : Icons.pending_rounded,
+                isAccepted ? Icons.check_circle_rounded : Icons.pending_rounded,
                 color: isAccepted ? Colors.green : Colors.orange,
                 size: 24,
               ),
@@ -613,8 +614,11 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.tonalIcon(
-                  onPressed: () =>
-                      _setPromoCodeForCollaboration(context, ref, collaboration),
+                  onPressed: () => _setPromoCodeForCollaboration(
+                    context,
+                    ref,
+                    collaboration,
+                  ),
                   icon: const Icon(Icons.add),
                   label: const Text('Set Promo Code'),
                 ),
@@ -634,7 +638,9 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     bool isInfluencer = false,
   }) {
     final linksAsync = ref.watch(
-      referrerLinksForCollaborationProvider(collaboration.collaborationId ?? ''),
+      referrerLinksForCollaborationProvider(
+        collaboration.collaborationId ?? '',
+      ),
     );
 
     // Influencers can only view referrer links and only after they have
@@ -808,12 +814,14 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     if (!context.mounted) return;
 
     final appId = brand.androidAppId?.toString().trim();
-    final resolvedAppId =
-        (appId != null && appId.isNotEmpty)
+    final resolvedAppId = (appId != null && appId.isNotEmpty)
         ? appId
         : 'com.numeroshastra.client';
     final campaignNameString =
-        (campaign.campaignNameString ?? campaign.campaignName ?? campaign.poId ?? '')
+        (campaign.campaignNameString ??
+                campaign.campaignName ??
+                campaign.poId ??
+                '')
             .trim();
 
     final result = await Navigator.of(context).push<ReferrerLinkFormResult>(
@@ -846,8 +854,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
         referrerLinkType: result.referrerLinkType,
         campaignId: campaign.campaignId,
         campaignType:
-            campaign.campaignType?.toDbValue() ??
-            'influencer_collaborations',
+            campaign.campaignType?.toDbValue() ?? 'influencer_collaborations',
         collaborationId: collaboration.collaborationId,
         referrerLinkSource: result.referrerLinkSource,
       );
@@ -891,7 +898,9 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
       final service = ref.read(referrerLinkServiceProvider);
       await service.deleteEntityById(linkItem.referrerLinkId!);
 
-      ref.invalidate(referrerLinksForCollaborationProvider(linkItem.collaborationId ?? ''));
+      ref.invalidate(
+        referrerLinksForCollaborationProvider(linkItem.collaborationId ?? ''),
+      );
       SnackbarUtils.showSuccess('Referrer link deleted successfully!');
     } catch (e) {
       SnackbarUtils.showError('Failed to delete referrer link: $e');
@@ -918,9 +927,10 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
       await service.update(
         id,
         collaboration.copyWith(
-          isAcceptedByInfluencer: changes.containsKey(
-            ModelCollaborationFields.isAcceptedByInfluencer,
-          )
+          isAcceptedByInfluencer:
+              changes.containsKey(
+                ModelCollaborationFields.isAcceptedByInfluencer,
+              )
               ? changes[ModelCollaborationFields.isAcceptedByInfluencer] == true
               : collaboration.isAcceptedByInfluencer,
           promoCode: changes.containsKey(ModelCollaborationFields.promoCode)
@@ -959,7 +969,9 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
 
     final existing = collaboration.promoCode;
     if (existing != null && existing.isNotEmpty) {
-      SnackbarUtils.showInfo('A promo code is already set for this collaboration.');
+      SnackbarUtils.showInfo(
+        'A promo code is already set for this collaboration.',
+      );
       return;
     }
 
@@ -999,9 +1011,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
           ElevatedButton(
             onPressed: () {
               final value = controller.text.trim();
-              Navigator.of(dialogContext).pop(
-                value.isEmpty ? null : value,
-              );
+              Navigator.of(dialogContext).pop(value.isEmpty ? null : value);
             },
             child: const Text('Save'),
           ),
@@ -1010,11 +1020,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     );
   }
 
-  Widget _buildCountPill(
-    ThemeData theme,
-    String label,
-    Color color,
-  ) {
+  Widget _buildCountPill(ThemeData theme, String label, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -1066,11 +1072,24 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
       return null;
     }
 
-    final link = linkItem.referrerLinkString.trim();
-    if (link.isEmpty) return null;
+    final rawLink = linkItem.referrerLinkString.trim();
+    if (rawLink.isEmpty) return null;
+
+    // Sanitize QR payload: remove empty fragment / trailing '#' so QR content
+    // matches the open/copy behavior used elsewhere in the app.
+    String qrData = rawLink;
+    try {
+      final uri = Uri.tryParse(rawLink);
+      if (uri != null) {
+        qrData = uri.replace(fragment: null).toString();
+        if (qrData.endsWith('#')) {
+          qrData = qrData.substring(0, qrData.length - 1);
+        }
+      }
+    } catch (_) {}
 
     return _QrShareBlock(
-      data: link,
+      data: qrData,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -1079,7 +1098,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
           border: Border.all(color: Colors.black12),
         ),
         child: QrImageView(
-          data: link,
+          data: qrData,
           version: QrVersions.auto,
           size: 180,
           backgroundColor: Colors.white,
@@ -1155,10 +1174,7 @@ class _QrShareBlock extends StatefulWidget {
   final String data;
   final Widget child;
 
-  const _QrShareBlock({
-    required this.data,
-    required this.child,
-  });
+  const _QrShareBlock({required this.data, required this.child});
 
   @override
   State<_QrShareBlock> createState() => _QrShareBlockState();
@@ -1182,18 +1198,65 @@ class _QrShareBlockState extends State<_QrShareBlock> {
       final fileName = 'referrer_qr.png';
 
       if (kIsWeb) {
-        await Share.share(widget.data);
+        await UniversalFileSaver.saveAndDownloadFile(
+          bytes: pngBytes,
+          fileName: fileName,
+        );
+        SnackbarUtils.showSuccess('QR Code downloaded successfully!');
         return;
       }
 
       await Share.shareXFiles(
         [XFile.fromData(pngBytes, name: fileName, mimeType: 'image/png')],
         subject: 'Referrer QR Code',
-        text: widget.data,
       );
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
-        await Share.share(widget.data);
+        SnackbarUtils.showError('Could not share QR Code: $e');
+      }
+    }
+  }
+
+  Future<void> _downloadOrPrintQrCode() async {
+    try {
+      final boundary =
+          _boundaryKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
+      if (boundary == null) return;
+
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return;
+
+      final pngBytes = byteData.buffer.asUint8List();
+      final fileName = 'referrer_qr.png';
+
+      if (kIsWeb) {
+        await UniversalFileSaver.saveAndDownloadFile(
+          bytes: pngBytes,
+          fileName: fileName,
+        );
+        SnackbarUtils.showSuccess('QR Code downloaded successfully!');
+      } else {
+        final doc = pw.Document();
+        final pdfImage = pw.MemoryImage(pngBytes);
+        doc.addPage(
+          pw.Page(
+            build: (pw.Context context) {
+              return pw.Center(
+                child: pw.Image(pdfImage, width: 300, height: 300),
+              );
+            },
+          ),
+        );
+        await Printing.layoutPdf(
+          onLayout: (format) async => doc.save(),
+          name: 'Referrer_QR_Code',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackbarUtils.showError('Could not print/download QR Code: $e');
       }
     }
   }
@@ -1203,11 +1266,22 @@ class _QrShareBlockState extends State<_QrShareBlock> {
     return Column(
       children: [
         RepaintBoundary(key: _boundaryKey, child: widget.child),
-        const SizedBox(height: 10),
-        OutlinedButton.icon(
-          onPressed: _shareQrCode,
-          icon: const Icon(Icons.share_outlined),
-          label: const Text('Share QR Code'),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            OutlinedButton.icon(
+              onPressed: _shareQrCode,
+              icon: const Icon(Icons.share_outlined),
+              label: Text(kIsWeb ? 'Download QR' : 'Share QR'),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton.icon(
+              onPressed: _downloadOrPrintQrCode,
+              icon: Icon(kIsWeb ? Icons.download_outlined : Icons.print_outlined),
+              label: Text(kIsWeb ? 'Save' : 'Print / Save'),
+            ),
+          ],
         ),
       ],
     );

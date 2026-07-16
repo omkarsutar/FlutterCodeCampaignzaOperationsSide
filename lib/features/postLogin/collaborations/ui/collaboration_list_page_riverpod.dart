@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter_supabase_order_app_mobile/core/utils/file_save_helper.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/providers/brand_providers.dart';
 import '../../../../core/config/module_config.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/campaigns/campaign_barrel.dart';
@@ -70,26 +74,28 @@ class _CollaborationListPageRiverpodState
   Future<void> _showReferrerLinkPage(
     BuildContext context,
     WidgetRef ref,
-    ModelCampaign campaign,
-    {String? existingLink, ModelReferrerLink? existingLinkItem}) async {
+    ModelCampaign campaign, {
+    String? existingLink,
+    ModelReferrerLink? existingLinkItem,
+  }) async {
     dynamic parentBrand;
     try {
       final brandId = campaign.campaignBrandId ?? campaign.poBrandId;
       if (brandId != null && brandId.isNotEmpty) {
-        parentBrand = await ref.read(
-          brandByIdProvider(brandId).future,
-        );
+        parentBrand = await ref.read(brandByIdProvider(brandId).future);
       }
     } catch (_) {
       parentBrand = null;
     }
     final appId = parentBrand?.androidAppId?.toString().trim();
-    final resolvedAppId =
-        (appId != null && appId.isNotEmpty)
+    final resolvedAppId = (appId != null && appId.isNotEmpty)
         ? appId
         : 'com.numeroshastra.client';
     final campaignNameString =
-        (campaign.campaignNameString ?? campaign.campaignName ?? campaign.poId ?? '')
+        (campaign.campaignNameString ??
+                campaign.campaignName ??
+                campaign.poId ??
+                '')
             .trim();
 
     final result = await Navigator.of(context).push<ReferrerLinkFormResult>(
@@ -161,7 +167,9 @@ class _CollaborationListPageRiverpodState
     if (!confirmed) return;
 
     try {
-      await ref.read(campaignServiceProvider).deleteReferrerLink(
+      await ref
+          .read(campaignServiceProvider)
+          .deleteReferrerLink(
             campaignId: campaign.poId!,
             referrerLink: existingLink,
           );
@@ -188,11 +196,22 @@ class _CollaborationListPageRiverpodState
       return null;
     }
 
-    final link = linkItem.referrerLinkString.trim();
-    if (link.isEmpty) return null;
+    final rawLink = linkItem.referrerLinkString.trim();
+    if (rawLink.isEmpty) return null;
+
+    var qrData = rawLink;
+    try {
+      final uri = Uri.tryParse(rawLink);
+      if (uri != null) {
+        qrData = uri.replace(fragment: null).toString();
+        if (qrData.endsWith('#')) {
+          qrData = qrData.substring(0, qrData.length - 1);
+        }
+      }
+    } catch (_) {}
 
     return _QrShareBlock(
-      data: link,
+      data: qrData,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -201,7 +220,7 @@ class _CollaborationListPageRiverpodState
           border: Border.all(color: Colors.black12),
         ),
         child: QrImageView(
-          data: link,
+          data: qrData,
           version: QrVersions.auto,
           size: 180,
           backgroundColor: Colors.white,
@@ -222,7 +241,9 @@ class _CollaborationListPageRiverpodState
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              SliverToBoxAdapter(child: _buildCampaignHeader(context, campaign)),
+              SliverToBoxAdapter(
+                child: _buildCampaignHeader(context, campaign),
+              ),
               const SliverToBoxAdapter(child: Divider()),
               asyncState.when(
                 loading: () => const SliverFillRemaining(
@@ -286,7 +307,9 @@ class _CollaborationListPageRiverpodState
   }
 
   Widget _buildReferrerLinksBody(ModelCampaign campaign) {
-    final linksAsync = ref.watch(referrerLinksForCampaignProvider(campaign.poId!));
+    final linksAsync = ref.watch(
+      referrerLinksForCampaignProvider(campaign.poId!),
+    );
 
     return Column(
       children: [
@@ -294,7 +317,9 @@ class _CollaborationListPageRiverpodState
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              SliverToBoxAdapter(child: _buildCampaignHeader(context, campaign)),
+              SliverToBoxAdapter(
+                child: _buildCampaignHeader(context, campaign),
+              ),
               const SliverToBoxAdapter(child: Divider()),
               linksAsync.when(
                 loading: () => const SliverFillRemaining(
@@ -319,9 +344,7 @@ class _CollaborationListPageRiverpodState
                         final link = linkItem.referrerLinkString;
                         return ReferrerLinkTile(
                           link: link,
-                          belowLinkWidget: _buildReferrerLinkQrWidget(
-                            linkItem,
-                          ),
+                          belowLinkWidget: _buildReferrerLinkQrWidget(linkItem),
                           onEdit: (existingLink) => _showReferrerLinkPage(
                             context,
                             ref,
@@ -375,9 +398,8 @@ class _CollaborationListPageRiverpodState
             Text('Error loading collaborations: $error'),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => ref.invalidate(
-                collaborationListControllerProvider(''),
-              ),
+              onPressed: () =>
+                  ref.invalidate(collaborationListControllerProvider('')),
               child: const Text('Retry'),
             ),
           ],
@@ -387,18 +409,14 @@ class _CollaborationListPageRiverpodState
         return RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(collaborationListControllerProvider(''));
-            await ref.read(
-              collaborationListControllerProvider('').future,
-            );
+            await ref.read(collaborationListControllerProvider('').future);
           },
           child: state.items.isEmpty
               ? ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: const [
                     SizedBox(height: 120),
-                    Center(
-                      child: Text('No collaborations found.'),
-                    ),
+                    Center(child: Text('No collaborations found.')),
                   ],
                 )
               : ListView.builder(
@@ -428,7 +446,8 @@ class _CollaborationListPageRiverpodState
     final campaignAsync = widget.poId.isNotEmpty
         ? ref.watch(campaignStreamByIdProvider(widget.poId))
         : null;
-    final pageTitle = campaignAsync?.maybeWhen(
+    final pageTitle =
+        campaignAsync?.maybeWhen(
           loading: () => 'Loading Campaign...',
           error: (_, __) => 'Campaign Details',
           data: (campaign) {
@@ -445,10 +464,7 @@ class _CollaborationListPageRiverpodState
         : null;
 
     return Scaffold(
-      appBar: CustomAppBar(
-        title: pageTitle,
-        showBack: widget.poId.isNotEmpty,
-      ),
+      appBar: CustomAppBar(title: pageTitle, showBack: widget.poId.isNotEmpty),
       drawer: const CustomDrawer(),
       body: isGlobalView
           ? _buildGlobalCollaborationsBody(globalAsync!)
@@ -495,10 +511,7 @@ class _QrShareBlock extends StatefulWidget {
   final String data;
   final Widget child;
 
-  const _QrShareBlock({
-    required this.data,
-    required this.child,
-  });
+  const _QrShareBlock({required this.data, required this.child});
 
   @override
   State<_QrShareBlock> createState() => _QrShareBlockState();
@@ -522,18 +535,65 @@ class _QrShareBlockState extends State<_QrShareBlock> {
       final fileName = 'referrer_qr.png';
 
       if (kIsWeb) {
-        await Share.share(widget.data);
+        await UniversalFileSaver.saveAndDownloadFile(
+          bytes: pngBytes,
+          fileName: fileName,
+        );
+        SnackbarUtils.showSuccess('QR Code downloaded successfully!');
         return;
       }
 
       await Share.shareXFiles(
         [XFile.fromData(pngBytes, name: fileName, mimeType: 'image/png')],
         subject: 'Referrer QR Code',
-        text: widget.data,
       );
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
-        await Share.share(widget.data);
+        SnackbarUtils.showError('Could not share QR Code: $e');
+      }
+    }
+  }
+
+  Future<void> _downloadOrPrintQrCode() async {
+    try {
+      final boundary =
+          _boundaryKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
+      if (boundary == null) return;
+
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return;
+
+      final pngBytes = byteData.buffer.asUint8List();
+      final fileName = 'referrer_qr.png';
+
+      if (kIsWeb) {
+        await UniversalFileSaver.saveAndDownloadFile(
+          bytes: pngBytes,
+          fileName: fileName,
+        );
+        SnackbarUtils.showSuccess('QR Code downloaded successfully!');
+      } else {
+        final doc = pw.Document();
+        final pdfImage = pw.MemoryImage(pngBytes);
+        doc.addPage(
+          pw.Page(
+            build: (pw.Context context) {
+              return pw.Center(
+                child: pw.Image(pdfImage, width: 300, height: 300),
+              );
+            },
+          ),
+        );
+        await Printing.layoutPdf(
+          onLayout: (format) async => doc.save(),
+          name: 'Referrer_QR_Code',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackbarUtils.showError('Could not print/download QR Code: $e');
       }
     }
   }
@@ -543,11 +603,22 @@ class _QrShareBlockState extends State<_QrShareBlock> {
     return Column(
       children: [
         RepaintBoundary(key: _boundaryKey, child: widget.child),
-        const SizedBox(height: 10),
-        OutlinedButton.icon(
-          onPressed: _shareQrCode,
-          icon: const Icon(Icons.share_outlined),
-          label: const Text('Share QR Code'),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            OutlinedButton.icon(
+              onPressed: _shareQrCode,
+              icon: const Icon(Icons.share_outlined),
+              label: Text(kIsWeb ? 'Download QR' : 'Share QR'),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton.icon(
+              onPressed: _downloadOrPrintQrCode,
+              icon: Icon(kIsWeb ? Icons.download_outlined : Icons.print_outlined),
+              label: Text(kIsWeb ? 'Save' : 'Print / Save'),
+            ),
+          ],
         ),
       ],
     );

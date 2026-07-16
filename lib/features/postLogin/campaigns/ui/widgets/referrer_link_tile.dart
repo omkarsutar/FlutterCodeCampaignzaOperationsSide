@@ -111,7 +111,8 @@ class ReferrerLinkTile extends ConsumerWidget {
         return;
       }
 
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final sanitizedUri = uri.replace(fragment: null);
+      await launchUrl(sanitizedUri, mode: LaunchMode.externalApplication);
     } catch (_) {
       SnackbarUtils.showError('Unable to open link');
     }

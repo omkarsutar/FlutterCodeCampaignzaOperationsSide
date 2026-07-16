@@ -94,15 +94,12 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     var uri = Uri.tryParse(candidate);
     if (uri == null || uri.host.isEmpty) return trimmed;
 
-    final host = uri.host.toLowerCase();
-    final isIp = RegExp(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$').hasMatch(host);
-    final isLocalhost = host == 'localhost';
-    if (!host.startsWith('www.') && !isIp && !isLocalhost) {
-      final newHost = 'www.$host';
-      uri = uri.replace(host: newHost);
-    }
+    // Do not auto-insert "www." — preserve the host exactly as provided by the user.
 
-    return uri.replace(query: '', fragment: '').toString();
+    // Remove fragment entirely (use null) instead of setting it to empty string,
+    // which would produce a trailing '#' when serialized.
+    final result = uri.replace(query: '', fragment: null).toString();
+    return result.endsWith('#') ? result.substring(0, result.length - 1) : result;
   }
 
   String _websiteFieldDisplayValue(String value) {
@@ -133,8 +130,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   void _populateFromExistingLink() {
     final existingLink = widget.existingLink;
     final promoCode = widget.promoCode?.trim();
-    final sourceOptions =
-        _referrerLinkSourceOptions(widget.initialReferrerLinkSource);
+    final sourceOptions = _referrerLinkSourceOptions(
+      widget.initialReferrerLinkSource,
+    );
 
     if (_isWebsiteCampaign) {
       final savedWebsite = _normalizeWebsiteBaseUrl(widget.websiteUrl ?? '');
@@ -152,9 +150,11 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
       _referrerLinkType = initialType;
     }
 
-    final initialSource =
-        widget.initialReferrerLinkSource?.trim().toLowerCase();
-    final hasInitialSource = initialSource != null &&
+    final initialSource = widget.initialReferrerLinkSource
+        ?.trim()
+        .toLowerCase();
+    final hasInitialSource =
+        initialSource != null &&
         initialSource.isNotEmpty &&
         sourceOptions.contains(initialSource);
     if (hasInitialSource) {
@@ -168,7 +168,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
     if (_isWebsiteCampaign) {
       _baseUrlController.text = _websiteFieldDisplayValue(
-        existingUri.replace(query: '', fragment: '').toString(),
+        existingUri.replace(query: '', fragment: null).toString(),
       );
       final params = existingUri.queryParameters;
       final utmSource = _normalizeUtmValue(params['utm_source'] ?? '');
@@ -229,9 +229,10 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
       'utm_medium': mediumValue,
     };
 
-    return baseUri
+    final result = baseUri
         .replace(queryParameters: queryParameters, fragment: null)
         .toString();
+    return result.endsWith('#') ? result.substring(0, result.length - 1) : result;
   }
 
   String _buildPreviewUrl() {
@@ -248,7 +249,8 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   TextSpan _buildPlayStoreHighlightedLinkSpan(ThemeData theme) {
     final previewUrl = _buildPreviewUrl();
     final uri = Uri.tryParse(previewUrl);
-    final baseStyle = theme.textTheme.bodySmall?.copyWith(
+    final baseStyle =
+        theme.textTheme.bodySmall?.copyWith(
           fontFamily: 'monospace',
           color: theme.colorScheme.onSurfaceVariant,
         ) ??
@@ -280,9 +282,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     return TextSpan(
       style: baseStyle,
       children: [
-        const TextSpan(
-          text: 'https://play.google.com/store/apps/details?id=',
-        ),
+        const TextSpan(text: 'https://play.google.com/store/apps/details?id='),
         TextSpan(text: widget.appId, style: highlightStyle),
         const TextSpan(text: '&referrer='),
         const TextSpan(text: 'utm_source='),
@@ -308,7 +308,8 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   TextSpan _buildWebsiteHighlightedLinkSpan(ThemeData theme) {
     final previewUrl = _buildWebsitePreviewUrl();
     final uri = Uri.tryParse(previewUrl);
-    final baseStyle = theme.textTheme.bodySmall?.copyWith(
+    final baseStyle =
+        theme.textTheme.bodySmall?.copyWith(
           fontFamily: 'monospace',
           color: theme.colorScheme.onSurfaceVariant,
         ) ??
@@ -325,7 +326,8 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
       return TextSpan(text: previewUrl, style: baseStyle);
     }
 
-    final basePath = '${uri.scheme}://${uri.authority}${uri.path.isEmpty ? '/' : uri.path}';
+    final basePath =
+        '${uri.scheme}://${uri.authority}${uri.path.isEmpty ? '/' : uri.path}';
     final params = uri.queryParameters;
 
     return TextSpan(
@@ -349,8 +351,8 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
             params['utm_medium']?.trim().isNotEmpty == true
                 ? params['utm_medium']
                 : (widget.promoCode?.trim().isNotEmpty == true
-                    ? _normalizePromoCode(widget.promoCode!)
-                    : _normalizeUtmValue(_mediumController.text)),
+                      ? _normalizePromoCode(widget.promoCode!)
+                      : _normalizeUtmValue(_mediumController.text)),
           ),
           style: highlightStyle,
         ),
@@ -455,8 +457,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.35),
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.35,
+                    ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: theme.colorScheme.outlineVariant.withValues(
@@ -464,9 +467,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                       ),
                     ),
                   ),
-                  child: SelectableText.rich(
-                    _buildHighlightedLinkSpan(theme),
-                  ),
+                  child: SelectableText.rich(_buildHighlightedLinkSpan(theme)),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -506,8 +507,10 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: _referrerLinkSourceOptions(_referrerLinkSource)
-                          .contains(_referrerLinkSource)
+                  value:
+                      _referrerLinkSourceOptions(
+                        _referrerLinkSource,
+                      ).contains(_referrerLinkSource)
                       ? _referrerLinkSource
                       : _referrerLinkSourceOptions(_referrerLinkSource).first,
                   decoration: const InputDecoration(
