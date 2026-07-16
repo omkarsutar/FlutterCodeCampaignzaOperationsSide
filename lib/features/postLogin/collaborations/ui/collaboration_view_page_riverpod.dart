@@ -8,9 +8,6 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:printing/printing.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter_supabase_order_app_mobile/core/utils/file_save_helper.dart';
 
 import '../../../../core/providers/core_providers.dart';
@@ -1183,7 +1180,21 @@ class _QrShareBlock extends StatefulWidget {
 class _QrShareBlockState extends State<_QrShareBlock> {
   final GlobalKey _boundaryKey = GlobalKey();
 
-  Future<void> _shareQrCode() async {
+  String _getFileName() {
+    try {
+      final uri = Uri.tryParse(widget.data);
+      if (uri != null) {
+        final utmSource = uri.queryParameters['utm_source']?.trim();
+        if (utmSource != null && utmSource.isNotEmpty) {
+          final sanitized = utmSource.replaceAll(RegExp(r'[^\w\-_]'), '_');
+          return '$sanitized.png';
+        }
+      }
+    } catch (_) {}
+    return 'referrer_qr.png';
+  }
+
+  Future<void> _handleQrAction() async {
     try {
       final boundary =
           _boundaryKey.currentContext?.findRenderObject()
@@ -1195,7 +1206,7 @@ class _QrShareBlockState extends State<_QrShareBlock> {
       if (byteData == null) return;
 
       final pngBytes = byteData.buffer.asUint8List();
-      final fileName = 'referrer_qr.png';
+      final fileName = _getFileName();
 
       if (kIsWeb) {
         await UniversalFileSaver.saveAndDownloadFile(
@@ -1212,51 +1223,7 @@ class _QrShareBlockState extends State<_QrShareBlock> {
       );
     } catch (e) {
       if (mounted) {
-        SnackbarUtils.showError('Could not share QR Code: $e');
-      }
-    }
-  }
-
-  Future<void> _downloadOrPrintQrCode() async {
-    try {
-      final boundary =
-          _boundaryKey.currentContext?.findRenderObject()
-              as RenderRepaintBoundary?;
-      if (boundary == null) return;
-
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return;
-
-      final pngBytes = byteData.buffer.asUint8List();
-      final fileName = 'referrer_qr.png';
-
-      if (kIsWeb) {
-        await UniversalFileSaver.saveAndDownloadFile(
-          bytes: pngBytes,
-          fileName: fileName,
-        );
-        SnackbarUtils.showSuccess('QR Code downloaded successfully!');
-      } else {
-        final doc = pw.Document();
-        final pdfImage = pw.MemoryImage(pngBytes);
-        doc.addPage(
-          pw.Page(
-            build: (pw.Context context) {
-              return pw.Center(
-                child: pw.Image(pdfImage, width: 300, height: 300),
-              );
-            },
-          ),
-        );
-        await Printing.layoutPdf(
-          onLayout: (format) async => doc.save(),
-          name: 'Referrer_QR_Code',
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        SnackbarUtils.showError('Could not print/download QR Code: $e');
+        SnackbarUtils.showError('Could not process QR Code: $e');
       }
     }
   }
@@ -1267,21 +1234,10 @@ class _QrShareBlockState extends State<_QrShareBlock> {
       children: [
         RepaintBoundary(key: _boundaryKey, child: widget.child),
         const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            OutlinedButton.icon(
-              onPressed: _shareQrCode,
-              icon: const Icon(Icons.share_outlined),
-              label: Text(kIsWeb ? 'Download QR' : 'Share QR'),
-            ),
-            const SizedBox(width: 8),
-            OutlinedButton.icon(
-              onPressed: _downloadOrPrintQrCode,
-              icon: Icon(kIsWeb ? Icons.download_outlined : Icons.print_outlined),
-              label: Text(kIsWeb ? 'Save' : 'Print / Save'),
-            ),
-          ],
+        OutlinedButton.icon(
+          onPressed: _handleQrAction,
+          icon: Icon(kIsWeb ? Icons.download_outlined : Icons.share_outlined),
+          label: Text(kIsWeb ? 'Download QR Code' : 'Share QR Code'),
         ),
       ],
     );
