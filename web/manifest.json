@@ -1,12 +1,13 @@
 {
-    "name": "flutter_supabase_order_app_mobile",
-    "short_name": "flutter_supabase_order_app_mobile",
+    "name": "Campaignza",
+    "short_name": "Campaignza",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Campaignza operations and referrer management PWA.",
     "orientation": "portrait-primary",
+    "scope": ".",
     "prefer_related_applications": false,
     "icons": [
         {

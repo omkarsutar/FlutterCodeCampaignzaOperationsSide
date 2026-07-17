@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/notes/note_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/influencers/influencer_barrel.dart';
@@ -41,6 +43,16 @@ class CustomDrawer extends ConsumerWidget {
     return user.fullName ?? currentUser?.email;
   }
 
+  Future<bool> _assetExists(BuildContext context, String assetPath) async {
+    try {
+      final manifestJson = await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
+      final manifest = jsonDecode(manifestJson) as Map<String, dynamic>;
+      return manifest.containsKey(assetPath);
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch initialization state to trigger rebuilds for Role display, etc.
@@ -63,11 +75,48 @@ class CustomDrawer extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (displayName != null)
-                  Text(
-                    "Campaignza",
-                    style: TextStyle(color: theme.colorScheme.onPrimary),
-                  ),
+                FutureBuilder<bool>(
+                  future: _assetExists(context, 'assets/images/primary_logo.png'),
+                  builder: (context, snapshot) {
+                    if (snapshot.data == true) {
+                      return Image.asset(
+                        'assets/images/primary_logo.png',
+                        height: 48,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => Text(
+                          'Campaignza',
+                          style: TextStyle(
+                            color: theme.colorScheme.onPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return SizedBox(
+                        height: 48,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: theme.colorScheme.onPrimary,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return Text(
+                      'Campaignza',
+                      style: TextStyle(
+                        color: theme.colorScheme.onPrimary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
                 Text(
                   displayName != null
                       ? 'Welcome, $displayName'
@@ -103,7 +152,9 @@ class CustomDrawer extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w300,
-                        color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
+                        color: theme.colorScheme.onPrimary.withValues(
+                          alpha: 0.7,
+                        ),
                       ),
                     ),
                     loading: () => const SizedBox.shrink(),
