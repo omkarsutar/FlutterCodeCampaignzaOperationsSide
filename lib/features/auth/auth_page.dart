@@ -22,26 +22,26 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Sign In'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              theme.colorScheme.primary,
-              theme.colorScheme.primary.withValues(alpha: 0.9),
-              const Color(0xFF311B92),
-            ],
+            colors: [Color(0xFF4A90E2), Color(0xFF3E77D2), Color(0xFF211C7E)],
           ),
         ),
         child: SafeArea(
@@ -50,17 +50,31 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Minimalist Branding
-                const Icon(
-                  Icons.vpn_key_rounded,
-                  size: 64,
-                  color: Color(0xFFFFC107),
+                Container(
+                  height: 100,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Image.asset(
+                      'assets/images/app_logo.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.vpn_key_rounded,
+                        size: 48,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 const Text(
                   'Access Your Account',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 26,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -75,13 +89,14 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
                 // Login Card
                 Card(
+                  color: const Color(0xFF11204F),
                   elevation: 12,
                   shadowColor: Colors.black54,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(28),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(32.0),
+                    padding: const EdgeInsets.all(28.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -89,8 +104,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.red.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.red.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
                               _error!,
@@ -105,7 +120,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                         ],
 
                         if (_loading)
-                          const CircularProgressIndicator()
+                          const CircularProgressIndicator(color: Colors.white)
                         else
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
@@ -117,7 +132,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                 vertical: 16,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(16),
                                 side: BorderSide(color: Colors.grey.shade300),
                               ),
                             ),
@@ -165,8 +180,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                               }
                             },
                           ),
-                        // Terms of Use consent shown directly under the
-                        // sign-in button.
                         const SizedBox(height: 20),
                         _buildTermsNotice(context),
                       ],
@@ -195,14 +208,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       textAlign: TextAlign.center,
       text: TextSpan(
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              height: 1.4,
-            ),
+          color: Colors.white70,
+          height: 1.4,
+        ),
         children: [
-          const TextSpan(
-            text:
-                'By signing in, you agree to our ',
-          ),
+          const TextSpan(text: 'By signing in, you agree to our '),
           WidgetSpan(
             alignment: PlaceholderAlignment.middle,
             child: InkWell(
@@ -210,18 +220,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
               child: Text(
                 'Terms of Use',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Theme.of(context).colorScheme.primary,
-                    ),
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                  decorationColor: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
           ),
-          const TextSpan(
-            text:
-                ' and acknowledge our privacy practices.',
-          ),
+          const TextSpan(text: ' and acknowledge our privacy practices.'),
         ],
       ),
     );

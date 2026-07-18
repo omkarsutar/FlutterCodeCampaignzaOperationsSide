@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/notes/note_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/influencers/influencer_barrel.dart';
@@ -43,15 +41,6 @@ class CustomDrawer extends ConsumerWidget {
     return user.fullName ?? currentUser?.email;
   }
 
-  Future<bool> _assetExists(BuildContext context, String assetPath) async {
-    try {
-      final manifestJson = await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
-      final manifest = jsonDecode(manifestJson) as Map<String, dynamic>;
-      return manifest.containsKey(assetPath);
-    } catch (_) {
-      return false;
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -75,48 +64,6 @@ class CustomDrawer extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FutureBuilder<bool>(
-                  future: _assetExists(context, 'assets/images/primary_logo.png'),
-                  builder: (context, snapshot) {
-                    if (snapshot.data == true) {
-                      return Image.asset(
-                        'assets/images/primary_logo.png',
-                        height: 48,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Text(
-                          'Campaignza',
-                          style: TextStyle(
-                            color: theme.colorScheme.onPrimary,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return SizedBox(
-                        height: 48,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: theme.colorScheme.onPrimary,
-                            strokeWidth: 2,
-                          ),
-                        ),
-                      );
-                    }
-
-                    return Text(
-                      'Campaignza',
-                      style: TextStyle(
-                        color: theme.colorScheme.onPrimary,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 12),
                 Text(
                   displayName != null
                       ? 'Welcome, $displayName'
@@ -342,6 +289,38 @@ class CustomDrawer extends ConsumerWidget {
                 }
               },
             ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Container(
+                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.08),
+                width: double.infinity,
+                child: Image.asset(
+                  'assets/images/primary_logo.png',
+                  width: double.infinity,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Image.asset(
+                    'assets/images/app_logo.png',
+                    width: double.infinity,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 28.0),
+                      child: Text(
+                        'Campaignza',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: theme.colorScheme.onPrimary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
