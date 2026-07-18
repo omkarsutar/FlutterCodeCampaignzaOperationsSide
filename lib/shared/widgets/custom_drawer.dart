@@ -30,17 +30,56 @@ class CustomDrawer extends ConsumerWidget {
   const CustomDrawer({super.key});
 
   String? _userDisplayName(WidgetRef ref) {
-    final user = ref.watch(userProfileProvider).value;
+    final enriched = ref.watch(enrichedUserProfileProvider).value;
     final currentUser = Supabase.instance.client.auth.currentUser;
-    if (user == null) {
-      // Fallback to metadata if profile not yet loaded/available
-      final name = currentUser?.userMetadata?['name']?.toString();
-      if (name != null && name.isNotEmpty) return name;
-      return currentUser?.email;
+
+    if (enriched != null) {
+      if (enriched.fullName != null && enriched.fullName!.isNotEmpty) {
+        return enriched.fullName;
+      }
     }
-    return user.fullName ?? currentUser?.email;
+
+    if (currentUser != null) {
+      final name = currentUser.userMetadata?['name']?.toString();
+      if (name != null && name.isNotEmpty) return name;
+      return currentUser.email;
+    }
+
+    return null;
   }
 
+  Widget? _buildUserAvatar(WidgetRef ref) {
+    final avatarUrl = ref.watch(userAvatarUrlProvider);
+    final enriched = ref.watch(enrichedUserProfileProvider).value;
+    final displayName = _userDisplayName(ref) ?? 'User';
+    final initials = displayName
+        .trim()
+        .split(' ')
+        .take(2)
+        .map((e) => e.isNotEmpty ? e[0] : '')
+        .join()
+        .toUpperCase();
+
+    if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      return CircleAvatar(
+        radius: 28,
+        backgroundColor: Colors.white24,
+        backgroundImage: NetworkImage(avatarUrl),
+      );
+    }
+
+    return CircleAvatar(
+      radius: 28,
+      backgroundColor: Colors.white24,
+      child: Text(
+        initials.isNotEmpty ? initials : '?',
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,52 +100,72 @@ class CustomDrawer extends ConsumerWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(color: theme.colorScheme.primary),
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  displayName != null
-                      ? 'Welcome, $displayName'
-                      : 'Welcome to Campaignza',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w400,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                ),
-                if (Supabase.instance.client.auth.currentUser?.email != null)
-                  Text(
-                    Supabase.instance.client.auth.currentUser!.email!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w300,
-                      color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
-                    ),
-                  ),
-                if (roleName != null)
-                  Text(
-                    'Role : $roleName',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w300,
-                      color: theme.colorScheme.onPrimary.withValues(alpha: 0.7),
-                    ),
-                  ),
-                if (isAgencyManager)
-                  agencyNameAsync.when(
-                    data: (agencyName) => Text(
-                      'Agency : $agencyName',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
-                        color: theme.colorScheme.onPrimary.withValues(
-                          alpha: 0.7,
+                _buildUserAvatar(ref) ?? const SizedBox.shrink(),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        displayName != null
+                            ? 'Welcome, $displayName'
+                            : 'Welcome to Campaignza',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          color: theme.colorScheme.onPrimary,
                         ),
                       ),
-                    ),
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
+                      const SizedBox(height: 4),
+                      if (Supabase.instance.client.auth.currentUser?.email !=
+                          null)
+                        Text(
+                          Supabase.instance.client.auth.currentUser!.email!,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300,
+                            color: theme.colorScheme.onPrimary.withValues(
+                              alpha: 0.7,
+                            ),
+                          ),
+                        ),
+                      if (roleName != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Role : $roleName',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300,
+                            color: theme.colorScheme.onPrimary.withValues(
+                              alpha: 0.7,
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (isAgencyManager)
+                        agencyNameAsync.when(
+                          data: (agencyName) => Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              'Agency : $agencyName',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w300,
+                                color: theme.colorScheme.onPrimary.withValues(
+                                  alpha: 0.7,
+                                ),
+                              ),
+                            ),
+                          ),
+                          loading: () => const SizedBox.shrink(),
+                          error: (_, __) => const SizedBox.shrink(),
+                        ),
+                    ],
                   ),
+                ),
               ],
             ),
           ),
@@ -290,11 +349,16 @@ class CustomDrawer extends ConsumerWidget {
               },
             ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 20.0,
+            ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(24),
               child: Container(
-                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.08),
+                color: theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.08,
+                ),
                 width: double.infinity,
                 child: Image.asset(
                   'assets/images/primary_logo.png',

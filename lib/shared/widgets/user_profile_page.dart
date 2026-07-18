@@ -31,9 +31,7 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
 
   Future<void> _updateProfile(ModelUser profile) async {
     if (_formKey.currentState!.validate()) {
-      final updatedData = {
-        ModelUserFields.fullName: _nameController.text,
-      };
+      final updatedData = {ModelUserFields.fullName: _nameController.text};
 
       await Supabase.instance.client
           .from(ModelUserFields.table)
@@ -81,17 +79,53 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                   children: [
                     const SizedBox(height: 20),
                     // Avatar
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: theme.colorScheme.primaryContainer,
-                      child: Text(
-                        initials.toUpperCase(),
-                        style: theme.textTheme.displayMedium?.copyWith(
-                          color: theme.colorScheme.onPrimaryContainer,
-                          fontWeight: FontWeight.bold,
+                    if (profile.avatarUrl != null &&
+                        profile.avatarUrl!.isNotEmpty)
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                        backgroundImage: NetworkImage(profile.avatarUrl!),
+                      )
+                    else if (Supabase
+                                .instance
+                                .client
+                                .auth
+                                .currentUser
+                                ?.userMetadata?['avatar_url']
+                            is String &&
+                        (Supabase
+                                    .instance
+                                    .client
+                                    .auth
+                                    .currentUser
+                                    ?.userMetadata?['avatar_url']
+                                as String)
+                            .isNotEmpty)
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                        backgroundImage: NetworkImage(
+                          Supabase
+                                  .instance
+                                  .client
+                                  .auth
+                                  .currentUser!
+                                  .userMetadata!['avatar_url']
+                              as String,
+                        ),
+                      )
+                    else
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                        child: Text(
+                          initials.toUpperCase(),
+                          style: theme.textTheme.displayMedium?.copyWith(
+                            color: theme.colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
                     const SizedBox(height: 16),
                     Text(
                       fullName.isNotEmpty ? fullName : 'No Name',
@@ -102,7 +136,8 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      Supabase.instance.client.auth.currentUser?.email ?? 'No email',
+                      Supabase.instance.client.auth.currentUser?.email ??
+                          'No email',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

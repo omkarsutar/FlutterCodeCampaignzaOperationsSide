@@ -8,6 +8,7 @@ class ModelUserFields {
   static const String fullName = 'full_name';
   static const String roleId = 'role_id';
   static const String userPhotoUrl = 'user_photo_url';
+  static const String avatarUrl = 'avatar_url';
   static const String email = 'email';
   static const String createdAt = 'created_at';
   static const String updatedAt = 'updated_at';
@@ -18,6 +19,7 @@ class ModelUser {
   final String? fullName; // nullable
   final String? roleId; // nullable FK
   final String? userPhotoUrl; // nullable
+  final String? avatarUrl; // nullable alias for modern view field
   final String? email; // nullable (from view_users)
   final DateTime? createdAt; // nullable, DB default
   final DateTime? updatedAt; // nullable, DB default
@@ -28,6 +30,7 @@ class ModelUser {
     this.fullName,
     this.roleId,
     this.userPhotoUrl,
+    this.avatarUrl,
     this.email,
     this.createdAt,
     this.updatedAt,
@@ -48,7 +51,10 @@ class ModelUser {
       userId: map[ModelUserFields.userId].toString(),
       fullName: map[ModelUserFields.fullName],
       roleId: map[ModelUserFields.roleId],
-      userPhotoUrl: map[ModelUserFields.userPhotoUrl],
+      userPhotoUrl:
+          map[ModelUserFields.avatarUrl] ?? map[ModelUserFields.userPhotoUrl],
+      avatarUrl:
+          map[ModelUserFields.avatarUrl] ?? map[ModelUserFields.userPhotoUrl],
       email: map[ModelUserFields.email],
       createdAt: _parseDate(map[ModelUserFields.createdAt]),
       updatedAt: _parseDate(map[ModelUserFields.updatedAt]),
@@ -62,6 +68,7 @@ class ModelUser {
       if (fullName != null) ModelUserFields.fullName: fullName,
       if (roleId != null) ModelUserFields.roleId: roleId,
       if (userPhotoUrl != null) ModelUserFields.userPhotoUrl: userPhotoUrl,
+      if (avatarUrl != null) ModelUserFields.avatarUrl: avatarUrl,
       // email is typically read-only from auth.users via view
     };
   }
@@ -72,6 +79,7 @@ class ModelUser {
       'fullName': fullName,
       'roleId': roleId,
       'userPhotoUrl': userPhotoUrl,
+      'avatarUrl': avatarUrl,
       'email': email,
       'resolvedLabels': resolvedLabels,
     };

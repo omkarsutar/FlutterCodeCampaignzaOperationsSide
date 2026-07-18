@@ -13,6 +13,8 @@ class UserAdapter implements EntityAdapter<ModelUser> {
         return entity.roleId;
       case ModelUserFields.userPhotoUrl:
         return entity.userPhotoUrl;
+      case ModelUserFields.avatarUrl:
+        return entity.avatarUrl;
       case ModelUserFields.email:
         return entity.email;
       case ModelUserFields.createdAt:

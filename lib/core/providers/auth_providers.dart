@@ -54,3 +54,20 @@ final enrichedUserProfileProvider = FutureProvider<ModelUser?>((ref) async {
   ref.read(userProfileStateProvider.notifier).setProfile(updatedProfile);
   return updatedProfile;
 });
+
+/// Provider for the current user's avatar URL.
+/// Uses the enriched profile first, then falls back to Supabase auth metadata.
+final userAvatarUrlProvider = Provider<String?>((ref) {
+  final enriched = ref.watch(enrichedUserProfileProvider).value;
+  if (enriched?.avatarUrl?.isNotEmpty == true) {
+    return enriched!.avatarUrl;
+  }
+
+  final authUser = Supabase.instance.client.auth.currentUser;
+  final avatarFromMetadata = authUser?.userMetadata?['avatar_url'];
+  if (avatarFromMetadata is String && avatarFromMetadata.isNotEmpty) {
+    return avatarFromMetadata;
+  }
+
+  return null;
+});
