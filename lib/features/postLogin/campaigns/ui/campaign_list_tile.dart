@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/providers/brand_providers.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/services/entity_service.dart';
@@ -70,6 +72,13 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
 
     final roleName = ref.watch(roleNameProvider)?.toLowerCase();
     final isAdmin = roleName == 'admin';
+    String? poBrandPhotoUrl;
+    if (widget.entity.poBrandId != null) {
+      final poBrand = ref
+          .watch(brandByIdProvider(widget.entity.poBrandId!))
+          .value;
+      poBrandPhotoUrl = poBrand?.brandPhotoUrl;
+    }
     final isCollaborationTile = widget.collaborationTile == true;
     final cardColor = isCollaborationTile
         ? Colors.white
@@ -180,14 +189,47 @@ class _CampaignListTileState extends ConsumerState<CampaignListTile> {
                 Row(
                   children: [
                     Expanded(
-                      child: _InfoRow(
-                        icon: Icons.business_outlined,
-                        label: 'Brand',
-                        value: brandName,
-                        valueStyle: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.onSurface,
-                        ),
+                      child: Row(
+                        children: [
+                          if (poBrandPhotoUrl != null &&
+                              poBrandPhotoUrl.isNotEmpty)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CachedNetworkImage(
+                                  imageUrl: Uri.encodeFull(
+                                    Uri.decodeFull(poBrandPhotoUrl),
+                                  ),
+                                  fit: BoxFit.cover,
+                                  errorWidget: (c, u, e) => Icon(
+                                    Icons.business_outlined,
+                                    color: theme.colorScheme.primary,
+                                    size: 18,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            Icon(
+                              Icons.business_outlined,
+                              color: theme.colorScheme.primary,
+                              size: 18,
+                            ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Brand: $brandName',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     if (widget.entity.poBrandId != null)

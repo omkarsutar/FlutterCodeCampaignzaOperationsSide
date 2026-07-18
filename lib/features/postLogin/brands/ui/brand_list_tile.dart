@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 // import 'package:url_launcher/url_launcher.dart';
 
@@ -93,6 +94,9 @@ class BrandListTile<T> extends ConsumerWidget {
             .getFieldValue(entity, ModelBrandFields.websiteUrl)
             ?.toString() ??
         '';
+    final brandPhotoUrl = adapter
+        .getFieldValue(entity, ModelBrandFields.brandPhotoUrl)
+        ?.toString();
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -136,39 +140,62 @@ class BrandListTile<T> extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              _InfoRow(
-                icon: Icons.business_outlined,
-                label: 'Brand',
-                value: displayName,
-                valueStyle: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              if (showPrimaryAgencyNote) ...[
-                const SizedBox(height: 2),
-                Padding(
-                  padding: const EdgeInsets.only(left: 24),
-                  child: Text(
-                    'Primary Agency : ${brandPrimaryAgencyLabel.isNotEmpty ? brandPrimaryAgencyLabel : brandPrimaryAgencyId}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontSize: 11,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: _buildBrandImage(brandPhotoUrl),
                     ),
                   ),
-                ),
-              ],
-              if (isAdmin) ...[
-                const SizedBox(height: 8),
-                _InfoRow(
-                  icon: Icons.corporate_fare_outlined,
-                  label: 'Agency',
-                  value: agencyLabel,
-                  valueStyle: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _InfoRow(
+                          icon: brandPhotoUrl == null || brandPhotoUrl.isEmpty
+                              ? Icons.business_outlined
+                              : null,
+                          label: 'Brand',
+                          value: displayName,
+                          valueStyle: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (showPrimaryAgencyNote) ...[
+                          const SizedBox(height: 2),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 0),
+                            child: Text(
+                              'Primary Agency : ${brandPrimaryAgencyLabel.isNotEmpty ? brandPrimaryAgencyLabel : brandPrimaryAgencyId}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (isAdmin) ...[
+                          const SizedBox(height: 8),
+                          _InfoRow(
+                            icon: Icons.corporate_fare_outlined,
+                            label: 'Agency',
+                            value: agencyLabel,
+                            valueStyle: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
               const SizedBox(height: 8),
               Divider(
                 color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
@@ -407,6 +434,31 @@ class BrandListTile<T> extends ConsumerWidget {
     }
   } */
 
+  Widget _buildBrandImage(String? imageUrl) {
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      final encodedUrl = Uri.encodeFull(Uri.decodeFull(imageUrl));
+      return CachedNetworkImage(
+        imageUrl: encodedUrl,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          color: Colors.grey.shade200,
+          child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        ),
+        errorWidget: (context, url, error) => _buildDefaultAvatar(),
+      );
+    }
+    return _buildDefaultAvatar();
+  }
+
+  Widget _buildDefaultAvatar() {
+    return Container(
+      color: Colors.grey.shade200,
+      child: const Center(
+        child: Icon(Icons.business, color: Colors.grey, size: 32),
+      ),
+    );
+  }
+
   bool _isValidMobile(dynamic value) {
     if (value == null) return false;
     final str = value.toString().trim();
@@ -444,7 +496,7 @@ class _StatusPill extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
   final String label;
   final String value;
   final TextStyle? valueStyle;
@@ -462,8 +514,10 @@ class _InfoRow extends StatelessWidget {
 
     return Row(
       children: [
-        Icon(icon, size: 16, color: theme.colorScheme.onSurfaceVariant),
-        const SizedBox(width: 8),
+        if (icon != null) ...[
+          Icon(icon, size: 16, color: theme.colorScheme.onSurfaceVariant),
+          const SizedBox(width: 8),
+        ],
         Expanded(
           child: Text(
             '$label: $value',

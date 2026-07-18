@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter_supabase_order_app_mobile/core/providers/core_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/providers/user_providers.dart';
@@ -15,11 +16,7 @@ class CampaignHeaderTile extends ConsumerWidget {
   final String? filterBrandId;
   final ModelBrand? brandExtra;
 
-  const CampaignHeaderTile({
-    super.key,
-    this.filterBrandId,
-    this.brandExtra,
-  });
+  const CampaignHeaderTile({super.key, this.filterBrandId, this.brandExtra});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,12 +43,18 @@ class CampaignHeaderTile extends ConsumerWidget {
 
     // Fallback: if brandId is null, look up from first campaign item in state
     if (brandId == null) {
-      final listState = ref.watch(campaignListControllerProvider('campaignList'));
-      final firstPo = listState.filteredCampaigns.firstOrNull ?? listState.allCampaigns.firstOrNull;
+      final listState = ref.watch(
+        campaignListControllerProvider('campaignList'),
+      );
+      final firstPo =
+          listState.filteredCampaigns.firstOrNull ??
+          listState.allCampaigns.firstOrNull;
       if (firstPo != null) {
         brandId = firstPo.poBrandId;
         final adapter = ref.read(campaignAdapterProvider);
-        brandName = adapter.getLabelValue(firstPo, ModelCampaignFields.poBrandId)?.toString();
+        brandName = adapter
+            .getLabelValue(firstPo, ModelCampaignFields.poBrandId)
+            ?.toString();
       }
     }
 
@@ -61,7 +64,8 @@ class CampaignHeaderTile extends ConsumerWidget {
     );
     final primaryAgencyId = brandEntity?.brandsPrimaryAgency;
     final primaryAgencyLabel =
-        brandEntity?.resolvedLabels['brands_primary_agency_label']?.toString() ??
+        brandEntity?.resolvedLabels['brands_primary_agency_label']
+            ?.toString() ??
         primaryAgencyId ??
         '';
     final showPrimaryAgencyNote =
@@ -88,13 +92,14 @@ class CampaignHeaderTile extends ConsumerWidget {
             agencyNameAsync.when(
               data: (agencyName) => Row(
                 children: [
-                  Icon(Icons.corporate_fare_outlined, color: theme.colorScheme.primary, size: 18),
+                  Icon(
+                    Icons.corporate_fare_outlined,
+                    color: theme.colorScheme.primary,
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      'Agency: $agencyName',
-                      style: valueStyle,
-                    ),
+                    child: Text('Agency: $agencyName', style: valueStyle),
                   ),
                   if (agencyId != null && agencyId.isNotEmpty)
                     IconButton(
@@ -102,7 +107,10 @@ class CampaignHeaderTile extends ConsumerWidget {
                       tooltip: 'View agency',
                       iconSize: 18,
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                      constraints: const BoxConstraints(
+                        minWidth: 28,
+                        minHeight: 28,
+                      ),
                       onPressed: () => context.pushNamed(
                         'viewAgency',
                         pathParameters: {'id': agencyId},
@@ -116,7 +124,32 @@ class CampaignHeaderTile extends ConsumerWidget {
             const Divider(height: 8, thickness: 0.5),
             Row(
               children: [
-                Icon(Icons.business_outlined, color: theme.colorScheme.primary, size: 18),
+                if (brandEntity?.brandPhotoUrl != null &&
+                    brandEntity!.brandPhotoUrl!.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CachedNetworkImage(
+                        imageUrl: Uri.encodeFull(
+                          Uri.decodeFull(brandEntity!.brandPhotoUrl!),
+                        ),
+                        fit: BoxFit.cover,
+                        errorWidget: (c, u, e) => Icon(
+                          Icons.business_outlined,
+                          color: theme.colorScheme.primary,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  Icon(
+                    Icons.business_outlined,
+                    color: theme.colorScheme.primary,
+                    size: 18,
+                  ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -145,7 +178,10 @@ class CampaignHeaderTile extends ConsumerWidget {
                     tooltip: 'View brand',
                     iconSize: 18,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                    constraints: const BoxConstraints(
+                      minWidth: 28,
+                      minHeight: 28,
+                    ),
                     onPressed: () => context.pushNamed(
                       'viewBrand',
                       pathParameters: {'id': brandId!},
