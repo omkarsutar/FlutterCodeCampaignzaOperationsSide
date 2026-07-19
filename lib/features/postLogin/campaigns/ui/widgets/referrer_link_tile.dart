@@ -330,36 +330,76 @@ class ReferrerLinkTile extends ConsumerWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Row(
+                  child: Text(
+                    title,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      _buildInfoChip(theme, 'utm_source', _utm('utm_source')),
+                      _buildInfoChip(
+                        theme,
+                        'utm_campaign',
+                        _utm('utm_campaign'),
+                      ),
+                      _buildInfoChip(theme, 'utm_medium', _utm('utm_medium')),
+                    ],
+                  ),
+                ),
+                if (countAsync != null) ...[
+                  const SizedBox(width: 8),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                      Text(
+                        'Performance',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      if (countAsync != null) ...[
-                        countAsync.when(
-                          data: (count) => _buildCountChip(
-                            theme,
-                            '$countLabel: $count',
-                            countColor,
-                          ),
-                          loading: () => const SizedBox(
-                            width: 18,
-                            height: 18,
+                      const SizedBox(height: 6),
+                      countAsync.when(
+                        data: (count) => _buildCountBadge(
+                          theme,
+                          countLabel,
+                          count,
+                          countColor,
+                        ),
+                        loading: () => const SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: Center(
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
-                          error: (_, __) => _buildCountChip(
-                            theme,
-                            '$countLabel: Error',
-                            theme.colorScheme.error,
-                          ),
                         ),
-                        IconButton(
+                        error: (_, __) => _buildCountBadge(
+                          theme,
+                          'Error',
+                          null,
+                          theme.colorScheme.error,
+                          isError: true,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        width: 32,
+                        height: 32,
+                        child: IconButton(
                           tooltip: refreshTooltip,
                           visualDensity: VisualDensity.compact,
                           padding: EdgeInsets.zero,
@@ -377,20 +417,10 @@ class ReferrerLinkTile extends ConsumerWidget {
                             SnackbarUtils.showSuccess(refreshMessage);
                           },
                         ),
-                      ],
+                      ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 6,
-              children: [
-                _buildInfoChip(theme, 'utm_source', _utm('utm_source')),
-                _buildInfoChip(theme, 'utm_campaign', _utm('utm_campaign')),
-                _buildInfoChip(theme, 'utm_medium', _utm('utm_medium')),
+                ],
               ],
             ),
             const SizedBox(height: 6),
@@ -442,35 +472,76 @@ class ReferrerLinkTile extends ConsumerWidget {
   }
 
   Widget _buildInfoChip(ThemeData theme, String label, String value) {
+    final labelStyle = theme.textTheme.labelSmall?.copyWith(
+      fontWeight: FontWeight.w700,
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    final valueStyle = theme.textTheme.labelSmall?.copyWith(
+      fontWeight: FontWeight.w700,
+      color: theme.colorScheme.primary,
+    );
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(
-        '$label: $value',
-        style: theme.textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: theme.colorScheme.onSurfaceVariant,
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(text: '$label: ', style: labelStyle),
+            TextSpan(text: value, style: valueStyle),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildCountChip(ThemeData theme, String label, Color color) {
+  Widget _buildCountBadge(
+    ThemeData theme,
+    String label,
+    int? count,
+    Color color, {
+    bool isError = false,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: color,
+        color: isError
+            ? theme.colorScheme.error.withValues(alpha: 0.12)
+            : color.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isError ? theme.colorScheme.error : color,
+          width: 1.2,
         ),
+      ),
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: isError
+                  ? theme.colorScheme.error
+                  : theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            count?.toString() ?? '—',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: isError ? theme.colorScheme.error : color,
+            ),
+          ),
+        ],
       ),
     );
   }

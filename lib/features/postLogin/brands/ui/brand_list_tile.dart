@@ -117,30 +117,6 @@ class BrandListTile<T> extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _StatusPill(isActive: isActive),
-                  const SizedBox(width: 6),
-                  IconButton(
-                    tooltip: 'View brand',
-                    icon: const Icon(Icons.visibility_outlined),
-                    iconSize: 20,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 36,
-                      minHeight: 36,
-                    ),
-                    onPressed: () => context.pushNamed(
-                      viewRouteName,
-                      pathParameters: {
-                        'id': adapter.getId(entity, idField).toString(),
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ClipRRect(
@@ -165,6 +141,33 @@ class BrandListTile<T> extends ConsumerWidget {
                           valueStyle: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            _StatusPill(isActive: isActive),
+                            const SizedBox(width: 6),
+                            IconButton(
+                              tooltip: 'View brand',
+                              icon: const Icon(Icons.visibility_outlined),
+                              iconSize: 20,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 36,
+                                minHeight: 36,
+                              ),
+                              onPressed: () => context.pushNamed(
+                                viewRouteName,
+                                pathParameters: {
+                                  'id': adapter
+                                      .getId(entity, idField)
+                                      .toString(),
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                         if (showPrimaryAgencyNote) ...[
                           const SizedBox(height: 2),
