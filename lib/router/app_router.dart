@@ -16,6 +16,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_br
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/user_agency_links/user_agency_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/user_influencer_links/user_influencer_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/dashboard/brand_dashboard_report_page.dart';
 import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -43,6 +44,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoute.dashboardName,
         path: AppRoute.dashboard,
         builder: (context, state) => const DashboardPage(),
+      ),
+      GoRoute(
+        name: AppRoute.brandDashboardReportName,
+        path: AppRoute.brandDashboardReport,
+        builder: (context, state) =>
+            BrandDashboardReportPage(brandId: state.pathParameters['brandId']!),
       ),
       ...AgencyBrandLinksRoutesJson.routes,
       ...RolesRoutesJson.routes,

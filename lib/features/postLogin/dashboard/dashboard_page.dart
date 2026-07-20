@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../shared/widgets/custom_drawer.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/model/brand_model.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/providers/brand_providers.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/providers/user_providers.dart';
+import 'package:flutter_supabase_order_app_mobile/router/app_routes.dart';
+import 'package:flutter_supabase_order_app_mobile/shared/widgets/custom_drawer.dart';
+import '../../../core/providers/core_providers.dart';
+import 'brand_dashboard_report_page.dart';
 
 String _dashboardRoleTitle(String role) {
   switch (role) {
@@ -52,6 +59,12 @@ IconData _dashboardHeroIcon(String role) {
   }
 }
 
+final dashboardAgencyBrandsProvider = FutureProvider.autoDispose
+    .family<List<ModelBrand>, String>((ref, agencyId) async {
+      final service = ref.watch(brandServiceProvider);
+      return service.fetchAllBrandsForAgency(agencyId);
+    });
+
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
 
@@ -69,8 +82,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   Future<Map<String, dynamic>> _fetchDashboardData() async {
-    final response =
-        await Supabase.instance.client.rpc('get_dashboard_highlights');
+    final response = await Supabase.instance.client.rpc(
+      'get_dashboard_highlights',
+    );
     return Map<String, dynamic>.from(response as Map);
   }
 
@@ -130,6 +144,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           final role = (data['role']?.toString() ?? 'unknown').toLowerCase();
           final metrics = _roleMetrics(role, data);
 
+          final selectedAgencyId = ref.watch(selectedAgencyIdProvider);
+          final brandListAsync = selectedAgencyId != null
+              ? ref.watch(dashboardAgencyBrandsProvider(selectedAgencyId))
+              : null;
+
           return Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -149,6 +168,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   _DashboardHeroCard(role: role, data: data),
+                  if (brandListAsync != null) ...[
+                    const SizedBox(height: 16),
+                    _buildBrandSection(theme, brandListAsync),
+                  ],
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: _dashboardRoleTitle(role),
@@ -161,11 +184,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     itemCount: metrics.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 1.15,
-                    ),
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 1.15,
+                        ),
                     itemBuilder: (context, index) {
                       final metric = metrics[index];
                       return _MetricCard(
@@ -200,10 +223,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           data['total_collaborations'].toString(),
                         ),
                       if (data['total_brands'] != null)
-                        _ContextRow(
-                          'Brands',
-                          data['total_brands'].toString(),
-                        ),
+                        _ContextRow('Brands', data['total_brands'].toString()),
                     ],
                   ),
                 ],
@@ -211,6 +231,150 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildBrandSection(
+    ThemeData theme,
+    AsyncValue<List<ModelBrand>> brandListAsync,
+  ) {
+    return brandListAsync.when(
+      data: (brands) {
+        if (brands.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Brands',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 170,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: brands.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final brand = brands[index];
+                  return _buildBrandTile(context, theme, brand);
+                },
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const SizedBox(
+        height: 170,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Text(
+          'Unable to load brands: $error',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.error,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBrandTile(
+    BuildContext context,
+    ThemeData theme,
+    ModelBrand brand,
+  ) {
+    return SizedBox(
+      width: 220,
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: brand.brandId != null
+              ? () => context.pushNamed(
+                  AppRoute.brandDashboardReportName,
+                  pathParameters: {'brandId': brand.brandId!},
+                )
+              : null,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withValues(
+                          alpha: 0.14,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.storefront_rounded,
+                        color: theme.colorScheme.primary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        brand.brandName,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                if (brand.brandNote != null && brand.brandNote!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(
+                      brand.brandNote!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'View Dashboard',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 18,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -353,10 +517,7 @@ class _DashboardHeroCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
-          colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.tertiary,
-          ],
+          colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -624,10 +785,7 @@ class _DashboardErrorState extends StatelessWidget {
   final String message;
   final Future<void> Function() onRetry;
 
-  const _DashboardErrorState({
-    required this.message,
-    required this.onRetry,
-  });
+  const _DashboardErrorState({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {

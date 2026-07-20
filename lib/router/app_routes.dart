@@ -16,6 +16,7 @@ class AppRoute {
   static const String profile = '/profile';
   static const String loading = '/loading';
   static const String dashboard = '/dashboard';
+  static const String brandDashboardReport = '/dashboard/brand-report/:brandId';
   static const String cart = '/cart';
   static const String unauthorized = '/unauthorized';
 
@@ -26,6 +27,7 @@ class AppRoute {
   static const String profileName = 'profile';
   static const String loadingName = 'loading';
   static const String dashboardName = 'dashboard';
+  static const String brandDashboardReportName = 'brandDashboardReport';
   static const String cartName = 'cart';
   static const String unauthorizedName = 'unauthorized';
 
