@@ -242,25 +242,34 @@ class _BrandDashboardReportPageState
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          _buildPresetButtons(theme),
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _reportFuture = _fetchBrandDashboardReport(
-                    startDate: _startDate,
-                    endDate: _endDate,
-                  );
-                });
-              },
-              child: const Text('Fetch Data'),
-            ),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(children: [..._buildPresetButtons(theme)]),
           ),
-          const SizedBox(height: 8),
-          Text('Selected: $_selectedPreset', style: theme.textTheme.bodySmall),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Selected: $_selectedPreset',
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _reportFuture = _fetchBrandDashboardReport(
+                      startDate: _startDate,
+                      endDate: _endDate,
+                    );
+                  });
+                },
+                child: const Text('Fetch Data'),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
           const Divider(height: 1),
         ],
@@ -305,29 +314,25 @@ class _BrandDashboardReportPageState
     );
   }
 
-  Widget _buildPresetButtons(ThemeData theme) {
+  List<Widget> _buildPresetButtons(ThemeData theme) {
     const presets = ['Today', 'Yesterday', 'Last 7 days', 'Last 30 days'];
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: presets.map((preset) {
-        final isSelected = preset == _selectedPreset;
-        return ChoiceChip(
-          label: Text(preset),
-          selected: isSelected,
-          onSelected: (_) {
-            _applyPreset(preset);
-          },
-          selectedColor: theme.colorScheme.primary,
-          backgroundColor: theme.colorScheme.surfaceContainerHighest,
-          labelStyle: TextStyle(
-            color: isSelected
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onSurface,
-          ),
-        );
-      }).toList(),
-    );
+    return presets.map((preset) {
+      final isSelected = preset == _selectedPreset;
+      return ChoiceChip(
+        label: Text(preset),
+        selected: isSelected,
+        onSelected: (_) {
+          _applyPreset(preset);
+        },
+        selectedColor: theme.colorScheme.primary,
+        backgroundColor: theme.colorScheme.surfaceContainerHighest,
+        labelStyle: TextStyle(
+          color: isSelected
+              ? theme.colorScheme.onPrimary
+              : theme.colorScheme.onSurface,
+        ),
+      );
+    }).toList();
   }
 
   List<Widget> _buildCampaignGroups(
@@ -429,28 +434,6 @@ class _BrandDashboardReportPageState
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              _SummaryCard(
-                label: 'Campaigns',
-                value: report.campaigns.length.toString(),
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(width: 12),
-              _SummaryCard(
-                label: 'Clicks',
-                value: totalClicks.toString(),
-                color: theme.colorScheme.secondary,
-              ),
-              const SizedBox(width: 12),
-              _SummaryCard(
-                label: 'Installs',
-                value: totalInstalls.toString(),
-                color: theme.colorScheme.tertiary,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
           Expanded(
             child: report.campaigns.isEmpty
                 ? Center(
@@ -459,7 +442,33 @@ class _BrandDashboardReportPageState
                       style: theme.textTheme.bodyMedium,
                     ),
                   )
-                : ListView(children: _buildCampaignGroups(theme, report)),
+                : ListView(
+                    children: [
+                      Row(
+                        children: [
+                          _SummaryCard(
+                            label: 'Campaigns',
+                            value: report.campaigns.length.toString(),
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: 12),
+                          _SummaryCard(
+                            label: 'Clicks',
+                            value: totalClicks.toString(),
+                            color: theme.colorScheme.secondary,
+                          ),
+                          const SizedBox(width: 12),
+                          _SummaryCard(
+                            label: 'Installs',
+                            value: totalInstalls.toString(),
+                            color: theme.colorScheme.tertiary,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      ..._buildCampaignGroups(theme, report),
+                    ],
+                  ),
           ),
         ],
       ),
