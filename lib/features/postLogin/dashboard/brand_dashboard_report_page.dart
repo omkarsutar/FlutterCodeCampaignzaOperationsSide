@@ -463,11 +463,11 @@ class _BrandDashboardReportPageState
     BrandDashboardReport report,
   ) {
     final visibleCampaigns = _visibleCampaigns(report.campaigns);
-    final totalClicks = visibleCampaigns.fold<int>(
+    final totalClicks = report.campaigns.fold<int>(
       0,
       (sum, campaign) => sum + campaign.totalClicks,
     );
-    final totalInstalls = visibleCampaigns.fold<int>(
+    final totalInstalls = report.campaigns.fold<int>(
       0,
       (sum, campaign) => sum + campaign.totalInstalls,
     );
@@ -478,7 +478,7 @@ class _BrandDashboardReportPageState
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
           child: _buildReportHeader(
             theme,
-            visibleCampaigns.length,
+            report.campaigns.length,
             report.startDate,
             report.endDate,
             totalClicks,
@@ -604,7 +604,7 @@ class _BrandDashboardReportPageState
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
               label: Text(
-                '${group.toUpperCase()} ($count)',
+                '$group ($count)',
                 style: TextStyle(
                   color: isSelected ? Colors.white : pillColor,
                   fontWeight: FontWeight.bold,
