@@ -69,8 +69,10 @@ enum CampaignType {
   static CampaignType fromString(String? value) {
     switch (value) {
       case 'influencer_collaborations':
+      case 'influencer_collaboration':
         return CampaignType.influencerCollaborations;
       case 'direct_brand_promotions':
+      case 'direct_brand_promotion':
         return CampaignType.directBrandPromotions;
       case 'paid_ads':
         return CampaignType.paidAds;
@@ -95,7 +97,7 @@ enum CampaignType {
       case CampaignType.influencerCollaborations:
         return 'Influencer Collaborations';
       case CampaignType.directBrandPromotions:
-        return 'Direct Brand Promotions';
+        return 'Direct Brand Promotion';
       case CampaignType.paidAds:
         return 'Paid Ads';
     }

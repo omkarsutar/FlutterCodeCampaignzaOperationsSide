@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -312,20 +313,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               children: [
                 Row(
                   children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(
-                          alpha: 0.14,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.storefront_rounded,
-                        color: theme.colorScheme.primary,
-                        size: 20,
-                      ),
+                    _BrandTileAvatar(
+                      imageUrl: brand.brandPhotoUrl,
+                      size: 36,
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -500,6 +490,58 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
         ];
     }
+  }
+}
+
+class _BrandTileAvatar extends StatelessWidget {
+  final String? imageUrl;
+  final double size;
+
+  const _BrandTileAvatar({required this.imageUrl, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      final encodedUrl = Uri.encodeFull(Uri.decodeFull(imageUrl!));
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: CachedNetworkImage(
+            imageUrl: encodedUrl,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              color: theme.colorScheme.primary.withValues(alpha: 0.14),
+              child: const Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+            errorWidget: (context, url, error) => _fallback(theme),
+          ),
+        ),
+      );
+    }
+
+    return _fallback(theme);
+  }
+
+  Widget _fallback(ThemeData theme) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(
+        Icons.storefront_rounded,
+        color: theme.colorScheme.primary,
+        size: 20,
+      ),
+    );
   }
 }
 
