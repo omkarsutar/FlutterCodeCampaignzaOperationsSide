@@ -142,6 +142,27 @@ class _BrandDashboardReportPageState
     return '$year-$month-$day';
   }
 
+  String _formatShortDate(DateTime date) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final day = date.day.toString().padLeft(2, '0');
+    final month = months[date.month - 1];
+    final year = date.year.toString();
+    return '$day $month $year';
+  }
+
   Map<String, List<CampaignMetrics>> _groupCampaignsByType(
     List<CampaignMetrics> campaigns,
   ) {
@@ -246,7 +267,7 @@ class _BrandDashboardReportPageState
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.only(bottom: 8),
-            child: Row(children: [..._buildPresetButtons(theme)]),
+            child: Row(children: _buildPresetButtons(theme)),
           ),
           Row(
             children: [
@@ -318,18 +339,21 @@ class _BrandDashboardReportPageState
     const presets = ['Today', 'Yesterday', 'Last 7 days', 'Last 30 days'];
     return presets.map((preset) {
       final isSelected = preset == _selectedPreset;
-      return ChoiceChip(
-        label: Text(preset),
-        selected: isSelected,
-        onSelected: (_) {
-          _applyPreset(preset);
-        },
-        selectedColor: theme.colorScheme.primary,
-        backgroundColor: theme.colorScheme.surfaceContainerHighest,
-        labelStyle: TextStyle(
-          color: isSelected
-              ? theme.colorScheme.onPrimary
-              : theme.colorScheme.onSurface,
+      return Padding(
+        padding: const EdgeInsets.only(right: 8.0),
+        child: ChoiceChip(
+          label: Text(preset),
+          selected: isSelected,
+          onSelected: (_) {
+            _applyPreset(preset);
+          },
+          selectedColor: theme.colorScheme.primary,
+          backgroundColor: theme.colorScheme.surfaceContainerHighest,
+          labelStyle: TextStyle(
+            color: isSelected
+                ? theme.colorScheme.onPrimary
+                : theme.colorScheme.onSurface,
+          ),
         ),
       );
     }).toList();
@@ -430,7 +454,7 @@ class _BrandDashboardReportPageState
           ),
           const SizedBox(height: 8),
           Text(
-            'Report for ${report.startDate.toLocal().toString().split(' ').first} - ${report.endDate.toLocal().toString().split(' ').first}',
+            'Report for ${_formatShortDate(report.startDate.toLocal())} - ${_formatShortDate(report.endDate.toLocal())}',
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
