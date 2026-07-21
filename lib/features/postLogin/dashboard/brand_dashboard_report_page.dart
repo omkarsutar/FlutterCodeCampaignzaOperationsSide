@@ -8,6 +8,13 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/prov
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/custom_drawer.dart';
 import 'brand_dashboard_report_model.dart';
 
+class _DateRange {
+  final DateTime start;
+  final DateTime end;
+
+  const _DateRange({required this.start, required this.end});
+}
+
 class BrandDashboardReportPage extends ConsumerStatefulWidget {
   final String brandId;
 
@@ -59,7 +66,7 @@ class _BrandDashboardReportPageState
     }
   }
 
-  void _applyPreset(String preset) {
+  _DateRange _dateRangeForPreset(String preset) {
     final now = DateTime.now();
     final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
     late DateTime start;
@@ -100,48 +107,157 @@ class _BrandDashboardReportPageState
         start = DateTime(start.year, start.month, start.day, 0, 0, 0);
     }
 
-    setState(() {
-      _selectedPreset = preset;
-      _startDate = start;
-      _endDate = end;
-    });
+    return _DateRange(start: start, end: end);
   }
 
-  Future<void> _pickStartDate(BuildContext context) async {
-    final picked = await showDatePicker(
+  Future<void> _showDateRangeDialog(ThemeData theme) async {
+    var draftStartDate = _startDate;
+    var draftEndDate = _endDate;
+    var draftPreset = _selectedPreset;
+
+    await showDialog<void>(
       context: context,
-      initialDate: _startDate,
-      firstDate: DateTime(2020, 1, 1),
-      lastDate: _endDate,
-    );
-    if (picked != null) {
-      setState(() {
-        _startDate = DateTime(picked.year, picked.month, picked.day, 0, 0, 0);
-        _selectedPreset = 'Custom';
-      });
-    }
-  }
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            Future<void> pickStartDate() async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: draftStartDate,
+                firstDate: DateTime(2020, 1, 1),
+                lastDate: draftEndDate,
+              );
+              if (picked != null) {
+                setDialogState(() {
+                  draftStartDate = DateTime(
+                    picked.year,
+                    picked.month,
+                    picked.day,
+                  );
+                  draftPreset = 'Custom';
+                });
+              }
+            }
 
-  Future<void> _pickEndDate(BuildContext context) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _endDate,
-      firstDate: _startDate,
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) {
-      setState(() {
-        _endDate = DateTime(picked.year, picked.month, picked.day, 23, 59, 59);
-        _selectedPreset = 'Custom';
-      });
-    }
-  }
+            Future<void> pickEndDate() async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: draftEndDate,
+                firstDate: draftStartDate,
+                lastDate: DateTime.now(),
+              );
+              if (picked != null) {
+                setDialogState(() {
+                  draftEndDate = DateTime(
+                    picked.year,
+                    picked.month,
+                    picked.day,
+                    23,
+                    59,
+                    59,
+                  );
+                  draftPreset = 'Custom';
+                });
+              }
+            }
 
-  String _formatDate(DateTime date) {
-    final year = date.year.toString().padLeft(4, '0');
-    final month = date.month.toString().padLeft(2, '0');
-    final day = date.day.toString().padLeft(2, '0');
-    return '$year-$month-$day';
+            void applyDialogPreset(String preset) {
+              final range = _dateRangeForPreset(preset);
+              setDialogState(() {
+                draftPreset = preset;
+                draftStartDate = range.start;
+                draftEndDate = range.end;
+              });
+            }
+
+            return AlertDialog(
+              title: const Text('Select report dates'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildDateField(
+                          theme,
+                          'Start Date',
+                          draftStartDate,
+                          pickStartDate,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildDateField(
+                          theme,
+                          'End Date',
+                          draftEndDate,
+                          pickEndDate,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        'Today',
+                        'Yesterday',
+                        'Last 7 days',
+                        'Last 30 days',
+                      ].map((preset) {
+                        final isSelected = preset == draftPreset;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: ChoiceChip(
+                            label: Text(preset),
+                            selected: isSelected,
+                            onSelected: (_) => applyDialogPreset(preset),
+                            selectedColor: theme.colorScheme.primary,
+                            labelStyle: TextStyle(
+                              color: isSelected
+                                  ? theme.colorScheme.onPrimary
+                                  : theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Selected: $draftPreset',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _startDate = draftStartDate;
+                      _endDate = draftEndDate;
+                      _selectedPreset = draftPreset;
+                      _reportFuture = _fetchBrandDashboardReport(
+                        startDate: draftStartDate,
+                        endDate: draftEndDate,
+                      );
+                    });
+                    Navigator.of(dialogContext).pop();
+                  },
+                  child: const Text('Fetch Data'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   String _formatShortDate(DateTime date) {
@@ -277,63 +393,6 @@ class _BrandDashboardReportPageState
     );
   }
 
-  Widget _buildDateControls(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildDateField(
-                theme,
-                'Start Date',
-                _startDate,
-                () => _pickStartDate(context),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildDateField(
-                theme,
-                'End Date',
-                _endDate,
-                () => _pickEndDate(context),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(children: _buildPresetButtons(theme)),
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Selected: $_selectedPreset',
-                style: theme.textTheme.bodySmall,
-              ),
-            ),
-            const SizedBox(width: 12),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _reportFuture = _fetchBrandDashboardReport(
-                    startDate: _startDate,
-                    endDate: _endDate,
-                  );
-                });
-              },
-              child: const Text('Fetch Data'),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
   Widget _buildDateField(
     ThemeData theme,
     String label,
@@ -360,7 +419,7 @@ class _BrandDashboardReportPageState
             ),
             const SizedBox(height: 8),
             Text(
-              _formatDate(date),
+              _formatShortDate(date),
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -369,30 +428,6 @@ class _BrandDashboardReportPageState
         ),
       ),
     );
-  }
-
-  List<Widget> _buildPresetButtons(ThemeData theme) {
-    const presets = ['Today', 'Yesterday', 'Last 7 days', 'Last 30 days'];
-    return presets.map((preset) {
-      final isSelected = preset == _selectedPreset;
-      return Padding(
-        padding: const EdgeInsets.only(right: 8.0),
-        child: ChoiceChip(
-          label: Text(preset),
-          selected: isSelected,
-          onSelected: (_) {
-            _applyPreset(preset);
-          },
-          selectedColor: theme.colorScheme.primary,
-          backgroundColor: theme.colorScheme.surfaceContainerHighest,
-          labelStyle: TextStyle(
-            color: isSelected
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onSurface,
-          ),
-        ),
-      );
-    }).toList();
   }
 
   List<Widget> _buildCampaignGroups(
@@ -477,6 +512,7 @@ class _BrandDashboardReportPageState
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
           child: _buildReportHeader(
+            context,
             theme,
             report.campaigns.length,
             report.startDate,
@@ -505,8 +541,6 @@ class _BrandDashboardReportPageState
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               children: [
-                _buildDateControls(theme),
-                const SizedBox(height: 16),
                 if (visibleCampaigns.isEmpty) ...[
                   SizedBox(
                     height: 220,
@@ -529,6 +563,7 @@ class _BrandDashboardReportPageState
   }
 
   Widget _buildReportHeader(
+    BuildContext context,
     ThemeData theme,
     int campaignCount,
     DateTime startDate,
@@ -536,14 +571,36 @@ class _BrandDashboardReportPageState
     int totalClicks,
     int totalInstalls,
   ) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final reportTitleSize = screenWidth < 360
+        ? 13.0
+        : screenWidth < 600
+            ? 15.0
+            : 17.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Report for ${_formatShortDate(startDate)} - ${_formatShortDate(endDate)}',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Report for ${_formatShortDate(startDate)} - ${_formatShortDate(endDate)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontSize: reportTitleSize,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              tooltip: 'Select report dates',
+              onPressed: () => _showDateRangeDialog(theme),
+              icon: const Icon(Icons.calendar_month),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         Row(
