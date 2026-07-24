@@ -84,6 +84,14 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     return value.trim().replaceAll(RegExp(r'\s+'), '').toUpperCase();
   }
 
+  String _normalizeWebsiteFragment(String fragment) {
+    var normalized = fragment;
+    while (normalized.startsWith('#')) {
+      normalized = normalized.substring(1);
+    }
+    return normalized;
+  }
+
   String _normalizeWebsiteBaseUrl(String value) {
     final trimmed = value.trim();
     if (trimmed.isEmpty) return '';
@@ -91,15 +99,23 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     final hasScheme =
         trimmed.startsWith('http://') || trimmed.startsWith('https://');
     final candidate = hasScheme ? trimmed : 'https://$trimmed';
-    var uri = Uri.tryParse(candidate);
+    final hashIndex = candidate.indexOf('#');
+    final candidateWithoutFragment = hashIndex < 0
+        ? candidate
+        : candidate.substring(0, hashIndex);
+    final uri = Uri.tryParse(candidateWithoutFragment);
     if (uri == null || uri.host.isEmpty) return trimmed;
 
     // Do not auto-insert "www." — preserve the host exactly as provided by the user.
 
-    // Remove fragment entirely (use null) instead of setting it to empty string,
-    // which would produce a trailing '#' when serialized.
-    final result = uri.replace(query: '', fragment: null).toString();
-    return result.endsWith('#') ? result.substring(0, result.length - 1) : result;
+    // Keep non-empty fragments because Flutter web apps commonly use hash
+    // routing (for example, `/#/review`). Build this portion directly so a
+    // hash from the route is never encoded as `%23` or duplicated.
+    final fragment = hashIndex < 0
+        ? ''
+        : _normalizeWebsiteFragment(candidate.substring(hashIndex + 1));
+    final baseUrl = uri.replace(query: '').toString();
+    return fragment.isEmpty ? baseUrl : '$baseUrl#$fragment';
   }
 
   String _websiteFieldDisplayValue(String value) {
@@ -110,7 +126,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     if (uri == null || uri.host.isEmpty) return normalized;
 
     final path = uri.path.isEmpty ? '/' : uri.path;
-    return '${uri.host}$path';
+    final normalizedFragment = _normalizeWebsiteFragment(uri.fragment);
+    final fragment = normalizedFragment.isEmpty ? '' : '#$normalizedFragment';
+    return '${uri.host}$path$fragment';
   }
 
   @override
@@ -167,10 +185,31 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     if (existingUri == null) return;
 
     if (_isWebsiteCampaign) {
+      var websiteFragment = _normalizeWebsiteFragment(existingUri.fragment);
+      var params = existingUri.queryParameters;
+      final fragmentQueryStart = websiteFragment.indexOf('?');
+      if (fragmentQueryStart >= 0) {
+        final encodedFragmentQuery = websiteFragment.substring(
+          fragmentQueryStart + 1,
+        );
+        websiteFragment = websiteFragment.substring(0, fragmentQueryStart);
+        try {
+          params = Uri.splitQueryString(encodedFragmentQuery);
+        } catch (_) {
+          params = const <String, String>{};
+        }
+      }
+
       _baseUrlController.text = _websiteFieldDisplayValue(
-        existingUri.replace(query: '', fragment: null).toString(),
+        existingUri
+            .replace(
+              query: '',
+              fragment: websiteFragment.isEmpty
+                  ? null
+                  : websiteFragment,
+            )
+            .toString(),
       );
-      final params = existingUri.queryParameters;
       final utmSource = _normalizeUtmValue(params['utm_source'] ?? '');
       if (utmSource.isNotEmpty) {
         _utmSourceController.text = utmSource;
@@ -229,9 +268,17 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
       'utm_medium': mediumValue,
     };
 
-    final result = baseUri
-        .replace(queryParameters: queryParameters, fragment: null)
+    final query = Uri(queryParameters: queryParameters).query;
+    final baseWithoutQuery = baseUri
+        .replace(query: '', fragment: null)
         .toString();
+    final hashIndex = baseUrl.indexOf('#');
+    final fragment = hashIndex < 0
+        ? ''
+        : _normalizeWebsiteFragment(baseUrl.substring(hashIndex + 1));
+    final result = fragment.isEmpty
+        ? '$baseWithoutQuery?$query'
+        : '$baseWithoutQuery#$fragment?$query';
     return result.endsWith('#') ? result.substring(0, result.length - 1) : result;
   }
 
@@ -326,9 +373,24 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
       return TextSpan(text: previewUrl, style: baseStyle);
     }
 
+    var fragmentPath = _normalizeWebsiteFragment(uri.fragment);
+    var params = uri.queryParameters;
+    final fragmentQueryStart = fragmentPath.indexOf('?');
+    if (fragmentQueryStart >= 0) {
+      final encodedFragmentQuery = fragmentPath.substring(
+        fragmentQueryStart + 1,
+      );
+      fragmentPath = fragmentPath.substring(0, fragmentQueryStart);
+      try {
+        params = Uri.splitQueryString(encodedFragmentQuery);
+      } catch (_) {
+        params = const <String, String>{};
+      }
+    }
+
     final basePath =
-        '${uri.scheme}://${uri.authority}${uri.path.isEmpty ? '/' : uri.path}';
-    final params = uri.queryParameters;
+        '${uri.scheme}://${uri.authority}${uri.path.isEmpty ? '/' : uri.path}'
+        '${fragmentPath.isEmpty ? '' : '#$fragmentPath'}';
 
     return TextSpan(
       style: baseStyle,
