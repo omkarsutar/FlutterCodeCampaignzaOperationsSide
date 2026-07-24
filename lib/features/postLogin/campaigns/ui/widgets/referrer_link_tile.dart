@@ -28,14 +28,7 @@ class ReferrerLinkTile extends ConsumerWidget {
 
   Uri? get _uri => Uri.tryParse(link);
 
-  String get _countLookupLink {
-    if (link.isEmpty) return link;
-    final qIndex = link.indexOf('?');
-    final cleaned = qIndex < 0 ? link : link.substring(0, qIndex);
-    return cleaned.endsWith('#')
-        ? cleaned.substring(0, cleaned.length - 1)
-        : cleaned;
-  }
+  String get _countLookupLink => link;
 
   bool get _isPlayStoreLink {
     final uri = _uri;
