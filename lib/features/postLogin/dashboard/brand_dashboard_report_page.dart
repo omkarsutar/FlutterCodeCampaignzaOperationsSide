@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/model/brand_model.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/providers/brand_providers.dart';
 import 'package:flutter_supabase_order_app_mobile/shared/widgets/custom_drawer.dart';
 import 'brand_dashboard_report_model.dart';
@@ -954,6 +953,127 @@ class _ReferrerLinkRow extends StatelessWidget {
 
   const _ReferrerLinkRow({required this.link, required this.theme});
 
+  String _decodeForDisplay(String value) {
+    var decoded = value;
+    // A Play Store referrer is nested inside a query parameter and can be
+    // encoded more than once. Decode only for display; the stored link stays
+    // untouched for tracking and copy/open actions.
+    for (var i = 0; i < 3; i++) {
+      try {
+        final next = Uri.decodeComponent(decoded);
+        if (next == decoded) break;
+        decoded = next;
+      } catch (_) {
+        break;
+      }
+    }
+    return decoded;
+  }
+
+  TextSpan _buildKeyValueSpan(
+    String value,
+    TextStyle baseStyle,
+    TextStyle highlightStyle,
+  ) {
+    final matches = RegExp(
+      r'(utm_source|utm_campaign|utm_medium)=',
+    ).allMatches(value).toList();
+
+    if (matches.isEmpty) {
+      return TextSpan(text: value, style: baseStyle);
+    }
+
+    final spans = <InlineSpan>[];
+    var cursor = 0;
+    for (final match in matches) {
+      if (match.start > cursor) {
+        spans.add(TextSpan(text: value.substring(cursor, match.start)));
+      }
+
+      final valueStart = match.end;
+      var valueEnd = value.length;
+      for (final delimiter in ['&', '|']) {
+        final delimiterIndex = value.indexOf(delimiter, valueStart);
+        if (delimiterIndex >= 0 && delimiterIndex < valueEnd) {
+          valueEnd = delimiterIndex;
+        }
+      }
+
+      spans.add(TextSpan(text: value.substring(match.start, valueStart)));
+      spans.add(
+        TextSpan(
+          text: value.substring(valueStart, valueEnd),
+          style: highlightStyle,
+        ),
+      );
+      cursor = valueEnd;
+    }
+
+    if (cursor < value.length) {
+      spans.add(TextSpan(text: value.substring(cursor)));
+    }
+
+    return TextSpan(style: baseStyle, children: spans);
+  }
+
+  TextSpan _buildHighlightedLinkSpan() {
+    final baseStyle = theme.textTheme.bodySmall?.copyWith(
+          fontFamily: 'monospace',
+          color: theme.colorScheme.onSurfaceVariant,
+        ) ??
+        const TextStyle(fontFamily: 'monospace');
+    final highlightStyle = baseStyle.copyWith(
+      color: theme.colorScheme.primary,
+      fontWeight: FontWeight.w700,
+      backgroundColor: theme.colorScheme.primaryContainer.withValues(
+        alpha: 0.45,
+      ),
+    );
+    final uri = Uri.tryParse(link.linkString);
+    final referrer = uri?.queryParameters['referrer'];
+    final isPlayStoreLink =
+        uri != null &&
+        uri.host.contains('play.google.com') &&
+        referrer?.isNotEmpty == true;
+
+    if (isPlayStoreLink) {
+      try {
+        final parts = Uri.splitQueryString(referrer!);
+        final appId = _decodeForDisplay(uri.queryParameters['id'] ?? '');
+        final spans = <InlineSpan>[
+          TextSpan(
+            text:
+                '${uri.scheme}://${uri.authority}${uri.path.isEmpty ? '/store/apps/details' : uri.path}?id=',
+          ),
+          TextSpan(text: appId, style: highlightStyle),
+          const TextSpan(text: '&referrer='),
+        ];
+
+        var isFirst = true;
+        for (final entry in parts.entries) {
+          if (!isFirst) spans.add(const TextSpan(text: '&'));
+          isFirst = false;
+          spans.add(TextSpan(text: '${entry.key}='));
+          spans.add(
+            TextSpan(
+              text: _decodeForDisplay(entry.value),
+              style: highlightStyle,
+            ),
+          );
+        }
+        return TextSpan(style: baseStyle, children: spans);
+      } catch (_) {
+        // Fall through to the decoded generic renderer for malformed links.
+      }
+    }
+
+    return _buildKeyValueSpan(
+      _decodeForDisplay(link.linkString),
+      baseStyle,
+      highlightStyle,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -969,13 +1089,12 @@ class _ReferrerLinkRow extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            link.linkString,
+          SelectableText.rich(
+            _buildHighlightedLinkSpan(),
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface,
+              fontFamily: 'monospace',
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
