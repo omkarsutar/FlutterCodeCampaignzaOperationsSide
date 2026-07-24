@@ -108,27 +108,28 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
     // Do not auto-insert "www." — preserve the host exactly as provided by the user.
 
-    // Keep fragments (including '#' or '/#/' or '/#/review') directly without mangling.
-    final fragment = hashIndex < 0
-        ? null
-        : candidate.substring(hashIndex + 1);
+    // Keep non-empty fragments because Flutter web apps commonly use hash
+    // routing (for example, `/#/review`). Build this portion directly so a
+    // hash from the route is never encoded as `%23` or duplicated.
+    final hasHash = hashIndex >= 0;
+    final fragment = hasHash
+        ? _normalizeWebsiteFragment(candidate.substring(hashIndex + 1))
+        : '';
     final baseUrl = uri.replace(query: '').toString();
-    return fragment == null ? baseUrl : '$baseUrl#$fragment';
+    return hasHash ? '$baseUrl#$fragment' : baseUrl;
   }
 
   String _websiteFieldDisplayValue(String value) {
     final normalized = _normalizeWebsiteBaseUrl(value);
     if (normalized.isEmpty) return '';
 
-    final hashIndex = normalized.indexOf('#');
-    final mainPart = hashIndex < 0 ? normalized : normalized.substring(0, hashIndex);
-    final fragmentPart = hashIndex < 0 ? '' : normalized.substring(hashIndex);
-
-    final uri = Uri.tryParse(mainPart);
+    final uri = Uri.tryParse(normalized);
     if (uri == null || uri.host.isEmpty) return normalized;
 
     final path = uri.path.isEmpty ? '/' : uri.path;
-    return '${uri.host}$path$fragmentPart';
+    final normalizedFragment = _normalizeWebsiteFragment(uri.fragment);
+    final fragment = normalizedFragment.isEmpty ? '' : '#$normalizedFragment';
+    return '${uri.host}$path$fragment';
   }
 
   @override
@@ -185,21 +186,31 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     if (existingUri == null) return;
 
     if (_isWebsiteCampaign) {
-      final qIndex = existingLink.indexOf('?');
-      final baseWithFragment = qIndex < 0
-          ? existingLink
-          : existingLink.substring(0, qIndex);
-      final queryString = qIndex < 0 ? '' : existingLink.substring(qIndex + 1);
-
-      Map<String, String> params = {};
-      if (queryString.isNotEmpty) {
+      var websiteFragment = _normalizeWebsiteFragment(existingUri.fragment);
+      var params = existingUri.queryParameters;
+      final fragmentQueryStart = websiteFragment.indexOf('?');
+      if (fragmentQueryStart >= 0) {
+        final encodedFragmentQuery = websiteFragment.substring(
+          fragmentQueryStart + 1,
+        );
+        websiteFragment = websiteFragment.substring(0, fragmentQueryStart);
         try {
-          params = Uri.splitQueryString(queryString);
-        } catch (_) {}
+          params = Uri.splitQueryString(encodedFragmentQuery);
+        } catch (_) {
+          params = const <String, String>{};
+        }
       }
 
-      _baseUrlController.text = _websiteFieldDisplayValue(baseWithFragment);
-
+      _baseUrlController.text = _websiteFieldDisplayValue(
+        existingUri
+            .replace(
+              query: '',
+              fragment: websiteFragment.isEmpty
+                  ? null
+                  : websiteFragment,
+            )
+            .toString(),
+      );
       final utmSource = _normalizeUtmValue(params['utm_source'] ?? '');
       if (utmSource.isNotEmpty) {
         _utmSourceController.text = utmSource;
@@ -243,43 +254,33 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     final baseUrl = _normalizeWebsiteBaseUrl(_baseUrlController.text);
     if (baseUrl.isEmpty) return '';
 
+    final baseUri = Uri.tryParse(baseUrl);
+    if (baseUri == null || baseUri.host.isEmpty) return '';
+
     final source = _normalizeUtmValue(_utmSourceController.text);
     final mediumValue = widget.promoCode?.trim().isNotEmpty == true
         ? _normalizePromoCode(widget.promoCode!)
         : _normalizeUtmValue(_mediumController.text);
 
-    final hashIndex = baseUrl.indexOf('#');
-    final mainPart = hashIndex < 0 ? baseUrl : baseUrl.substring(0, hashIndex);
-    final fragmentPart = hashIndex < 0 ? '' : baseUrl.substring(hashIndex);
-
-    final mainUri = Uri.tryParse(mainPart);
-    if (mainUri == null || mainUri.host.isEmpty) return '';
-
-    final existingParams = <String, String>{};
-    existingParams.addAll(mainUri.queryParameters);
-
-    final cleanMain = mainUri.replace(query: '').toString();
-
-    var cleanFragment = fragmentPart;
-    final fragQueryIndex = cleanFragment.indexOf('?');
-    if (fragQueryIndex >= 0) {
-      final fragQueryStr = cleanFragment.substring(fragQueryIndex + 1);
-      cleanFragment = cleanFragment.substring(0, fragQueryIndex);
-      try {
-        existingParams.addAll(Uri.splitQueryString(fragQueryStr));
-      } catch (_) {}
-    }
-
     final queryParameters = <String, String>{
-      ...existingParams,
+      ...baseUri.queryParameters,
       'utm_source': source,
       'utm_campaign': widget.campaignNameString,
       'utm_medium': mediumValue,
     };
 
-    final queryStr = Uri(queryParameters: queryParameters).query;
-
-    return '$cleanMain$cleanFragment?$queryStr';
+    final query = Uri(queryParameters: queryParameters).query;
+    final baseWithoutQuery =
+        '${baseUri.scheme}://${baseUri.authority}${baseUri.path}';
+    final hasHash = baseUrl.contains('#');
+    final hashIndex = baseUrl.indexOf('#');
+    final fragment = hashIndex < 0
+        ? ''
+        : _normalizeWebsiteFragment(baseUrl.substring(hashIndex + 1));
+    final result = hasHash
+        ? '$baseWithoutQuery#$fragment?$query'
+        : '$baseWithoutQuery?$query';
+    return result.endsWith('#') ? result.substring(0, result.length - 1) : result;
   }
 
   String _buildPreviewUrl() {
@@ -354,6 +355,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
   TextSpan _buildWebsiteHighlightedLinkSpan(ThemeData theme) {
     final previewUrl = _buildWebsitePreviewUrl();
+    final uri = Uri.tryParse(previewUrl);
     final baseStyle =
         theme.textTheme.bodySmall?.copyWith(
           fontFamily: 'monospace',
@@ -368,27 +370,28 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
       ),
     );
 
-    if (previewUrl.isEmpty) {
+    if (uri == null) {
       return TextSpan(text: previewUrl, style: baseStyle);
     }
 
-    final qIndex = previewUrl.indexOf('?');
-    final basePath = qIndex < 0 ? previewUrl : previewUrl.substring(0, qIndex);
-    final queryString = qIndex < 0 ? '' : previewUrl.substring(qIndex + 1);
-
-    Map<String, String> params = {};
-    if (queryString.isNotEmpty) {
+    var fragmentPath = _normalizeWebsiteFragment(uri.fragment);
+    var params = uri.queryParameters;
+    final fragmentQueryStart = fragmentPath.indexOf('?');
+    if (fragmentQueryStart >= 0) {
+      final encodedFragmentQuery = fragmentPath.substring(
+        fragmentQueryStart + 1,
+      );
+      fragmentPath = fragmentPath.substring(0, fragmentQueryStart);
       try {
-        params = Uri.splitQueryString(queryString);
-      } catch (_) {}
+        params = Uri.splitQueryString(encodedFragmentQuery);
+      } catch (_) {
+        params = const <String, String>{};
+      }
     }
 
-    final source = params['utm_source'];
-    final campaign = params['utm_campaign'] ?? widget.campaignNameString;
-    final medium = params['utm_medium'] ??
-        (widget.promoCode?.trim().isNotEmpty == true
-            ? _normalizePromoCode(widget.promoCode!)
-            : _normalizeUtmValue(_mediumController.text));
+    final basePath =
+        '${uri.scheme}://${uri.authority}${uri.path.isEmpty ? '/' : uri.path}'
+        '${fragmentPath.isEmpty ? '' : '#$fragmentPath'}';
 
     return TextSpan(
       style: baseStyle,
@@ -397,17 +400,23 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
         const TextSpan(text: '?'),
         const TextSpan(text: 'utm_source='),
         TextSpan(
-          text: _displayOrPlaceholder(source),
+          text: _displayOrPlaceholder(params['utm_source']),
           style: highlightStyle,
         ),
         const TextSpan(text: '&utm_campaign='),
         TextSpan(
-          text: _displayOrPlaceholder(campaign),
+          text: _displayOrPlaceholder(widget.campaignNameString),
           style: highlightStyle,
         ),
         const TextSpan(text: '&utm_medium='),
         TextSpan(
-          text: _displayOrPlaceholder(medium),
+          text: _displayOrPlaceholder(
+            params['utm_medium']?.trim().isNotEmpty == true
+                ? params['utm_medium']
+                : (widget.promoCode?.trim().isNotEmpty == true
+                      ? _normalizePromoCode(widget.promoCode!)
+                      : _normalizeUtmValue(_mediumController.text)),
+          ),
           style: highlightStyle,
         ),
       ],
@@ -424,12 +433,12 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     return TextFormField(
       controller: _baseUrlController,
       autofocus: true,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: 'Website URL',
         hintText: 'numeroshastra.com/ or numeroshastra.com/lnk',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         helperText: 'Editable base URL for website campaigns',
-        prefixIcon: Icon(Icons.language_outlined),
+        prefixIcon: const Icon(Icons.language_outlined),
       ),
       validator: (value) {
         final normalized = _normalizeWebsiteBaseUrl(value ?? '');
@@ -464,6 +473,13 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
         prefixIcon: Icon(Icons.android),
       ),
     );
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+    final previewUrl = _buildPreviewUrl();
+    if (previewUrl.isEmpty) return;
+
     Navigator.pop(
       context,
       ReferrerLinkFormResult(
@@ -519,6 +535,88 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                 const SizedBox(height: 16),
                 Text(
                   'Campaign: ${widget.campaignNameString}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (_isWebsiteCampaign) ...[
+                  _buildWebsiteUrlField(),
+                  const SizedBox(height: 12),
+                ] else ...[
+                  _buildPlayStoreAppField(),
+                  const SizedBox(height: 12),
+                ],
+                DropdownButtonFormField<String>(
+                  value: _referrerLinkTypeOptions.contains(_referrerLinkType)
+                      ? _referrerLinkType
+                      : _referrerLinkTypeOptions.first,
+                  decoration: const InputDecoration(
+                    labelText: 'referrer_link_type',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _referrerLinkTypeOptions
+                      .map(
+                        (value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => _referrerLinkType = value);
+                  },
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value:
+                      _referrerLinkSourceOptions(
+                        _referrerLinkSource,
+                      ).contains(_referrerLinkSource)
+                      ? _referrerLinkSource
+                      : _referrerLinkSourceOptions(_referrerLinkSource).first,
+                  decoration: const InputDecoration(
+                    labelText: 'referrer_link_source',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _referrerLinkSourceOptions(_referrerLinkSource)
+                      .map(
+                        (value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => _referrerLinkSource = value);
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _utmSourceController,
+                  autofocus: !_isWebsiteCampaign,
+                  decoration: const InputDecoration(
+                    labelText: 'utm_source',
+                    hintText: 'instagram',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || _normalizeUtmValue(value).isEmpty) {
+                      return 'Enter utm_source';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    setState(() {});
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _mediumController,
+                  readOnly: isMediumLocked,
+                  decoration: InputDecoration(
                     labelText: 'utm_medium',
                     hintText: 'bio',
                     border: const OutlineInputBorder(),
