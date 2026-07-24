@@ -29,9 +29,9 @@ class ReferrerLinkTile extends ConsumerWidget {
   Uri? get _uri => Uri.tryParse(link);
 
   String get _countLookupLink {
-    final uri = _uri;
-    if (uri == null) return link;
-    final cleaned = uri.replace(fragment: null).toString();
+    if (link.isEmpty) return link;
+    final qIndex = link.indexOf('?');
+    final cleaned = qIndex < 0 ? link : link.substring(0, qIndex);
     return cleaned.endsWith('#')
         ? cleaned.substring(0, cleaned.length - 1)
         : cleaned;
@@ -44,14 +44,14 @@ class ReferrerLinkTile extends ConsumerWidget {
         uri.queryParameters['referrer']?.isNotEmpty == true;
   }
 
-  bool get _isWebsiteLink => !_isPlayStoreLink && _uri != null;
+  bool get _isWebsiteLink => !_isPlayStoreLink && link.trim().isNotEmpty;
 
   Map<String, String> get _utmValues {
-    final uri = _uri;
-    if (uri == null) return const {};
+    if (link.isEmpty) return const {};
 
     if (_isPlayStoreLink) {
-      final referrer = uri.queryParameters['referrer'];
+      final uri = _uri;
+      final referrer = uri?.queryParameters['referrer'];
       if (referrer == null || referrer.isEmpty) return const {};
 
       try {
@@ -61,7 +61,13 @@ class ReferrerLinkTile extends ConsumerWidget {
       }
     }
 
-    return uri.queryParameters;
+    final qIndex = link.indexOf('?');
+    if (qIndex < 0) return const {};
+    try {
+      return Uri.splitQueryString(link.substring(qIndex + 1));
+    } catch (_) {
+      return const {};
+    }
   }
 
   String _utm(String key) {
@@ -81,14 +87,18 @@ class ReferrerLinkTile extends ConsumerWidget {
   }
 
   Future<void> _openLink(BuildContext context) async {
-    final uri = _uri;
-    if (uri == null) {
+    if (link.isEmpty) {
       SnackbarUtils.showError('Invalid referrer link');
       return;
     }
 
     try {
       if (_isPlayStoreLink) {
+        final uri = _uri;
+        if (uri == null) {
+          SnackbarUtils.showError('Invalid referrer link');
+          return;
+        }
         // Reconstruct Play Store link with encoded referrer value so it is treated as a single
         // query parameter value by Play Store.
         final appId = uri.queryParameters['id']?.trim();
@@ -111,8 +121,10 @@ class ReferrerLinkTile extends ConsumerWidget {
         return;
       }
 
-      final sanitizedUri = uri.replace(fragment: null);
-      await launchUrl(sanitizedUri, mode: LaunchMode.externalApplication);
+      await launchUrl(
+        Uri.parse(link),
+        mode: LaunchMode.externalApplication,
+      );
     } catch (_) {
       SnackbarUtils.showError('Unable to open link');
     }
@@ -124,10 +136,9 @@ class ReferrerLinkTile extends ConsumerWidget {
   }
 
   String _copyableLinkText() {
-    final uri = _uri;
-    if (uri == null) return link;
-
     if (_isPlayStoreLink) {
+      final uri = _uri;
+      if (uri == null) return link;
       final appId = uri.queryParameters['id']?.trim();
       final referrer = uri.queryParameters['referrer']?.trim();
       if (appId == null ||
@@ -153,17 +164,10 @@ class ReferrerLinkTile extends ConsumerWidget {
       }
     }
 
-    final basePath =
-        '${uri.scheme}://${uri.authority}${uri.path.isEmpty ? '/' : uri.path}';
-    final query = uri.queryParameters.entries
-        .map((entry) => '${entry.key}=${entry.value}')
-        .join('&');
-    if (query.isEmpty) return basePath;
-    return '$basePath?$query';
+    return link;
   }
 
   TextSpan _buildHighlightedLinkSpan(ThemeData theme) {
-    final uri = _uri;
     final baseStyle =
         theme.textTheme.bodySmall?.copyWith(
           fontFamily: 'monospace',
@@ -178,11 +182,9 @@ class ReferrerLinkTile extends ConsumerWidget {
       ),
     );
 
-    if (uri == null) {
-      return TextSpan(text: link, style: baseStyle);
-    }
-
     if (_isPlayStoreLink) {
+      final uri = _uri;
+      if (uri == null) return TextSpan(text: link, style: baseStyle);
       final appId = uri.queryParameters['id']?.trim();
       final referrer = uri.queryParameters['referrer'];
       if (appId == null ||
@@ -232,9 +234,9 @@ class ReferrerLinkTile extends ConsumerWidget {
       );
     }
 
-    final basePath =
-        '${uri.scheme}://${uri.authority}${uri.path.isEmpty ? '/' : uri.path}';
-    final params = uri.queryParameters;
+    final qIndex = link.indexOf('?');
+    final basePath = qIndex < 0 ? link : link.substring(0, qIndex);
+    final params = _utmValues;
 
     return TextSpan(
       style: baseStyle,

@@ -95,6 +95,23 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     return response;
   }
 
+  String _extractUtmSource(String link, String? explicitSource) {
+    if (explicitSource?.trim().isNotEmpty == true) {
+      return explicitSource!.trim();
+    }
+    final qIndex = link.indexOf('?');
+    if (qIndex >= 0) {
+      try {
+        final params = Uri.splitQueryString(link.substring(qIndex + 1));
+        final utmSource = params['utm_source']?.trim();
+        if (utmSource != null && utmSource.isNotEmpty) {
+          return utmSource;
+        }
+      } catch (_) {}
+    }
+    return Uri.tryParse(link)?.queryParameters['utm_source'] ?? 'direct';
+  }
+
   /// Append a referrer link to an existing campaign in the dedicated table.
   Future<ModelCampaign> addReferrerLink({
     required String campaignId,
@@ -103,11 +120,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     String? referrerLinkSource,
   }) async {
     final campaign = await fetchById(campaignId);
-    final uri = Uri.tryParse(referrerLink);
-      final source =
-          referrerLinkSource?.trim().isNotEmpty == true
-              ? referrerLinkSource!.trim()
-              : uri?.queryParameters['utm_source'] ?? 'direct';
+    final source = _extractUtmSource(referrerLink, referrerLinkSource);
 
     await client.from('referrer_links').insert({
       'referrer_link_string': referrerLink.trim(),
@@ -128,11 +141,7 @@ class CampaignServiceImpl extends ForeignKeyAwareService<ModelCampaign> {
     String referrerLinkType = 'plain',
     String? referrerLinkSource,
   }) async {
-    final uri = Uri.tryParse(newReferrerLink);
-    final source =
-        referrerLinkSource?.trim().isNotEmpty == true
-            ? referrerLinkSource!.trim()
-            : uri?.queryParameters['utm_source'] ?? 'direct';
+    final source = _extractUtmSource(newReferrerLink, referrerLinkSource);
 
     await client
         .from('referrer_links')
