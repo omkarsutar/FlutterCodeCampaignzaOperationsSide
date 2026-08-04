@@ -59,6 +59,18 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
   String _referrerLinkType = 'plain';
   String _referrerLinkSource = 'facebook';
+  String _selectedWebsiteRoutePath = 'none';
+
+  static const _websiteRoutePathOptions = [
+    'none',
+    'pre-whatsapp',
+    'pre-youtube',
+    'pre-instagram',
+    'pre-facebook',
+    'gmb-review',
+    'pre-website',
+    'lnk',
+  ];
 
   bool get _isWebsiteCampaign =>
       widget.campaignPlatform?.trim().toLowerCase() == 'website';
@@ -82,6 +94,67 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
   String _normalizePromoCode(String value) {
     return value.trim().replaceAll(RegExp(r'\s+'), '').toUpperCase();
+  }
+
+  void _onBaseUrlChanged() {
+    final text = _baseUrlController.text.trim();
+    final parsed = ParsedWebsiteUrl.parse(text);
+    if (parsed.authority.isEmpty) return;
+
+    var path = parsed.fragmentPath.trim();
+    while (path.startsWith('/')) {
+      path = path.substring(1);
+    }
+    while (path.endsWith('/')) {
+      path = path.substring(0, path.length - 1);
+    }
+
+    final matchedOption = _websiteRoutePathOptions.contains(path) ? path : 'none';
+    if (_selectedWebsiteRoutePath != matchedOption) {
+      setState(() {
+        _selectedWebsiteRoutePath = matchedOption;
+      });
+    }
+  }
+
+  void _updateWebsiteRoutePath(String value) {
+    final text = _baseUrlController.text.trim();
+    final parsed = ParsedWebsiteUrl.parse(text);
+    
+    final String newFragPath;
+    if (value == 'none') {
+      newFragPath = '/';
+    } else {
+      newFragPath = '/$value';
+    }
+
+    final bool newHasHash = (value != 'none') ? true : parsed.hasHash;
+
+    final updatedParsed = ParsedWebsiteUrl(
+      scheme: parsed.scheme,
+      authority: parsed.authority,
+      path: parsed.path,
+      queryParameters: parsed.queryParameters,
+      hasHash: newHasHash,
+      fragmentPath: newFragPath,
+      fragmentQueryParameters: parsed.fragmentQueryParameters,
+    );
+
+    final cleanUrl = updatedParsed.build(
+      utmSource: '',
+      utmCampaign: '',
+      utmMedium: '',
+    );
+
+    final displayVal = _websiteFieldDisplayValue(cleanUrl);
+    
+    _baseUrlController.removeListener(_onBaseUrlChanged);
+    _baseUrlController.text = displayVal;
+    _baseUrlController.addListener(_onBaseUrlChanged);
+
+    setState(() {
+      _selectedWebsiteRoutePath = value;
+    });
   }
 
   String _normalizeWebsiteBaseUrl(String value) {
@@ -116,11 +189,13 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   @override
   void initState() {
     super.initState();
+    _baseUrlController.addListener(_onBaseUrlChanged);
     _populateFromExistingLink();
   }
 
   @override
   void dispose() {
+    _baseUrlController.removeListener(_onBaseUrlChanged);
     _baseUrlController.dispose();
     _utmSourceController.dispose();
     _mediumController.dispose();
@@ -445,6 +520,30 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     );
   }
 
+  Widget _buildWebsiteRoutePathField(ThemeData theme) {
+    return DropdownButtonFormField<String>(
+      value: _selectedWebsiteRoutePath,
+      decoration: const InputDecoration(
+        labelText: 'Route Path (Fragment)',
+        border: OutlineInputBorder(),
+        helperText: 'Select fragment routing path to insert/replace in URL',
+        prefixIcon: Icon(Icons.alt_route_outlined),
+      ),
+      items: _websiteRoutePathOptions
+          .map(
+            (value) => DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            ),
+          )
+          .toList(),
+      onChanged: (value) {
+        if (value == null) return;
+        _updateWebsiteRoutePath(value);
+      },
+    );
+  }
+
   Widget _buildPlayStoreAppField() {
     return TextFormField(
       initialValue: widget.appId,
@@ -525,6 +624,8 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                 const SizedBox(height: 20),
                 if (_isWebsiteCampaign) ...[
                   _buildWebsiteUrlField(),
+                  const SizedBox(height: 12),
+                  _buildWebsiteRoutePathField(theme),
                   const SizedBox(height: 12),
                 ] else ...[
                   _buildPlayStoreAppField(),
