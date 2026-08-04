@@ -227,39 +227,63 @@ class ReferrerLinkTile extends ConsumerWidget {
       );
     }
 
-    final qIndex = link.indexOf('?');
-    final basePath = qIndex < 0 ? link : link.substring(0, qIndex);
-    final params = _utmValues;
+    final parsed = ParsedWebsiteUrl.parse(link);
+    if (parsed.authority.isEmpty) {
+      return TextSpan(text: link, style: baseStyle);
+    }
+
+    final bool useFragmentForUtm = parsed.hasHash;
+    final targetParams = useFragmentForUtm ? parsed.fragmentQueryParameters : parsed.queryParameters;
+
+    final nonUtmParams = Map<String, String>.from(targetParams)
+      ..remove('utm_source')
+      ..remove('utm_campaign')
+      ..remove('utm_medium');
+    final nonUtmQuery = nonUtmParams.isNotEmpty
+        ? Uri(queryParameters: nonUtmParams).query
+        : '';
+
+    final String basePath;
+    if (useFragmentForUtm) {
+      final mainQuery = parsed.queryParameters.isNotEmpty
+          ? '?${Uri(queryParameters: parsed.queryParameters).query}'
+          : '';
+      final fragQueryPart = nonUtmQuery.isNotEmpty ? '?$nonUtmQuery' : '';
+      basePath = '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}'
+          '$mainQuery#${parsed.fragmentPath}$fragQueryPart';
+    } else {
+      final queryPart = nonUtmQuery.isNotEmpty ? '?$nonUtmQuery' : '';
+      basePath = '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}$queryPart';
+    }
+
+    final prefix = nonUtmQuery.isNotEmpty ? '&' : '?';
 
     return TextSpan(
       style: baseStyle,
       children: [
         TextSpan(text: basePath, style: baseStyle),
-        if (params.isNotEmpty) const TextSpan(text: '?'),
-        if (params.isNotEmpty) const TextSpan(text: 'utm_source='),
-        if (params.isNotEmpty)
-          TextSpan(
-            text: params['utm_source']?.trim().isNotEmpty == true
-                ? params['utm_source']!.trim()
-                : '<>',
-            style: highlightStyle,
-          ),
-        if (params.isNotEmpty) const TextSpan(text: '&utm_campaign='),
-        if (params.isNotEmpty)
-          TextSpan(
-            text: params['utm_campaign']?.trim().isNotEmpty == true
-                ? params['utm_campaign']!.trim()
-                : '<>',
-            style: highlightStyle,
-          ),
-        if (params.isNotEmpty) const TextSpan(text: '&utm_medium='),
-        if (params.isNotEmpty)
-          TextSpan(
-            text: params['utm_medium']?.trim().isNotEmpty == true
-                ? params['utm_medium']!.trim()
-                : '<>',
-            style: highlightStyle,
-          ),
+        TextSpan(text: prefix),
+        const TextSpan(text: 'utm_source='),
+        TextSpan(
+          text: targetParams['utm_source']?.trim().isNotEmpty == true
+              ? targetParams['utm_source']!.trim()
+              : '<>',
+          style: highlightStyle,
+        ),
+        const TextSpan(text: '&utm_campaign='),
+        TextSpan(
+          text: targetParams['utm_campaign']?.trim().isNotEmpty == true
+              ? targetParams['utm_campaign']!.trim()
+              : '<>',
+          style: highlightStyle,
+        ),
+        const TextSpan(text: '&utm_medium='),
+        TextSpan(
+          text: targetParams['utm_medium']?.trim().isNotEmpty == true
+              ? targetParams['utm_medium']!.trim()
+              : '<>',
+          style: highlightStyle,
+        ),
       ],
     );
   }
@@ -539,5 +563,125 @@ class ReferrerLinkTile extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class ParsedWebsiteUrl {
+  final String scheme;
+  final String authority;
+  final String path;
+  final Map<String, String> queryParameters;
+  final bool hasHash;
+  final String fragmentPath;
+  final Map<String, String> fragmentQueryParameters;
+
+  ParsedWebsiteUrl({
+    required this.scheme,
+    required this.authority,
+    required this.path,
+    required this.queryParameters,
+    required this.hasHash,
+    required this.fragmentPath,
+    required this.fragmentQueryParameters,
+  });
+
+  static ParsedWebsiteUrl parse(String url) {
+    final trimmed = url.trim();
+    final hasScheme = trimmed.startsWith('http://') || trimmed.startsWith('https://');
+    final candidate = hasScheme ? trimmed : 'https://$trimmed';
+
+    final tempUri = Uri.tryParse(candidate);
+    if (tempUri == null) {
+      return ParsedWebsiteUrl(
+        scheme: 'https',
+        authority: '',
+        path: '',
+        queryParameters: const {},
+        hasHash: false,
+        fragmentPath: '',
+        fragmentQueryParameters: const {},
+      );
+    }
+
+    final scheme = tempUri.scheme;
+    final authority = tempUri.authority;
+    final path = tempUri.path;
+    final queryParameters = tempUri.queryParameters;
+    final hasHash = candidate.contains('#');
+
+    String fragmentPath = '';
+    Map<String, String> fragmentQueryParameters = const {};
+
+    if (hasHash) {
+      final fragment = tempUri.fragment;
+      final qIndex = fragment.indexOf('?');
+      if (qIndex >= 0) {
+        fragmentPath = fragment.substring(0, qIndex);
+        try {
+          fragmentQueryParameters = Uri.splitQueryString(fragment.substring(qIndex + 1));
+        } catch (_) {}
+      } else {
+        fragmentPath = fragment;
+      }
+    }
+
+    return ParsedWebsiteUrl(
+      scheme: scheme,
+      authority: authority,
+      path: path,
+      queryParameters: queryParameters,
+      hasHash: hasHash,
+      fragmentPath: fragmentPath,
+      fragmentQueryParameters: fragmentQueryParameters,
+    );
+  }
+
+  String build({
+    required String utmSource,
+    required String utmCampaign,
+    required String utmMedium,
+  }) {
+    if (authority.isEmpty) return '';
+
+    Map<String, String> mergedQuery = Map<String, String>.from(queryParameters);
+    Map<String, String> mergedFragmentQuery = Map<String, String>.from(fragmentQueryParameters);
+
+    mergedQuery.remove('utm_source');
+    mergedQuery.remove('utm_campaign');
+    mergedQuery.remove('utm_medium');
+    
+    mergedFragmentQuery.remove('utm_source');
+    mergedFragmentQuery.remove('utm_campaign');
+    mergedFragmentQuery.remove('utm_medium');
+
+    if (hasHash) {
+      if (utmSource.isNotEmpty) mergedFragmentQuery['utm_source'] = utmSource;
+      if (utmCampaign.isNotEmpty) mergedFragmentQuery['utm_campaign'] = utmCampaign;
+      if (utmMedium.isNotEmpty) mergedFragmentQuery['utm_medium'] = utmMedium;
+    } else {
+      if (utmSource.isNotEmpty) mergedQuery['utm_source'] = utmSource;
+      if (utmCampaign.isNotEmpty) mergedQuery['utm_campaign'] = utmCampaign;
+      if (utmMedium.isNotEmpty) mergedQuery['utm_medium'] = utmMedium;
+    }
+
+    final queryStr = mergedQuery.isNotEmpty
+        ? Uri(queryParameters: mergedQuery).query
+        : '';
+    final fragmentQueryStr = mergedFragmentQuery.isNotEmpty
+        ? Uri(queryParameters: mergedFragmentQuery).query
+        : '';
+
+    final basePart = '$scheme://$authority${path.isEmpty ? '/' : path}';
+    final queryPart = queryStr.isNotEmpty ? '?$queryStr' : '';
+
+    if (hasHash) {
+      final fragPart = fragmentPath.isNotEmpty || fragmentQueryStr.isNotEmpty
+          ? '#$fragmentPath'
+          : '';
+      final fragQueryPart = fragmentQueryStr.isNotEmpty ? '?$fragmentQueryStr' : '';
+      return '$basePart$queryPart$fragPart$fragQueryPart';
+    } else {
+      return '$basePart$queryPart';
+    }
   }
 }
