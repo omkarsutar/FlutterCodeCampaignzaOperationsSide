@@ -294,7 +294,7 @@ class BrandListTile<T> extends ConsumerWidget {
                         width: 0.5,
                       ),
                     ),
-                  if (websiteUrl.isNotEmpty)
+                  if (isAdmin && websiteUrl.isNotEmpty)
                     Chip(
                       label: Text(
                         'Website: ${websiteUrl.replaceFirst('https://', '')}',
