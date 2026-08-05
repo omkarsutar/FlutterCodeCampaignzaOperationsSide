@@ -500,6 +500,39 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
         : _buildPlayStoreHighlightedLinkSpan(theme);
   }
 
+  Widget _buildWebsiteUrlField() {
+    return TextFormField(
+      controller: _baseUrlController,
+      autofocus: true,
+      decoration: InputDecoration(
+        labelText: 'Website URL',
+        hintText: 'numeroshastra.com/ or numeroshastra.com/lnk',
+        border: const OutlineInputBorder(),
+        helperText: 'Editable base URL for website campaigns',
+        prefixIcon: const Icon(Icons.language_outlined),
+      ),
+      validator: (value) {
+        final normalized = _normalizeWebsiteBaseUrl(value ?? '');
+        if (normalized.isEmpty) {
+          return 'Enter website URL';
+        }
+        final uri = Uri.tryParse(normalized);
+        if (uri == null || uri.host.isEmpty || !uri.hasScheme) {
+          return 'Enter a valid website URL';
+        }
+        return null;
+      },
+      onFieldSubmitted: (_) {
+        final normalized = _normalizeWebsiteBaseUrl(_baseUrlController.text);
+        if (normalized.isEmpty) return;
+        setState(() {
+          _baseUrlController.text = _websiteFieldDisplayValue(normalized);
+        });
+      },
+      onChanged: (_) => setState(() {}),
+    );
+  }
+
   Widget _buildWebsiteRoutePathField(ThemeData theme) {
     return DropdownButtonFormField<String>(
       value: _selectedWebsiteRoutePath,
