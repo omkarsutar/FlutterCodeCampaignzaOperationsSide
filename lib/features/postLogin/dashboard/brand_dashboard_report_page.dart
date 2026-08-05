@@ -30,7 +30,7 @@ class _BrandDashboardReportPageState
   late DateTime _startDate;
   late DateTime _endDate;
   String _selectedPreset = 'Last 30 days';
-  String _selectedCampaignGroup = 'Paid Ads';
+  String _selectedCampaignGroup = 'Direct';
 
   @override
   void initState() {
@@ -629,7 +629,24 @@ class _BrandDashboardReportPageState
 
   Widget _buildCampaignGroupPills(ThemeData theme, BrandDashboardReport report) {
     final counts = _campaignGroupCounts(report.campaigns);
-    const groups = ['Paid Ads', 'Direct', 'Collabs'];
+    const groups = ['Direct', 'Paid Ads', 'Collabs'];
+
+    // If the currently selected group has no campaigns, fall back to the first
+    // visible group. Prefer 'Direct' for selection; otherwise pick 'Paid Ads'.
+    final visibleGroups = groups.where((g) => (counts[g] ?? 0) > 0).toList();
+    if (!visibleGroups.contains(_selectedCampaignGroup)) {
+      final fallback = visibleGroups.isNotEmpty
+          ? visibleGroups.first
+          : groups.first;
+      if (fallback != _selectedCampaignGroup) {
+        Future.microtask(() {
+          if (!mounted) return;
+          setState(() {
+            _selectedCampaignGroup = fallback;
+          });
+        });
+      }
+    }
 
     return SizedBox(
       height: 50,
