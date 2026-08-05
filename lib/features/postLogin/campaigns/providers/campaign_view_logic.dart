@@ -22,7 +22,7 @@ final campaignViewLogicProvider = Provider.autoDispose<ProcessedCampaignData>((
   final filteredOrders = listState.filteredCampaigns;
 
   // 1. Calculate campaign type counts
-  final types = ['All', 'Paid Ads', 'Direct', 'Collabs'];
+  final types = ['All', 'Direct', 'Paid Ads', 'Collabs'];
   final Map<String, int> typeCounts = {};
 
   for (final type in types) {
@@ -34,11 +34,18 @@ final campaignViewLogicProvider = Provider.autoDispose<ProcessedCampaignData>((
           .length;
     } else if (type == 'Direct') {
       typeCounts[type] = allOrders
-          .where((po) => po.effectiveCampaignType == CampaignType.directBrandPromotions)
+          .where(
+            (po) =>
+                po.effectiveCampaignType == CampaignType.directBrandPromotions,
+          )
           .length;
     } else if (type == 'Collabs') {
       typeCounts[type] = allOrders
-          .where((po) => po.effectiveCampaignType == CampaignType.influencerCollaborations)
+          .where(
+            (po) =>
+                po.effectiveCampaignType ==
+                CampaignType.influencerCollaborations,
+          )
           .length;
     }
   }

@@ -212,7 +212,8 @@ class CampaignListController
               .toLowerCase();
           if (routeName?.contains(query) ?? false) return true;
 
-          if (po.effectiveStatusLabel.toLowerCase().contains(query)) return true;
+          if (po.effectiveStatusLabel.toLowerCase().contains(query))
+            return true;
           if (po.userComment?.toLowerCase().contains(query) ?? false) {
             return true;
           }
@@ -241,8 +242,10 @@ class CampaignListController
     ref.read(campaignSearchProvider(arg).notifier).state = '';
     final roleName = ref.read(roleNameProvider)?.toLowerCase();
     final isAdmin = roleName == 'admin' || roleName == 'administrator';
-    ref.read(campaignStatusFilterProvider(arg).notifier).state =
-        isAdmin ? null : 'Paid Ads';
+    // Non-admin users should default to 'Direct' where available; fall back to 'Paid Ads'
+    ref.read(campaignStatusFilterProvider(arg).notifier).state = isAdmin
+        ? null
+        : 'Direct';
   }
 }
 

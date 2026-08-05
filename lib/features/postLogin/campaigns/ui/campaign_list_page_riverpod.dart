@@ -163,18 +163,15 @@ class _CampaignListPageRiverpodState
             ),
 
             // Filter Pills
-            _buildFilterPills(
-              theme,
-              listState,
-              viewData.statusCounts,
-              isAdmin,
-            ),
+            _buildFilterPills(theme, listState, viewData.statusCounts, isAdmin),
 
             // Campaigns List
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () => ref
-                    .read(campaignListControllerProvider('campaignList').notifier)
+                    .read(
+                      campaignListControllerProvider('campaignList').notifier,
+                    )
                     .refreshData(),
                 child: _buildListContent(theme, listState, displayList),
               ),
@@ -296,8 +293,8 @@ class _CampaignListPageRiverpodState
   ) {
     final statuses = <String>[
       if (isAdmin) 'All',
-      'Paid Ads',
       'Direct',
+      'Paid Ads',
       'Collabs',
     ];
 
@@ -310,6 +307,29 @@ class _CampaignListPageRiverpodState
         itemCount: statuses.length,
         itemBuilder: (context, index) {
           final status = statuses[index];
+          // Ensure current selected status is visible; if not, pick first visible for the user
+          final currentStatus = listState.selectedStatus;
+          final isStatusVisible = currentStatus == null
+              ? statuses.any((s) => s.toLowerCase() == 'all')
+              : statuses.any(
+                  (s) => s.toLowerCase() == currentStatus.toLowerCase(),
+                );
+          if (!isStatusVisible) {
+            // pick first visible status: if 'All' present pick null for admin, otherwise first status
+            final firstVisible = statuses.firstWhere((_) => true);
+            final newStatus = (firstVisible.toLowerCase() == 'all')
+                ? null
+                : firstVisible;
+            Future.microtask(() {
+              if (!mounted) return;
+              ref
+                  .read(campaignListControllerProvider('campaignList').notifier)
+                  .setStatusFilter(
+                    newStatus,
+                    searchFields: widget.searchFields,
+                  );
+            });
+          }
           final isSelected =
               (status == 'All' && listState.selectedStatus == null) ||
               (status.toLowerCase() == listState.selectedStatus?.toLowerCase());

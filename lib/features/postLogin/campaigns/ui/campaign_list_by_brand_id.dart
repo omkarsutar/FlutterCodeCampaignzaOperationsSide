@@ -129,9 +129,22 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
 
     final Map<String, int> typeCounts = {
       'All': brandCampaigns.length,
-      'Paid Ads': brandCampaigns.where((po) => po.effectiveCampaignType == CampaignType.paidAds).length,
-      'Direct': brandCampaigns.where((po) => po.effectiveCampaignType == CampaignType.directBrandPromotions).length,
-      'Collabs': brandCampaigns.where((po) => po.effectiveCampaignType == CampaignType.influencerCollaborations).length,
+      'Paid Ads': brandCampaigns
+          .where((po) => po.effectiveCampaignType == CampaignType.paidAds)
+          .length,
+      'Direct': brandCampaigns
+          .where(
+            (po) =>
+                po.effectiveCampaignType == CampaignType.directBrandPromotions,
+          )
+          .length,
+      'Collabs': brandCampaigns
+          .where(
+            (po) =>
+                po.effectiveCampaignType ==
+                CampaignType.influencerCollaborations,
+          )
+          .length,
     };
 
     return Scaffold(
@@ -225,13 +238,7 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
               ),
 
             // Filter Pills
-            _buildFilterPills(
-              theme,
-              listState,
-              typeCounts,
-              isAdmin,
-              brand,
-            ),
+            _buildFilterPills(theme, listState, typeCounts, isAdmin, brand),
             if (selectedBrand != null && isAdmin) ...[
               BrandListTile(
                 entity: selectedBrand,
@@ -375,8 +382,8 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
 
     final types = <String>[
       if (isAdmin) 'All',
-      'Paid Ads',
       if (!hideDirectForBrand) 'Direct',
+      'Paid Ads',
       'Collabs',
     ];
 
@@ -389,9 +396,32 @@ class _CampaignListByBrandIdState extends ConsumerState<CampaignListByBrandId> {
         itemCount: types.length,
         itemBuilder: (context, index) {
           final typeName = types[index];
+          // Ensure the selected status is visible; if not, select the first visible type
+          final currentStatus = listState.selectedStatus;
+          final isStatusVisible = currentStatus == null
+              ? types.any((s) => s.toLowerCase() == 'all')
+              : types.any(
+                  (s) => s.toLowerCase() == currentStatus.toLowerCase(),
+                );
+          if (!isStatusVisible) {
+            final firstVisible = types.firstWhere((_) => true);
+            final newStatus = (firstVisible.toLowerCase() == 'all')
+                ? null
+                : firstVisible;
+            Future.microtask(() {
+              if (!mounted) return;
+              ref
+                  .read(campaignListControllerProvider(_controllerKey).notifier)
+                  .setStatusFilter(
+                    newStatus,
+                    searchFields: widget.searchFields,
+                  );
+            });
+          }
           final isSelected =
               (typeName == 'All' && listState.selectedStatus == null) ||
-              (typeName.toLowerCase() == listState.selectedStatus?.toLowerCase());
+              (typeName.toLowerCase() ==
+                  listState.selectedStatus?.toLowerCase());
 
           // Get pre-calculated count
           final count = typeCounts[typeName] ?? 0;
