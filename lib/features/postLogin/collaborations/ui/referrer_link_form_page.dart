@@ -109,7 +109,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
       path = path.substring(0, path.length - 1);
     }
 
-    final matchedOption = _websiteRoutePathOptions.contains(path) ? path : 'none';
+    final matchedOption = _websiteRoutePathOptions.contains(path)
+        ? path
+        : 'none';
     if (_selectedWebsiteRoutePath != matchedOption) {
       setState(() {
         _selectedWebsiteRoutePath = matchedOption;
@@ -120,7 +122,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   void _updateWebsiteRoutePath(String value) {
     final text = _baseUrlController.text.trim();
     final parsed = ParsedWebsiteUrl.parse(text);
-    
+
     final String newFragPath;
     if (value == 'none') {
       newFragPath = '/';
@@ -147,7 +149,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     );
 
     final displayVal = _websiteFieldDisplayValue(cleanUrl);
-    
+
     _baseUrlController.removeListener(_onBaseUrlChanged);
     _baseUrlController.text = displayVal;
     _baseUrlController.addListener(_onBaseUrlChanged);
@@ -161,11 +163,7 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     final parsed = ParsedWebsiteUrl.parse(value);
     if (parsed.authority.isEmpty) return value.trim();
 
-    return parsed.build(
-      utmSource: '',
-      utmCampaign: '',
-      utmMedium: '',
-    );
+    return parsed.build(utmSource: '', utmCampaign: '', utmMedium: '');
   }
 
   String _websiteFieldDisplayValue(String value) {
@@ -173,12 +171,14 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     if (parsed.authority.isEmpty) return value;
 
     final path = parsed.path.isEmpty ? '/' : parsed.path;
-    final fragPart = parsed.fragmentPath.isEmpty ? '' : '#${parsed.fragmentPath}';
-    
+    final fragPart = parsed.fragmentPath.isEmpty
+        ? ''
+        : '#${parsed.fragmentPath}';
+
     final fragQuery = parsed.fragmentQueryParameters.isNotEmpty
         ? '?${Uri(queryParameters: parsed.fragmentQueryParameters).query}'
         : '';
-        
+
     final mainQuery = parsed.queryParameters.isNotEmpty
         ? '?${Uri(queryParameters: parsed.queryParameters).query}'
         : '';
@@ -243,16 +243,17 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
     if (_isWebsiteCampaign) {
       final parsed = ParsedWebsiteUrl.parse(existingLink);
-      
+
       final mainNonUtm = Map<String, String>.from(parsed.queryParameters)
         ..remove('utm_source')
         ..remove('utm_campaign')
         ..remove('utm_medium');
-      final fragNonUtm = Map<String, String>.from(parsed.fragmentQueryParameters)
-        ..remove('utm_source')
-        ..remove('utm_campaign')
-        ..remove('utm_medium');
-        
+      final fragNonUtm =
+          Map<String, String>.from(parsed.fragmentQueryParameters)
+            ..remove('utm_source')
+            ..remove('utm_campaign')
+            ..remove('utm_medium');
+
       final cleanParsed = ParsedWebsiteUrl(
         scheme: parsed.scheme,
         authority: parsed.authority,
@@ -263,11 +264,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
         fragmentQueryParameters: fragNonUtm,
       );
 
-      _baseUrlController.text = _websiteFieldDisplayValue(cleanParsed.build(
-        utmSource: '',
-        utmCampaign: '',
-        utmMedium: '',
-      ));
+      _baseUrlController.text = _websiteFieldDisplayValue(
+        cleanParsed.build(utmSource: '', utmCampaign: '', utmMedium: ''),
+      );
 
       final existingUtmSource = parsed.hasHash
           ? parsed.fragmentQueryParameters['utm_source']
@@ -426,7 +425,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     }
 
     final bool useFragmentForUtm = parsed.hasHash;
-    final targetParams = useFragmentForUtm ? parsed.fragmentQueryParameters : parsed.queryParameters;
+    final targetParams = useFragmentForUtm
+        ? parsed.fragmentQueryParameters
+        : parsed.queryParameters;
 
     final nonUtmParams = Map<String, String>.from(targetParams)
       ..remove('utm_source')
@@ -437,16 +438,24 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
         : '';
 
     final String basePath;
+    final String? highlightedFragmentPath;
+    final String fragmentSuffix;
     if (useFragmentForUtm) {
       final mainQuery = parsed.queryParameters.isNotEmpty
           ? '?${Uri(queryParameters: parsed.queryParameters).query}'
           : '';
       final fragQueryPart = nonUtmQuery.isNotEmpty ? '?$nonUtmQuery' : '';
-      basePath = '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}'
-          '$mainQuery#${parsed.fragmentPath}$fragQueryPart';
+      basePath =
+          '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}'
+          '$mainQuery#';
+      highlightedFragmentPath = parsed.fragmentPath;
+      fragmentSuffix = fragQueryPart;
     } else {
       final queryPart = nonUtmQuery.isNotEmpty ? '?$nonUtmQuery' : '';
-      basePath = '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}$queryPart';
+      basePath =
+          '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}$queryPart';
+      highlightedFragmentPath = null;
+      fragmentSuffix = '';
     }
 
     final prefix = nonUtmQuery.isNotEmpty ? '&' : '?';
@@ -455,6 +464,10 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
       style: baseStyle,
       children: [
         TextSpan(text: basePath, style: baseStyle),
+        if (highlightedFragmentPath != null)
+          TextSpan(text: highlightedFragmentPath, style: highlightStyle),
+        if (fragmentSuffix.isNotEmpty)
+          TextSpan(text: fragmentSuffix, style: baseStyle),
         TextSpan(text: prefix),
         const TextSpan(text: 'utm_source='),
         TextSpan(
@@ -487,39 +500,6 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
         : _buildPlayStoreHighlightedLinkSpan(theme);
   }
 
-  Widget _buildWebsiteUrlField() {
-    return TextFormField(
-      controller: _baseUrlController,
-      autofocus: true,
-      decoration: InputDecoration(
-        labelText: 'Website URL',
-        hintText: 'numeroshastra.com/ or numeroshastra.com/lnk',
-        border: const OutlineInputBorder(),
-        helperText: 'Editable base URL for website campaigns',
-        prefixIcon: const Icon(Icons.language_outlined),
-      ),
-      validator: (value) {
-        final normalized = _normalizeWebsiteBaseUrl(value ?? '');
-        if (normalized.isEmpty) {
-          return 'Enter website URL';
-        }
-        final uri = Uri.tryParse(normalized);
-        if (uri == null || uri.host.isEmpty || !uri.hasScheme) {
-          return 'Enter a valid website URL';
-        }
-        return null;
-      },
-      onFieldSubmitted: (_) {
-        final normalized = _normalizeWebsiteBaseUrl(_baseUrlController.text);
-        if (normalized.isEmpty) return;
-        setState(() {
-          _baseUrlController.text = _websiteFieldDisplayValue(normalized);
-        });
-      },
-      onChanged: (_) => setState(() {}),
-    );
-  }
-
   Widget _buildWebsiteRoutePathField(ThemeData theme) {
     return DropdownButtonFormField<String>(
       value: _selectedWebsiteRoutePath,
@@ -531,10 +511,8 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
       ),
       items: _websiteRoutePathOptions
           .map(
-            (value) => DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            ),
+            (value) =>
+                DropdownMenuItem<String>(value: value, child: Text(value)),
           )
           .toList(),
       onChanged: (value) {
@@ -623,8 +601,6 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
                 ),
                 const SizedBox(height: 20),
                 if (_isWebsiteCampaign) ...[
-                  _buildWebsiteUrlField(),
-                  const SizedBox(height: 12),
                   _buildWebsiteRoutePathField(theme),
                   const SizedBox(height: 12),
                 ] else ...[
@@ -767,7 +743,8 @@ class ParsedWebsiteUrl {
 
   static ParsedWebsiteUrl parse(String url) {
     final trimmed = url.trim();
-    final hasScheme = trimmed.startsWith('http://') || trimmed.startsWith('https://');
+    final hasScheme =
+        trimmed.startsWith('http://') || trimmed.startsWith('https://');
     final candidate = hasScheme ? trimmed : 'https://$trimmed';
 
     final tempUri = Uri.tryParse(candidate);
@@ -798,7 +775,9 @@ class ParsedWebsiteUrl {
       if (qIndex >= 0) {
         fragmentPath = fragment.substring(0, qIndex);
         try {
-          fragmentQueryParameters = Uri.splitQueryString(fragment.substring(qIndex + 1));
+          fragmentQueryParameters = Uri.splitQueryString(
+            fragment.substring(qIndex + 1),
+          );
         } catch (_) {}
       } else {
         fragmentPath = fragment;
@@ -824,19 +803,23 @@ class ParsedWebsiteUrl {
     if (authority.isEmpty) return '';
 
     Map<String, String> mergedQuery = Map<String, String>.from(queryParameters);
-    Map<String, String> mergedFragmentQuery = Map<String, String>.from(fragmentQueryParameters);
+    Map<String, String> mergedFragmentQuery = Map<String, String>.from(
+      fragmentQueryParameters,
+    );
 
     mergedQuery.remove('utm_source');
     mergedQuery.remove('utm_campaign');
     mergedQuery.remove('utm_medium');
-    
+
     mergedFragmentQuery.remove('utm_source');
     mergedFragmentQuery.remove('utm_campaign');
     mergedFragmentQuery.remove('utm_medium');
 
     if (hasHash) {
       if (utmSource.isNotEmpty) mergedFragmentQuery['utm_source'] = utmSource;
-      if (utmCampaign.isNotEmpty) mergedFragmentQuery['utm_campaign'] = utmCampaign;
+      if (utmCampaign.isNotEmpty) {
+        mergedFragmentQuery['utm_campaign'] = utmCampaign;
+      }
       if (utmMedium.isNotEmpty) mergedFragmentQuery['utm_medium'] = utmMedium;
     } else {
       if (utmSource.isNotEmpty) mergedQuery['utm_source'] = utmSource;
@@ -858,7 +841,9 @@ class ParsedWebsiteUrl {
       final fragPart = fragmentPath.isNotEmpty || fragmentQueryStr.isNotEmpty
           ? '#$fragmentPath'
           : '';
-      final fragQueryPart = fragmentQueryStr.isNotEmpty ? '?$fragmentQueryStr' : '';
+      final fragQueryPart = fragmentQueryStr.isNotEmpty
+          ? '?$fragmentQueryStr'
+          : '';
       return '$basePart$queryPart$fragPart$fragQueryPart';
     } else {
       return '$basePart$queryPart';
