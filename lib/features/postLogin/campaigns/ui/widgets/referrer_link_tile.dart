@@ -9,6 +9,7 @@ import '../../../collaborations/providers/collaboration_providers.dart';
 class ReferrerLinkTile extends ConsumerWidget {
   final String link;
   final String title;
+  final String? campaignPlatform;
   final Future<void> Function(String existingLink)? onEdit;
   final Future<void> Function(String existingLink)? onDelete;
   final EdgeInsetsGeometry margin;
@@ -19,6 +20,7 @@ class ReferrerLinkTile extends ConsumerWidget {
     super.key,
     required this.link,
     this.title = 'Referrer Link',
+    this.campaignPlatform,
     this.onEdit,
     this.onDelete,
     this.margin = const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -114,10 +116,7 @@ class ReferrerLinkTile extends ConsumerWidget {
         return;
       }
 
-      await launchUrl(
-        Uri.parse(link),
-        mode: LaunchMode.externalApplication,
-      );
+      await launchUrl(Uri.parse(link), mode: LaunchMode.externalApplication);
     } catch (_) {
       SnackbarUtils.showError('Unable to open link');
     }
@@ -233,7 +232,11 @@ class ReferrerLinkTile extends ConsumerWidget {
     }
 
     final bool useFragmentForUtm = parsed.hasHash;
-    final targetParams = useFragmentForUtm ? parsed.fragmentQueryParameters : parsed.queryParameters;
+    final bool highlightRoutePath =
+        campaignPlatform?.trim().toLowerCase() != 'android_app';
+    final targetParams = useFragmentForUtm
+        ? parsed.fragmentQueryParameters
+        : parsed.queryParameters;
 
     final nonUtmParams = Map<String, String>.from(targetParams)
       ..remove('utm_source')
@@ -244,24 +247,39 @@ class ReferrerLinkTile extends ConsumerWidget {
         : '';
 
     final String basePath;
+    final String? highlightedFragmentPath;
+    final String fragmentSuffix;
     if (useFragmentForUtm) {
       final mainQuery = parsed.queryParameters.isNotEmpty
           ? '?${Uri(queryParameters: parsed.queryParameters).query}'
           : '';
       final fragQueryPart = nonUtmQuery.isNotEmpty ? '?$nonUtmQuery' : '';
-      basePath = '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}'
-          '$mainQuery#${parsed.fragmentPath}$fragQueryPart';
+      basePath =
+          '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}'
+          '$mainQuery#';
+      highlightedFragmentPath = parsed.fragmentPath.isNotEmpty
+          ? parsed.fragmentPath
+          : null;
+      fragmentSuffix = fragQueryPart;
     } else {
       final queryPart = nonUtmQuery.isNotEmpty ? '?$nonUtmQuery' : '';
-      basePath = '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}$queryPart';
+      basePath =
+          '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}$queryPart';
+      highlightedFragmentPath = null;
+      fragmentSuffix = '';
     }
 
     final prefix = nonUtmQuery.isNotEmpty ? '&' : '?';
+    final fragmentStyle = highlightRoutePath ? highlightStyle : baseStyle;
 
     return TextSpan(
       style: baseStyle,
       children: [
         TextSpan(text: basePath, style: baseStyle),
+        if (highlightedFragmentPath != null)
+          TextSpan(text: highlightedFragmentPath, style: fragmentStyle),
+        if (fragmentSuffix.isNotEmpty)
+          TextSpan(text: fragmentSuffix, style: baseStyle),
         TextSpan(text: prefix),
         const TextSpan(text: 'utm_source='),
         TextSpan(
@@ -587,7 +605,8 @@ class ParsedWebsiteUrl {
 
   static ParsedWebsiteUrl parse(String url) {
     final trimmed = url.trim();
-    final hasScheme = trimmed.startsWith('http://') || trimmed.startsWith('https://');
+    final hasScheme =
+        trimmed.startsWith('http://') || trimmed.startsWith('https://');
     final candidate = hasScheme ? trimmed : 'https://$trimmed';
 
     final tempUri = Uri.tryParse(candidate);
@@ -618,7 +637,9 @@ class ParsedWebsiteUrl {
       if (qIndex >= 0) {
         fragmentPath = fragment.substring(0, qIndex);
         try {
-          fragmentQueryParameters = Uri.splitQueryString(fragment.substring(qIndex + 1));
+          fragmentQueryParameters = Uri.splitQueryString(
+            fragment.substring(qIndex + 1),
+          );
         } catch (_) {}
       } else {
         fragmentPath = fragment;
@@ -644,19 +665,22 @@ class ParsedWebsiteUrl {
     if (authority.isEmpty) return '';
 
     Map<String, String> mergedQuery = Map<String, String>.from(queryParameters);
-    Map<String, String> mergedFragmentQuery = Map<String, String>.from(fragmentQueryParameters);
+    Map<String, String> mergedFragmentQuery = Map<String, String>.from(
+      fragmentQueryParameters,
+    );
 
     mergedQuery.remove('utm_source');
     mergedQuery.remove('utm_campaign');
     mergedQuery.remove('utm_medium');
-    
+
     mergedFragmentQuery.remove('utm_source');
     mergedFragmentQuery.remove('utm_campaign');
     mergedFragmentQuery.remove('utm_medium');
 
     if (hasHash) {
       if (utmSource.isNotEmpty) mergedFragmentQuery['utm_source'] = utmSource;
-      if (utmCampaign.isNotEmpty) mergedFragmentQuery['utm_campaign'] = utmCampaign;
+      if (utmCampaign.isNotEmpty)
+        mergedFragmentQuery['utm_campaign'] = utmCampaign;
       if (utmMedium.isNotEmpty) mergedFragmentQuery['utm_medium'] = utmMedium;
     } else {
       if (utmSource.isNotEmpty) mergedQuery['utm_source'] = utmSource;
@@ -678,7 +702,9 @@ class ParsedWebsiteUrl {
       final fragPart = fragmentPath.isNotEmpty || fragmentQueryStr.isNotEmpty
           ? '#$fragmentPath'
           : '';
-      final fragQueryPart = fragmentQueryStr.isNotEmpty ? '?$fragmentQueryStr' : '';
+      final fragQueryPart = fragmentQueryStr.isNotEmpty
+          ? '?$fragmentQueryStr'
+          : '';
       return '$basePart$queryPart$fragPart$fragQueryPart';
     } else {
       return '$basePart$queryPart';

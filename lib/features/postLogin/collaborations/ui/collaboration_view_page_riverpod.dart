@@ -740,6 +740,10 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                   return ReferrerLinkTile(
                     link: linkItem.referrerLinkString,
                     title: _buildReferrerLinkTitle(linkItem),
+                    campaignPlatform:
+                        collaboration.resolvedLabels['campaign_platform']
+                            ?.toString() ??
+                        null,
                     margin: EdgeInsets.zero,
                     leadingWidget: _buildReferrerLinkLeadingWidget(
                       theme,
@@ -1217,10 +1221,9 @@ class _QrShareBlockState extends State<_QrShareBlock> {
         return;
       }
 
-      await Share.shareXFiles(
-        [XFile.fromData(pngBytes, name: fileName, mimeType: 'image/png')],
-        subject: 'Referrer QR Code',
-      );
+      await Share.shareXFiles([
+        XFile.fromData(pngBytes, name: fileName, mimeType: 'image/png'),
+      ], subject: 'Referrer QR Code');
     } catch (e) {
       if (mounted) {
         SnackbarUtils.showError('Could not process QR Code: $e');

@@ -341,6 +341,7 @@ class _CollaborationListPageRiverpodState
                         final link = linkItem.referrerLinkString;
                         return ReferrerLinkTile(
                           link: link,
+                          campaignPlatform: campaign.campaignPlatform,
                           belowLinkWidget: _buildReferrerLinkQrWidget(linkItem),
                           onEdit: (existingLink) => _showReferrerLinkPage(
                             context,
@@ -554,10 +555,9 @@ class _QrShareBlockState extends State<_QrShareBlock> {
         return;
       }
 
-      await Share.shareXFiles(
-        [XFile.fromData(pngBytes, name: fileName, mimeType: 'image/png')],
-        subject: 'Referrer QR Code',
-      );
+      await Share.shareXFiles([
+        XFile.fromData(pngBytes, name: fileName, mimeType: 'image/png'),
+      ], subject: 'Referrer QR Code');
     } catch (e) {
       if (mounted) {
         SnackbarUtils.showError('Could not process QR Code: $e');
