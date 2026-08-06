@@ -140,7 +140,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                               width: 24,
                               height: 24,
                               child: Image.asset(
-                                'assets/images/google_logo.png',
+                                'assets/images/google_logo.webp',
                                 width: 24,
                                 height: 24,
                               ),
@@ -207,10 +207,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Colors.white70,
-          height: 1.4,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: Colors.white70, height: 1.4),
         children: [
           const TextSpan(text: 'By signing in, you agree to our '),
           WidgetSpan(

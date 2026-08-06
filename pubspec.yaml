@@ -96,6 +96,8 @@ flutter:
     - lib/features/postLogin/retailer_brand_links/retailer_brand_link_config.json
     - lib/features/postLogin/user_agency_links/user_agency_link_config.json
     - lib/features/postLogin/user_influencer_links/user_influencer_link_config.json
+    - assets/images/app_logo.png
+    - assets/images/primary_logo.png
     - assets/images/google_logo.webp
     - assets/images/facebook_logo.webp
     - assets/images/instagram_logo.webp
