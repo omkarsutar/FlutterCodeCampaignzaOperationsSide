@@ -10,6 +10,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agency_brand_links/agency_brand_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brand_data/brand_data_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/dashboard/dashboard_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_brand_links/retailer_brand_link_barrel.dart';
@@ -64,6 +65,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ...RetailerBrandLinkRoutesJson.routes,
       ...UserAgencyLinkRoutesJson.routes,
       ...UserInfluencerLinkRoutesJson.routes,
+      ...BrandDataRoutesJson.routes,
     ],
     initialLocation: AppRoute.welcome,
     refreshListenable: rbacService.initializationNotifier,

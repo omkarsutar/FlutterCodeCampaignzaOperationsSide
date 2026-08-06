@@ -96,6 +96,11 @@ class GenericFormController
                   field.type == FieldType.intField ||
                   field.type == FieldType.integer) {
                 values[field.name] = val.toString();
+              } else if (val is List) {
+                values[field.name] = val
+                    .map((item) => item?.toString().trim() ?? '')
+                    .where((item) => item.isNotEmpty)
+                    .join('\n');
               } else {
                 values[field.name] = val;
               }

@@ -1,0 +1,183 @@
+{
+    "moduleName": "brand_data",
+    "entityMeta": {
+        "entityName": "Brand Data",
+        "entityNameLower": "brand data",
+        "entityNamePlural": "Brand Data",
+        "entityNamePluralLower": "brand data"
+    },
+    "table": {
+        "name": "brand_data",
+        "idField": "id",
+        "timestampField": "created_at"
+    },
+    "routes": {
+        "basePath": "/brandData",
+        "listRouteName": "brandData",
+        "newRouteName": "newBrandData",
+        "editRouteName": "editBrandData",
+        "viewRouteName": "viewBrandData"
+    },
+    "listPage": {
+        "sorting": {
+            "field": "created_at",
+            "sortAscending": false
+        },
+        "searchFields": [
+            "brand_name",
+            "whatsapp_no",
+            "website_url",
+            "instagram_url",
+            "facebook_url"
+        ]
+    },
+    "fields": [
+        {
+            "name": "id",
+            "label": "ID",
+            "type": "text",
+            "required": true,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        },
+        {
+            "name": "brand_name",
+            "label": "Brand Name",
+            "type": "text",
+            "required": true,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "brand_photo_url",
+            "label": "Brand Photo URL",
+            "type": "text",
+            "required": false,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "website_url",
+            "label": "Website URL",
+            "type": "text",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "android_app_id",
+            "label": "Android App ID",
+            "type": "text",
+            "required": false,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "meta_pixel_id",
+            "label": "Meta Pixel ID",
+            "type": "text",
+            "required": false,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "gmb_profile_url",
+            "label": "GMB Profile URL",
+            "type": "text",
+            "required": false,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "gmb_review_texts",
+            "label": "GMB Review Texts",
+            "type": "textarea",
+            "required": false,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "gmb_review_texts_hi",
+            "label": "GMB Review Texts (HI)",
+            "type": "textarea",
+            "required": false,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "gmb_review_texts_mr",
+            "label": "GMB Review Texts (MR)",
+            "type": "textarea",
+            "required": false,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "whatsapp_no",
+            "label": "WhatsApp Number",
+            "type": "text",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "whatsapp_msg_text",
+            "label": "WhatsApp Message Text",
+            "type": "textarea",
+            "required": false,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "youtube_url",
+            "label": "YouTube URL",
+            "type": "text",
+            "required": false,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "instagram_url",
+            "label": "Instagram URL",
+            "type": "text",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "facebook_url",
+            "label": "Facebook URL",
+            "type": "text",
+            "required": false,
+            "visibleInList": false,
+            "visibleInForm": true
+        },
+        {
+            "name": "is_active",
+            "label": "Active",
+            "type": "switchField",
+            "required": false,
+            "visibleInList": true,
+            "visibleInForm": true
+        },
+        {
+            "name": "created_at",
+            "label": "Created At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        },
+        {
+            "name": "updated_at",
+            "label": "Updated At",
+            "type": "text",
+            "required": false,
+            "readOnly": true,
+            "visibleInList": false,
+            "visibleInForm": false
+        }
+    ]
+}

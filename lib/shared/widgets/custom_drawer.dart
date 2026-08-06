@@ -9,6 +9,7 @@ import 'package:flutter_supabase_order_app_mobile/features/postLogin/roles/role_
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agency_brand_links/agency_brand_link_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/agencies/agency_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/brands/brand_barrel.dart';
+import 'package:flutter_supabase_order_app_mobile/features/postLogin/brand_data/brand_data_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/po_collections/po_collection_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/users/user_barrel.dart';
 import 'package:flutter_supabase_order_app_mobile/features/postLogin/retailer_brand_links/retailer_brand_link_barrel.dart';
@@ -192,6 +193,14 @@ class CustomDrawer extends ConsumerWidget {
             moduleName: ModelBrandFields.table, // "brands"
             routeName: BrandsRoutesJson.listRouteName,
             title: 'Brands',
+            icon: Icons.store,
+          ),
+
+          // BrandData
+          ReadEntityTile(
+            moduleName: ModelBrandDataFields.table, // "brand_data"
+            routeName: BrandDataRoutesJson.listRouteName,
+            title: 'Brand Data',
             icon: Icons.store,
           ),
 

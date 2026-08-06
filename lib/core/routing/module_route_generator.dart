@@ -25,6 +25,7 @@ class ModuleRouteGenerator<T> {
   final Widget Function(BuildContext context, GoRouterState state)?
   customListBuilder;
   final Widget Function(BuildContext, String?)? customFormBuilder;
+  final Map<String, dynamic> Function(T entity)? initialValuesMapper;
 
   ModuleRouteGenerator({
     required this.config,
@@ -37,6 +38,7 @@ class ModuleRouteGenerator<T> {
     this.customViewBuilder,
     this.customListBuilder,
     this.customFormBuilder,
+    this.initialValuesMapper,
   });
 
   /// Generate all routes for this module
@@ -103,7 +105,8 @@ class ModuleRouteGenerator<T> {
       },
       builder: (context, state) {
         // Selection mode parameter is available if needed in future
-        final isSelectionMode = state.uri.queryParameters['selection'] == 'true';
+        final isSelectionMode =
+            state.uri.queryParameters['selection'] == 'true';
 
         // Use custom List builder if provided
         if (customListBuilder != null) {
