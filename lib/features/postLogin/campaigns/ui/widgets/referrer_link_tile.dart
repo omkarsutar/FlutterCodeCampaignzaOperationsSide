@@ -10,6 +10,7 @@ class ReferrerLinkTile extends ConsumerWidget {
   final String link;
   final String title;
   final String? campaignPlatform;
+  final String? referrerLinkSource;
   final Future<void> Function(String existingLink)? onEdit;
   final Future<void> Function(String existingLink)? onDelete;
   final EdgeInsetsGeometry margin;
@@ -21,6 +22,7 @@ class ReferrerLinkTile extends ConsumerWidget {
     required this.link,
     this.title = 'Referrer Link',
     this.campaignPlatform,
+    this.referrerLinkSource,
     this.onEdit,
     this.onDelete,
     this.margin = const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -68,6 +70,28 @@ class ReferrerLinkTile extends ConsumerWidget {
   String _utm(String key) {
     final value = _utmValues[key]?.trim();
     return (value == null || value.isEmpty) ? 'N/A' : value;
+  }
+
+  String _referrerLinkAssetPath() {
+    final source = referrerLinkSource?.trim().toLowerCase() ?? '';
+    switch (source) {
+      case 'facebook':
+        return 'assets/images/facebook_logo.webp';
+      case 'instagram':
+        return 'assets/images/instagram_logo.webp';
+      case 'whatsapp':
+        return 'assets/images/whatsapp_logo.webp';
+      case 'youtube':
+        return 'assets/images/youtube_logo.webp';
+      case 'google':
+      case 'direct':
+      case 'tiktok':
+      case 'twitter':
+      case 'linkedin':
+        return 'assets/images/google_logo.webp';
+      default:
+        return 'assets/images/google_logo.webp';
+    }
   }
 
   // Encode referrer value for Play Store so '&' and '|' don't split the outer query
@@ -358,11 +382,23 @@ class ReferrerLinkTile extends ConsumerWidget {
                   child: Center(
                     child:
                         leadingWidget ??
-                        Icon(
-                          Icons.link_rounded,
-                          size: 20,
-                          color: theme.colorScheme.onPrimaryContainer,
-                        ),
+                        (referrerLinkSource?.trim().isNotEmpty == true
+                            ? Image.asset(
+                                _referrerLinkAssetPath(),
+                                width: 20,
+                                height: 20,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.link_rounded,
+                                  size: 20,
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                ),
+                              )
+                            : Icon(
+                                Icons.link_rounded,
+                                size: 20,
+                                color: theme.colorScheme.onPrimaryContainer,
+                              )),
                   ),
                 ),
                 const SizedBox(width: 10),

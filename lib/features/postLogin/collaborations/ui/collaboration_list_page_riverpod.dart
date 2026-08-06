@@ -342,6 +342,7 @@ class _CollaborationListPageRiverpodState
                         return ReferrerLinkTile(
                           link: link,
                           campaignPlatform: campaign.campaignPlatform,
+                          referrerLinkSource: linkItem.referrerLinkSource,
                           belowLinkWidget: _buildReferrerLinkQrWidget(linkItem),
                           onEdit: (existingLink) => _showReferrerLinkPage(
                             context,

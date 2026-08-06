@@ -744,11 +744,8 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                         collaboration.resolvedLabels['campaign_platform']
                             ?.toString() ??
                         null,
+                    referrerLinkSource: linkItem.referrerLinkSource,
                     margin: EdgeInsets.zero,
-                    leadingWidget: _buildReferrerLinkLeadingWidget(
-                      theme,
-                      linkItem,
-                    ),
                     belowLinkWidget: _buildReferrerLinkQrWidget(linkItem),
                     onEdit: canManageLinks
                         ? (_) => _addReferrerLinkForCollaboration(
@@ -1113,24 +1110,26 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
   String _referrerLinkAssetFor(ModelReferrerLink linkItem) {
     final type = linkItem.referrerLinkType.trim().toLowerCase();
     if (type == 'qrcode') {
-      return 'assets/images/qr_code.png';
+      return 'assets/images/qr_code.webp';
     }
 
     switch (linkItem.referrerLinkSource.trim().toLowerCase()) {
       case 'facebook':
-        return 'assets/images/facebook_logo.png';
+        return 'assets/images/facebook_logo.webp';
       case 'instagram':
-        return 'assets/images/instagram_logo.png';
+        return 'assets/images/instagram_logo.webp';
+      case 'whatsapp':
+        return 'assets/images/whatsapp_logo.webp';
       case 'youtube':
+        return 'assets/images/youtube_logo.webp';
       case 'google':
       case 'direct':
       case 'tiktok':
       case 'twitter':
       case 'linkedin':
-      case 'whatsapp':
-        return 'assets/images/google_logo.png';
+        return 'assets/images/google_logo.webp';
       default:
-        return 'assets/images/google_logo.png';
+        return 'assets/images/google_logo.webp';
     }
   }
 
