@@ -75,6 +75,16 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   bool get _isWebsiteCampaign =>
       widget.campaignPlatform?.trim().toLowerCase() == 'website';
 
+  static const Map<String, String> _routePathSourceMap = {
+    'pre-whatsapp': 'whatsapp',
+    'pre-youtube': 'youtube',
+    'pre-instagram': 'instagram',
+    'pre-facebook': 'facebook',
+    'gmb-review': 'google',
+    'pre-website': 'direct',
+    'lnk': 'direct',
+  };
+
   List<String> _referrerLinkSourceOptions([String? extraValue]) {
     final options = [..._baseReferrerLinkSourceOptions];
     final normalizedExtra = extraValue?.trim().toLowerCase();
@@ -156,6 +166,10 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
 
     setState(() {
       _selectedWebsiteRoutePath = value;
+      final mappedSource = _routePathSourceMap[value];
+      if (mappedSource != null) {
+        _referrerLinkSource = mappedSource;
+      }
     });
   }
 
