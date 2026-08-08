@@ -56,7 +56,8 @@
             "visibleInForm": true,
             "dropdownOptions": [
                 "plain",
-                "qrcode"
+                "qrcode",
+                "branded qrcode"
             ]
         },
         {

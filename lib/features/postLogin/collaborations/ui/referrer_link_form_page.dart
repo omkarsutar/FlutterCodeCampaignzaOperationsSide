@@ -39,7 +39,11 @@ class ReferrerLinkFormPage extends StatefulWidget {
 }
 
 class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
-  static const List<String> _referrerLinkTypeOptions = ['plain', 'qrcode'];
+  static const List<String> _referrerLinkTypeOptions = [
+    'plain',
+    'qrcode',
+    'branded qrcode',
+  ];
   static const List<String> _baseReferrerLinkSourceOptions = [
     'facebook',
     'instagram',

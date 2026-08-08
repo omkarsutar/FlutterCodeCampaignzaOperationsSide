@@ -108,6 +108,7 @@ class _CollaborationListPageRiverpodState
         ),
       ),
     );
+    if (!context.mounted) return;
 
     if (result == null || result.link.isEmpty) return;
 
@@ -189,9 +190,13 @@ class _CollaborationListPageRiverpodState
   }
 
   Widget? _buildReferrerLinkQrWidget(ModelReferrerLink linkItem) {
-    if (linkItem.referrerLinkType.trim().toLowerCase() != 'qrcode') {
-      return null;
-    }
+    final typeLower = linkItem.referrerLinkType.trim().toLowerCase();
+    final isQrType =
+        typeLower == 'qrcode' ||
+        typeLower == 'branded qrcode' ||
+        typeLower == 'branded_qrcode' ||
+        typeLower == 'branded-qrcode';
+    if (!isQrType) return null;
 
     final rawLink = linkItem.referrerLinkString.trim();
     if (rawLink.isEmpty) return null;
@@ -207,6 +212,33 @@ class _CollaborationListPageRiverpodState
       }
     } catch (_) {}
 
+    final isBranded = typeLower.contains('branded');
+    String logoAsset = 'assets/images/google_logo.webp';
+    final source = linkItem.referrerLinkSource.trim().toLowerCase();
+    switch (source) {
+      case 'facebook':
+        logoAsset = 'assets/images/facebook_logo.webp';
+        break;
+      case 'instagram':
+        logoAsset = 'assets/images/instagram_logo.webp';
+        break;
+      case 'whatsapp':
+        logoAsset = 'assets/images/whatsapp_logo.webp';
+        break;
+      case 'youtube':
+        logoAsset = 'assets/images/youtube_logo.webp';
+        break;
+      case 'google':
+      case 'direct':
+      case 'tiktok':
+      case 'twitter':
+      case 'linkedin':
+        logoAsset = 'assets/images/google_logo.webp';
+        break;
+      default:
+        logoAsset = 'assets/images/google_logo.webp';
+    }
+
     return _QrShareBlock(
       data: qrData,
       child: Container(
@@ -216,13 +248,29 @@ class _CollaborationListPageRiverpodState
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.black12),
         ),
-        child: QrImageView(
-          data: qrData,
-          version: QrVersions.auto,
-          size: 180,
-          backgroundColor: Colors.white,
-          gapless: false,
-          errorCorrectionLevel: QrErrorCorrectLevel.M,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            QrImageView(
+              data: qrData,
+              version: QrVersions.auto,
+              size: 180,
+              backgroundColor: Colors.white,
+              gapless: false,
+              errorCorrectionLevel: QrErrorCorrectLevel.M,
+            ),
+            if (isBranded)
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(6),
+                child: Image.asset(logoAsset, fit: BoxFit.contain),
+              ),
+          ],
         ),
       ),
     );
