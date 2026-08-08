@@ -110,8 +110,9 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
     final text = _baseUrlController.text.trim();
     final parsed = ParsedWebsiteUrl.parse(text);
     if (parsed.authority.isEmpty) return;
-
-    var path = parsed.fragmentPath.trim();
+    // For hash-based sites the route lives in the fragment, but for
+    // non-hash (path-based) sites the route is part of the main path.
+    var path = parsed.hasHash ? parsed.fragmentPath.trim() : parsed.path.trim();
     while (path.startsWith('/')) {
       path = path.substring(1);
     }
@@ -132,20 +133,38 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
   void _updateWebsiteRoutePath(String value) {
     final text = _baseUrlController.text.trim();
     final parsed = ParsedWebsiteUrl.parse(text);
+    // If the website is using hash-based routing keep inserting into
+    // the fragment. If it's path-based, insert/replace the main path.
+    final bool originallyHasHash = parsed.hasHash;
 
-    final String newFragPath;
+    String newPath = parsed.path;
+    String newFragPath = parsed.fragmentPath;
+    bool newHasHash = parsed.hasHash;
+
     if (value == 'none') {
-      newFragPath = '/';
+      if (originallyHasHash) {
+        newFragPath = '/';
+        newHasHash = true;
+      } else {
+        newPath = '/';
+        newHasHash = false;
+        newFragPath = '';
+      }
     } else {
-      newFragPath = '/$value';
+      if (originallyHasHash) {
+        newFragPath = '/$value';
+        newHasHash = true;
+      } else {
+        newPath = '/$value';
+        newHasHash = false;
+        newFragPath = '';
+      }
     }
-
-    final bool newHasHash = (value != 'none') ? true : parsed.hasHash;
 
     final updatedParsed = ParsedWebsiteUrl(
       scheme: parsed.scheme,
       authority: parsed.authority,
-      path: parsed.path,
+      path: newPath,
       queryParameters: parsed.queryParameters,
       hasHash: newHasHash,
       fragmentPath: newFragPath,
@@ -451,61 +470,102 @@ class _ReferrerLinkFormPageState extends State<ReferrerLinkFormPage> {
         ? Uri(queryParameters: nonUtmParams).query
         : '';
 
-    final String basePath;
     final String? highlightedFragmentPath;
     final String fragmentSuffix;
+    final List<InlineSpan> children = [];
+
     if (useFragmentForUtm) {
       final mainQuery = parsed.queryParameters.isNotEmpty
           ? '?${Uri(queryParameters: parsed.queryParameters).query}'
           : '';
       final fragQueryPart = nonUtmQuery.isNotEmpty ? '?$nonUtmQuery' : '';
-      basePath =
+      final basePath =
           '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}'
           '$mainQuery#';
       highlightedFragmentPath = parsed.fragmentPath;
       fragmentSuffix = fragQueryPart;
+
+      children.add(TextSpan(text: basePath, style: baseStyle));
+      if (highlightedFragmentPath != null && highlightedFragmentPath.isNotEmpty)
+        children.add(
+          TextSpan(text: highlightedFragmentPath, style: highlightStyle),
+        );
+      if (fragmentSuffix.isNotEmpty)
+        children.add(TextSpan(text: fragmentSuffix, style: baseStyle));
     } else {
       final queryPart = nonUtmQuery.isNotEmpty ? '?$nonUtmQuery' : '';
-      basePath =
-          '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}$queryPart';
-      highlightedFragmentPath = null;
-      fragmentSuffix = '';
+      final pathPart = parsed.path.isEmpty ? '/' : parsed.path;
+
+      // Normalize for matching against known route options (no slashes)
+      var normalizedPath = pathPart;
+      while (normalizedPath.startsWith('/'))
+        normalizedPath = normalizedPath.substring(1);
+      while (normalizedPath.endsWith('/'))
+        normalizedPath = normalizedPath.substring(0, normalizedPath.length - 1);
+
+      final shouldHighlightPath =
+          normalizedPath.isNotEmpty &&
+          _websiteRoutePathOptions.contains(normalizedPath);
+
+      if (shouldHighlightPath) {
+        // Show scheme+authority, then highlight the path, then any non-utm query
+        children.add(
+          TextSpan(
+            text: '${parsed.scheme}://${parsed.authority}',
+            style: baseStyle,
+          ),
+        );
+        children.add(TextSpan(text: pathPart, style: highlightStyle));
+        if (queryPart.isNotEmpty)
+          children.add(TextSpan(text: queryPart, style: baseStyle));
+        highlightedFragmentPath = pathPart;
+        fragmentSuffix = '';
+      } else {
+        // Nothing special to highlight in path; show full base with query
+        children.add(
+          TextSpan(
+            text: '${parsed.scheme}://${parsed.authority}$pathPart$queryPart',
+            style: baseStyle,
+          ),
+        );
+        highlightedFragmentPath = null;
+        fragmentSuffix = '';
+      }
     }
 
     final prefix = nonUtmQuery.isNotEmpty ? '&' : '?';
 
-    return TextSpan(
-      style: baseStyle,
-      children: [
-        TextSpan(text: basePath, style: baseStyle),
-        if (highlightedFragmentPath != null)
-          TextSpan(text: highlightedFragmentPath, style: highlightStyle),
-        if (fragmentSuffix.isNotEmpty)
-          TextSpan(text: fragmentSuffix, style: baseStyle),
-        TextSpan(text: prefix),
-        const TextSpan(text: 'utm_source='),
-        TextSpan(
-          text: _displayOrPlaceholder(targetParams['utm_source']),
-          style: highlightStyle,
-        ),
-        const TextSpan(text: '&utm_campaign='),
-        TextSpan(
-          text: _displayOrPlaceholder(widget.campaignNameString),
-          style: highlightStyle,
-        ),
-        const TextSpan(text: '&utm_medium='),
-        TextSpan(
-          text: _displayOrPlaceholder(
-            targetParams['utm_medium']?.trim().isNotEmpty == true
-                ? targetParams['utm_medium']
-                : (widget.promoCode?.trim().isNotEmpty == true
-                      ? _normalizePromoCode(widget.promoCode!)
-                      : _normalizeUtmValue(_mediumController.text)),
-          ),
-          style: highlightStyle,
-        ),
-      ],
+    // Add utm params after the base/path/fragment pieces
+    children.add(TextSpan(text: prefix));
+    children.add(const TextSpan(text: 'utm_source='));
+    children.add(
+      TextSpan(
+        text: _displayOrPlaceholder(targetParams['utm_source']),
+        style: highlightStyle,
+      ),
     );
+    children.add(const TextSpan(text: '&utm_campaign='));
+    children.add(
+      TextSpan(
+        text: _displayOrPlaceholder(widget.campaignNameString),
+        style: highlightStyle,
+      ),
+    );
+    children.add(const TextSpan(text: '&utm_medium='));
+    children.add(
+      TextSpan(
+        text: _displayOrPlaceholder(
+          targetParams['utm_medium']?.trim().isNotEmpty == true
+              ? targetParams['utm_medium']
+              : (widget.promoCode?.trim().isNotEmpty == true
+                    ? _normalizePromoCode(widget.promoCode!)
+                    : _normalizeUtmValue(_mediumController.text)),
+        ),
+        style: highlightStyle,
+      ),
+    );
+
+    return TextSpan(style: baseStyle, children: children);
   }
 
   TextSpan _buildHighlightedLinkSpan(ThemeData theme) {

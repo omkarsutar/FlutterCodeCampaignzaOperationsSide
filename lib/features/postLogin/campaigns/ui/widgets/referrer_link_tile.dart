@@ -30,6 +30,17 @@ class ReferrerLinkTile extends ConsumerWidget {
     this.belowLinkWidget,
   });
 
+  static const _websiteRoutePathOptions = [
+    'none',
+    'pre-whatsapp',
+    'pre-youtube',
+    'pre-instagram',
+    'pre-facebook',
+    'gmb-review',
+    'pre-website',
+    'lnk',
+  ];
+
   Uri? get _uri => Uri.tryParse(link);
 
   String get _countLookupLink => link;
@@ -287,10 +298,29 @@ class ReferrerLinkTile extends ConsumerWidget {
       fragmentSuffix = fragQueryPart;
     } else {
       final queryPart = nonUtmQuery.isNotEmpty ? '?$nonUtmQuery' : '';
-      basePath =
-          '${parsed.scheme}://${parsed.authority}${parsed.path.isEmpty ? '/' : parsed.path}$queryPart';
-      highlightedFragmentPath = null;
-      fragmentSuffix = '';
+      final pathPart = parsed.path.isEmpty ? '/' : parsed.path;
+
+      // Normalize path for matching against known route options
+      var normalizedPath = pathPart;
+      while (normalizedPath.startsWith('/'))
+        normalizedPath = normalizedPath.substring(1);
+      while (normalizedPath.endsWith('/'))
+        normalizedPath = normalizedPath.substring(0, normalizedPath.length - 1);
+
+      final bool shouldHighlightPath =
+          normalizedPath.isNotEmpty &&
+          _websiteRoutePathOptions.contains(normalizedPath);
+
+      if (shouldHighlightPath) {
+        // Show scheme+authority separately and highlight the path segment
+        basePath = '${parsed.scheme}://${parsed.authority}';
+        highlightedFragmentPath = pathPart;
+        fragmentSuffix = queryPart;
+      } else {
+        basePath = '${parsed.scheme}://${parsed.authority}$pathPart$queryPart';
+        highlightedFragmentPath = null;
+        fragmentSuffix = '';
+      }
     }
 
     final prefix = nonUtmQuery.isNotEmpty ? '&' : '?';
