@@ -265,13 +265,13 @@ class _CollaborationListPageRiverpodState
             ),
             if (isBranded)
               Container(
-                width: 48,
-                height: 48,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(4),
                 child: (logoAssetUrl != null && logoAssetUrl.isNotEmpty)
                     ? Image.network(logoAssetUrl, fit: BoxFit.contain)
                     : Image.asset(assetFallback, fit: BoxFit.contain),
