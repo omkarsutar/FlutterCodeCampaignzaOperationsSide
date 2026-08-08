@@ -189,7 +189,10 @@ class _CollaborationListPageRiverpodState
     );
   }
 
-  Widget? _buildReferrerLinkQrWidget(ModelReferrerLink linkItem) {
+  Widget? _buildReferrerLinkQrWidget(
+    ModelReferrerLink linkItem, {
+    String? brandPhotoUrl,
+  }) {
     final typeLower = linkItem.referrerLinkType.trim().toLowerCase();
     final isQrType =
         typeLower == 'qrcode' ||
@@ -213,30 +216,31 @@ class _CollaborationListPageRiverpodState
     } catch (_) {}
 
     final isBranded = typeLower.contains('branded');
-    String logoAsset = 'assets/images/google_logo.webp';
-    final source = linkItem.referrerLinkSource.trim().toLowerCase();
-    switch (source) {
-      case 'facebook':
-        logoAsset = 'assets/images/facebook_logo.webp';
-        break;
-      case 'instagram':
-        logoAsset = 'assets/images/instagram_logo.webp';
-        break;
-      case 'whatsapp':
-        logoAsset = 'assets/images/whatsapp_logo.webp';
-        break;
-      case 'youtube':
-        logoAsset = 'assets/images/youtube_logo.webp';
-        break;
-      case 'google':
-      case 'direct':
-      case 'tiktok':
-      case 'twitter':
-      case 'linkedin':
-        logoAsset = 'assets/images/google_logo.webp';
-        break;
-      default:
-        logoAsset = 'assets/images/google_logo.webp';
+    final String? logoAssetUrl = brandPhotoUrl?.trim();
+    String assetFallback = 'assets/images/google_logo.webp';
+    if (logoAssetUrl == null || logoAssetUrl.isEmpty) {
+      final source = linkItem.referrerLinkSource.trim().toLowerCase();
+      switch (source) {
+        case 'facebook':
+          assetFallback = 'assets/images/facebook_logo.webp';
+          break;
+        case 'instagram':
+          assetFallback = 'assets/images/instagram_logo.webp';
+          break;
+        case 'whatsapp':
+          assetFallback = 'assets/images/whatsapp_logo.webp';
+          break;
+        case 'youtube':
+          assetFallback = 'assets/images/youtube_logo.webp';
+          break;
+        case 'google':
+        case 'direct':
+        case 'tiktok':
+        case 'twitter':
+        case 'linkedin':
+        default:
+          assetFallback = 'assets/images/google_logo.webp';
+      }
     }
 
     return _QrShareBlock(
@@ -268,7 +272,9 @@ class _CollaborationListPageRiverpodState
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.all(6),
-                child: Image.asset(logoAsset, fit: BoxFit.contain),
+                child: (logoAssetUrl != null && logoAssetUrl.isNotEmpty)
+                    ? Image.network(logoAssetUrl, fit: BoxFit.contain)
+                    : Image.asset(assetFallback, fit: BoxFit.contain),
               ),
           ],
         ),
@@ -355,6 +361,11 @@ class _CollaborationListPageRiverpodState
     final linksAsync = ref.watch(
       referrerLinksForCampaignProvider(campaign.poId!),
     );
+    final AsyncValue<dynamic> brandAsync =
+        (campaign.campaignBrandId != null &&
+            campaign.campaignBrandId!.isNotEmpty)
+        ? ref.watch(brandByIdProvider(campaign.campaignBrandId!))
+        : const AsyncValue.data(null);
 
     return Column(
       children: [
@@ -387,11 +398,15 @@ class _CollaborationListPageRiverpodState
                       delegate: SliverChildBuilderDelegate((context, index) {
                         final linkItem = links[index];
                         final link = linkItem.referrerLinkString;
+                        final brand = brandAsync.value;
                         return ReferrerLinkTile(
                           link: link,
                           campaignPlatform: campaign.campaignPlatform,
                           referrerLinkSource: linkItem.referrerLinkSource,
-                          belowLinkWidget: _buildReferrerLinkQrWidget(linkItem),
+                          belowLinkWidget: _buildReferrerLinkQrWidget(
+                            linkItem,
+                            brandPhotoUrl: brand?.brandPhotoUrl?.toString(),
+                          ),
                           onEdit: (existingLink) => _showReferrerLinkPage(
                             context,
                             ref,

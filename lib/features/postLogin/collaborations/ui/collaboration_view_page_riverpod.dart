@@ -639,6 +639,9 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
         collaboration.collaborationId ?? '',
       ),
     );
+    final brandAsync = ref.watch(
+      collaborationParentBrandProvider(collaboration.collaborationId ?? ''),
+    );
 
     // Influencers can only view referrer links and only after they have
     // accepted the collaboration. Everyone else sees the full management UI.
@@ -737,6 +740,7 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final linkItem = links[index];
+                  final brand = brandAsync.value;
                   return ReferrerLinkTile(
                     link: linkItem.referrerLinkString,
                     title: _buildReferrerLinkTitle(linkItem),
@@ -746,7 +750,10 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                         null,
                     referrerLinkSource: linkItem.referrerLinkSource,
                     margin: EdgeInsets.zero,
-                    belowLinkWidget: _buildReferrerLinkQrWidget(linkItem),
+                    belowLinkWidget: _buildReferrerLinkQrWidget(
+                      linkItem,
+                      brandPhotoUrl: brand?.brandPhotoUrl?.toString(),
+                    ),
                     onEdit: canManageLinks
                         ? (_) => _addReferrerLinkForCollaboration(
                             context,
@@ -1065,7 +1072,10 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     );
   }
 
-  Widget? _buildReferrerLinkQrWidget(ModelReferrerLink linkItem) {
+  Widget? _buildReferrerLinkQrWidget(
+    ModelReferrerLink linkItem, {
+    String? brandPhotoUrl,
+  }) {
     final typeLower = linkItem.referrerLinkType.trim().toLowerCase();
     final isQrType =
         typeLower == 'qrcode' ||
@@ -1091,31 +1101,32 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
     } catch (_) {}
 
     final isBranded = typeLower.contains('branded');
-    // For branded QR overlay use the source logo (not the generic qr icon)
-    String logoAsset = 'assets/images/google_logo.webp';
-    final source = linkItem.referrerLinkSource.trim().toLowerCase();
-    switch (source) {
-      case 'facebook':
-        logoAsset = 'assets/images/facebook_logo.webp';
-        break;
-      case 'instagram':
-        logoAsset = 'assets/images/instagram_logo.webp';
-        break;
-      case 'whatsapp':
-        logoAsset = 'assets/images/whatsapp_logo.webp';
-        break;
-      case 'youtube':
-        logoAsset = 'assets/images/youtube_logo.webp';
-        break;
-      case 'google':
-      case 'direct':
-      case 'tiktok':
-      case 'twitter':
-      case 'linkedin':
-        logoAsset = 'assets/images/google_logo.webp';
-        break;
-      default:
-        logoAsset = 'assets/images/google_logo.webp';
+    // Prefer brand photo URL when provided; otherwise fall back to source icon assets
+    final String? logoAssetUrl = brandPhotoUrl?.trim();
+    String assetFallback = 'assets/images/google_logo.webp';
+    if (logoAssetUrl == null || logoAssetUrl.isEmpty) {
+      final source = linkItem.referrerLinkSource.trim().toLowerCase();
+      switch (source) {
+        case 'facebook':
+          assetFallback = 'assets/images/facebook_logo.webp';
+          break;
+        case 'instagram':
+          assetFallback = 'assets/images/instagram_logo.webp';
+          break;
+        case 'whatsapp':
+          assetFallback = 'assets/images/whatsapp_logo.webp';
+          break;
+        case 'youtube':
+          assetFallback = 'assets/images/youtube_logo.webp';
+          break;
+        case 'google':
+        case 'direct':
+        case 'tiktok':
+        case 'twitter':
+        case 'linkedin':
+        default:
+          assetFallback = 'assets/images/google_logo.webp';
+      }
     }
 
     return _QrShareBlock(
@@ -1147,7 +1158,9 @@ class CollaborationViewPageRiverpod extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.all(6),
-                child: Image.asset(logoAsset, fit: BoxFit.contain),
+                child: (logoAssetUrl != null && logoAssetUrl.isNotEmpty)
+                    ? Image.network(logoAssetUrl, fit: BoxFit.contain)
+                    : Image.asset(assetFallback, fit: BoxFit.contain),
               ),
           ],
         ),
